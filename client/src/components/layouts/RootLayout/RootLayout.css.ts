@@ -1,4 +1,4 @@
-import { style } from "@vanilla-extract/css";
+import { style, globalStyle } from "@vanilla-extract/css";
 
 const styles = {
   root: style({
@@ -61,11 +61,6 @@ const styles = {
       backgroundColor: "rgba(212, 175, 55, 0.1)",
       borderLeftColor: "#d4af37",
     },
-    selectors: {
-      "&:hover span": {
-        opacity: 1,
-      },
-    },
   }),
 
   tooltip: style({
@@ -92,5 +87,9 @@ const styles = {
     overflowY: "auto",
   }),
 };
+
+globalStyle(`${styles.navLink}:hover span`, {
+  opacity: 1,
+});
 
 export default styles;

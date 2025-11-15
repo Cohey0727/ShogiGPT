@@ -96,6 +96,8 @@ export interface Board {
 export interface PieceProperties {
   /** 駒の日本語表記 */
   name: string;
+  /** 駒の画像ファイル名 */
+  image: string;
   /** 成った後の駒（undefined = 成れない） */
   promoted?: PieceType;
   /** 成る前の駒（undefined = 成り駒ではない） */
@@ -108,56 +110,70 @@ export interface PieceProperties {
 export const pieceProperties: Record<PieceType, PieceProperties> = {
   [PieceType.King]: {
     name: "王",
+    image: "king.png",
   },
   [PieceType.Rook]: {
     name: "飛",
+    image: "rook.png",
     promoted: PieceType.PromotedRook,
   },
   [PieceType.Bishop]: {
     name: "角",
+    image: "bishop.png",
     promoted: PieceType.PromotedBishop,
   },
   [PieceType.Gold]: {
     name: "金",
+    image: "gold.png",
   },
   [PieceType.Silver]: {
     name: "銀",
+    image: "silver.png",
     promoted: PieceType.PromotedSilver,
   },
   [PieceType.Knight]: {
     name: "桂",
+    image: "knight.png",
     promoted: PieceType.PromotedKnight,
   },
   [PieceType.Lance]: {
     name: "香",
+    image: "lance.png",
     promoted: PieceType.PromotedLance,
   },
   [PieceType.Pawn]: {
     name: "歩",
+    image: "pawn.png",
     promoted: PieceType.PromotedPawn,
   },
   [PieceType.PromotedRook]: {
     name: "竜",
+    image: "promoted_rook.png",
     unpromoted: PieceType.Rook,
   },
   [PieceType.PromotedBishop]: {
     name: "馬",
+    image: "promoted_bishop.png",
     unpromoted: PieceType.Bishop,
   },
   [PieceType.PromotedSilver]: {
     name: "成銀",
+    image: "promoted_silver.png",
     unpromoted: PieceType.Silver,
   },
   [PieceType.PromotedKnight]: {
     name: "成桂",
+    image: "promoted_knight.png",
     unpromoted: PieceType.Knight,
   },
   [PieceType.PromotedLance]: {
     name: "成香",
+    image: "promoted_lance.png",
     unpromoted: PieceType.Lance,
   },
   [PieceType.PromotedPawn]: {
     name: "と",
+    image: "promoted_pawn.png",
     unpromoted: PieceType.Pawn,
   },
 };

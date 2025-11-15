@@ -1,4 +1,5 @@
-import { Board, Cell, PieceType, Player } from "../consts/shogi";
+import { PieceType, Player } from "../shared/consts";
+import type { Board, Cell } from "../shared/consts";
 
 /**
  * 初期盤面を生成

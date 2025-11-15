@@ -1,4 +1,5 @@
-import { Board, Player, pieceProperties } from "../../consts/shogi";
+import { Player, pieceProperties } from "../../shared/consts";
+import type { Board } from "../../shared/consts";
 import styles from "./ShogiBoard.css";
 
 interface ShogiBoardProps {

@@ -43,6 +43,9 @@ lint:
 
 # Generate GraphQL types
 codegen:
+	@echo "Fetching OpenAPI spec from shogi-ai..."
+	curl -s http://localhost:8000/openapi.json | jq '.' > shogi-ai/openapi.json
+	@echo "Saved to shogi-ai/openapi.json"
 	cd {{server_dir}} && bun run codegen
 	cd {{client_dir}} && bun run codegen
 

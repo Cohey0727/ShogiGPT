@@ -1,0 +1,513 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "YaneuraOu + Suisho5 Shogi API",
+    "description": "将棋エンジンやねうら王（水匠5評価関数）のREST API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "Root"
+        ],
+        "summary": "Root",
+        "description": "APIルート",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health Check",
+        "description": "ヘルスチェックエンドポイント",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/engine/info": {
+      "get": {
+        "tags": [
+          "Engine"
+        ],
+        "summary": "Get Engine Info",
+        "description": "エンジン情報を取得",
+        "operationId": "get_engine_info_engine_info_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineInfoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analyze": {
+      "post": {
+        "tags": [
+          "Analysis"
+        ],
+        "summary": "Analyze Position",
+        "description": "局面を解析して最善手と候補手を返す\n\n- **sfen**: SFEN形式の局面（省略時は平手初期局面）\n- **moves**: 初期局面からの指し手リスト\n- **time_ms**: 思考時間（ミリ秒）\n- **depth**: 探索深さ（指定時は固定深さ探索）\n- **multipv**: 候補手の数（1-10）",
+        "operationId": "analyze_position_analyze_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalysisRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mate": {
+      "post": {
+        "tags": [
+          "Analysis"
+        ],
+        "summary": "Search Mate",
+        "description": "詰み探索を実行\n\n- **sfen**: SFEN形式の局面\n- **moves**: 初期局面からの指し手リスト\n- **time_ms**: 詰み探索時間（ミリ秒）",
+        "operationId": "search_mate_mate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MateSearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MateSearchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalysisRequest": {
+        "properties": {
+          "sfen": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sfen",
+            "description": "SFEN形式の局面文字列"
+          },
+          "moves": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Moves",
+            "description": "初期局面からの指し手リスト（USI形式）"
+          },
+          "time_ms": {
+            "type": "integer",
+            "maximum": 60000.0,
+            "minimum": 100.0,
+            "title": "Time Ms",
+            "description": "思考時間（ミリ秒）",
+            "default": 1000
+          },
+          "depth": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 30.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Depth",
+            "description": "探索深さ（指定時はtime_msを無視）"
+          },
+          "multipv": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Multipv",
+            "description": "候補手の数（MultiPV）",
+            "default": 1
+          }
+        },
+        "type": "object",
+        "title": "AnalysisRequest",
+        "description": "局面解析リクエスト",
+        "examples": [
+          {
+            "multipv": 3,
+            "sfen": "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1",
+            "time_ms": 3000
+          }
+        ]
+      },
+      "AnalysisResponse": {
+        "properties": {
+          "bestmove": {
+            "type": "string",
+            "title": "Bestmove",
+            "description": "最善手（USI形式）"
+          },
+          "variations": {
+            "items": {
+              "$ref": "#/components/schemas/MoveInfo"
+            },
+            "type": "array",
+            "title": "Variations",
+            "description": "候補手リスト（MultiPV）"
+          },
+          "time_ms": {
+            "type": "integer",
+            "title": "Time Ms",
+            "description": "実際の思考時間"
+          },
+          "engine_name": {
+            "type": "string",
+            "title": "Engine Name",
+            "description": "エンジン名"
+          }
+        },
+        "type": "object",
+        "required": [
+          "bestmove",
+          "variations",
+          "time_ms",
+          "engine_name"
+        ],
+        "title": "AnalysisResponse",
+        "description": "局面解析レスポンス"
+      },
+      "EngineInfoResponse": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "author": {
+            "type": "string",
+            "title": "Author"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "options": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Options"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "author",
+          "version",
+          "options"
+        ],
+        "title": "EngineInfoResponse",
+        "description": "エンジン情報レスポンス"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "MateSearchRequest": {
+        "properties": {
+          "sfen": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sfen",
+            "description": "SFEN形式の局面文字列"
+          },
+          "moves": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Moves",
+            "description": "初期局面からの指し手リスト"
+          },
+          "time_ms": {
+            "type": "integer",
+            "maximum": 30000.0,
+            "minimum": 1000.0,
+            "title": "Time Ms",
+            "description": "詰み探索時間（ミリ秒）",
+            "default": 5000
+          }
+        },
+        "type": "object",
+        "title": "MateSearchRequest",
+        "description": "詰み探索リクエスト"
+      },
+      "MateSearchResponse": {
+        "properties": {
+          "mate_found": {
+            "type": "boolean",
+            "title": "Mate Found",
+            "description": "詰みが見つかったか"
+          },
+          "mate_moves": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mate Moves",
+            "description": "詰み手順（USI形式）"
+          },
+          "mate_length": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mate Length",
+            "description": "詰みまでの手数"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "メッセージ"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mate_found"
+        ],
+        "title": "MateSearchResponse",
+        "description": "詰み探索レスポンス"
+      },
+      "MoveInfo": {
+        "properties": {
+          "move": {
+            "type": "string",
+            "title": "Move",
+            "description": "指し手（USI形式）"
+          },
+          "score_cp": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score Cp",
+            "description": "評価値（センチポーン）"
+          },
+          "score_mate": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score Mate",
+            "description": "詰みまでの手数（プライ数）"
+          },
+          "depth": {
+            "type": "integer",
+            "title": "Depth",
+            "description": "探索深さ"
+          },
+          "nodes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nodes",
+            "description": "探索ノード数"
+          },
+          "pv": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv",
+            "description": "読み筋（PV）"
+          }
+        },
+        "type": "object",
+        "required": [
+          "move",
+          "depth"
+        ],
+        "title": "MoveInfo",
+        "description": "1つの候補手情報"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin";
+import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -8,11 +9,17 @@ export default defineConfig({
     vanillaExtractPlugin(),
     react({
       babel: {
-        plugins: [['babel-plugin-react-compiler']],
+        plugins: [["babel-plugin-react-compiler"]],
       },
     }),
   ],
+  resolve: {
+    preserveSymlinks: true,
+    alias: {
+      "@shared": path.resolve(__dirname, "../server/src/shared"),
+    },
+  },
   server: {
     port: 3030,
   },
-})
+});

@@ -22,23 +22,29 @@ const styles = {
     default: style({
       backgroundColor: "#3b82f6",
       color: "white",
-      ":hover:not(:disabled)": {
-        backgroundColor: "#2563eb",
+      selectors: {
+        "&:hover:not(:disabled)": {
+          backgroundColor: "#2563eb",
+        },
       },
     }),
     outline: style({
       backgroundColor: "transparent",
       border: "1px solid #e5e7eb",
       color: "#374151",
-      ":hover:not(:disabled)": {
-        backgroundColor: "#f9fafb",
+      selectors: {
+        "&:hover:not(:disabled)": {
+          backgroundColor: "#f9fafb",
+        },
       },
     }),
     ghost: style({
       backgroundColor: "transparent",
       color: "#374151",
-      ":hover:not(:disabled)": {
-        backgroundColor: "#f9fafb",
+      selectors: {
+        "&:hover:not(:disabled)": {
+          backgroundColor: "#f9fafb",
+        },
       },
     }),
   },

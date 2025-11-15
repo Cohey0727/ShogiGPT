@@ -1,9 +1,14 @@
 import { Link, useParams } from "wouter";
+import { ShogiBoard } from "../../components/ShogiBoard";
+import { createInitialBoard } from "../../utils/shogi";
 import styles from "./MatchDetailPage.css";
 
 export function MatchDetailPage() {
   const params = useParams<{ matchId: string }>();
   const matchId = params.matchId;
+
+  // 初期盤面を生成
+  const board = createInitialBoard();
 
   // ダミーデータ
   const matchData = {
@@ -13,17 +18,12 @@ export function MatchDetailPage() {
     status: "進行中",
     date: "2025-01-15",
     time: "14:30",
-    moves: 42,
+    moves: 0,
     currentTurn: "先手",
   };
 
   const moves = [
-    "1. ☗7六歩",
-    "2. ☖3四歩",
-    "3. ☗2六歩",
-    "4. ☖8四歩",
-    "5. ☗2五歩",
-    "...",
+    "対局開始",
   ];
 
   return (
@@ -41,7 +41,7 @@ export function MatchDetailPage() {
 
       <div className={styles.content}>
         <div className={styles.boardSection}>
-          <div className={styles.board}>将棋盤（実装予定）</div>
+          <ShogiBoard board={board} />
           <div className={styles.controls}>
             <button className={styles.controlButton}>⏮ 最初</button>
             <button className={styles.controlButton}>◀ 前へ</button>

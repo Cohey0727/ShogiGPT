@@ -1,0 +1,1 @@
+export { ShogiBoard } from "./ShogiBoard";

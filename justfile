@@ -17,3 +17,7 @@ build:
 # Serve built assets (make sure to run `just build` first)
 start:
 	cd {{client_dir}} && bun run start
+
+# Run linter
+lint:
+	cd {{client_dir}} && bun run lint

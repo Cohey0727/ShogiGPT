@@ -14,13 +14,13 @@ export function ShogiBoard({ board }: ShogiBoardProps) {
           row.map((cell, colIndex) => (
             <div key={`${rowIndex}-${colIndex}`} className={styles.cell}>
               {cell && (
-                <span
+                <img
+                  src={pieceProperties[cell.type].image}
+                  alt={pieceProperties[cell.type].name}
                   className={`${styles.piece} ${
                     cell.player === Player.Gote ? styles.gote : ""
                   }`}
-                >
-                  {pieceProperties[cell.type].name}
-                </span>
+                />
               )}
             </div>
           ))

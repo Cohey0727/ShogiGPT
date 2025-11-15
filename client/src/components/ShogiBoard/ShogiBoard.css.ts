@@ -39,6 +39,9 @@ const styles = {
 
   piece: style({
     userSelect: "none",
+    width: "80%",
+    height: "80%",
+    objectFit: "contain",
   }),
 
   gote: style({

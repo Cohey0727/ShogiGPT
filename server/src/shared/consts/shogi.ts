@@ -110,70 +110,70 @@ export interface PieceProperties {
 export const pieceProperties: Record<PieceType, PieceProperties> = {
   [PieceType.King]: {
     name: "王",
-    image: "king.png",
+    image: "/assets/pieces/king.png",
   },
   [PieceType.Rook]: {
     name: "飛",
-    image: "rook.png",
+    image: "/assets/pieces/rook.png",
     promoted: PieceType.PromotedRook,
   },
   [PieceType.Bishop]: {
     name: "角",
-    image: "bishop.png",
+    image: "/assets/pieces/bishop.png",
     promoted: PieceType.PromotedBishop,
   },
   [PieceType.Gold]: {
     name: "金",
-    image: "gold.png",
+    image: "/assets/pieces/gold.png",
   },
   [PieceType.Silver]: {
     name: "銀",
-    image: "silver.png",
+    image: "/assets/pieces/silver.png",
     promoted: PieceType.PromotedSilver,
   },
   [PieceType.Knight]: {
     name: "桂",
-    image: "knight.png",
+    image: "/assets/pieces/knight.png",
     promoted: PieceType.PromotedKnight,
   },
   [PieceType.Lance]: {
     name: "香",
-    image: "lance.png",
+    image: "/assets/pieces/lance.png",
     promoted: PieceType.PromotedLance,
   },
   [PieceType.Pawn]: {
     name: "歩",
-    image: "pawn.png",
+    image: "/assets/pieces/pawn.png",
     promoted: PieceType.PromotedPawn,
   },
   [PieceType.PromotedRook]: {
     name: "竜",
-    image: "promoted_rook.png",
+    image: "/assets/pieces/promoted_rook.png",
     unpromoted: PieceType.Rook,
   },
   [PieceType.PromotedBishop]: {
     name: "馬",
-    image: "promoted_bishop.png",
+    image: "/assets/pieces/promoted_bishop.png",
     unpromoted: PieceType.Bishop,
   },
   [PieceType.PromotedSilver]: {
     name: "成銀",
-    image: "promoted_silver.png",
+    image: "/assets/pieces/promoted_silver.png",
     unpromoted: PieceType.Silver,
   },
   [PieceType.PromotedKnight]: {
     name: "成桂",
-    image: "promoted_knight.png",
+    image: "/assets/pieces/promoted_knight.png",
     unpromoted: PieceType.Knight,
   },
   [PieceType.PromotedLance]: {
     name: "成香",
-    image: "promoted_lance.png",
+    image: "/assets/pieces/promoted_lance.png",
     unpromoted: PieceType.Lance,
   },
   [PieceType.PromotedPawn]: {
     name: "と",
-    image: "promoted_pawn.png",
+    image: "/assets/pieces/promoted_pawn.png",
     unpromoted: PieceType.Pawn,
   },
 };

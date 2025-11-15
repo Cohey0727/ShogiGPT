@@ -44,6 +44,7 @@ lint:
 # Generate GraphQL types
 codegen:
 	cd {{server_dir}} && bun run codegen
+	cd {{client_dir}} && bun run codegen
 
 # Reset database (WARNING: deletes all data)
 db-reset:

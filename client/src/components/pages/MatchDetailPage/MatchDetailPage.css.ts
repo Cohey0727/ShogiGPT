@@ -2,56 +2,46 @@ import { style } from "@vanilla-extract/css";
 
 const styles = {
   container: style({
-    minHeight: "100vh",
+    height: "100vh",
+    width: "100vw",
+    overflow: "hidden",
     background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
-    padding: "2rem",
-  }),
-
-  header: style({
-    maxWidth: "1200px",
-    margin: "0 auto 2rem",
-  }),
-
-  matchId: style({
-    fontSize: "1rem",
-    color: "#d4af37",
-    fontWeight: "600",
-    marginBottom: "0.5rem",
-  }),
-
-  title: style({
-    fontSize: "2rem",
-    fontWeight: "bold",
-    color: "#f5f5f5",
-    marginBottom: "1rem",
   }),
 
   content: style({
-    maxWidth: "1200px",
-    margin: "0 auto",
     display: "grid",
-    gridTemplateColumns: "2fr 1fr",
-    gap: "2rem",
+    gridTemplateColumns: "1fr 2fr",
+    height: "100vh",
+    width: "100vw",
+    "@media": {
+      "(max-width: 1024px)": {
+        gridTemplateColumns: "1fr",
+        gridTemplateRows: "1fr 1fr",
+      },
+    },
+  }),
+
+  chatSection: style({
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+    borderRight: "1px solid rgba(212, 175, 55, 0.15)",
+    "@media": {
+      "(max-width: 1024px)": {
+        borderRight: "none",
+        borderBottom: "1px solid rgba(212, 175, 55, 0.15)",
+      },
+    },
   }),
 
   boardSection: style({
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    border: "1px solid rgba(212, 175, 55, 0.2)",
-    borderRadius: "0.5rem",
-    padding: "2rem",
-  }),
-
-  board: style({
-    aspectRatio: "1",
-    backgroundColor: "#d4a574",
-    borderRadius: "0.5rem",
     display: "flex",
-    alignItems: "center",
+    flexDirection: "column",
     justifyContent: "center",
-    fontSize: "1.5rem",
-    color: "#1a1a1a",
-    fontWeight: "bold",
-    marginBottom: "1rem",
+    alignItems: "center",
+    height: "100%",
+    padding: "2rem",
+    gap: "2rem",
   }),
 
   controls: style({
@@ -72,78 +62,6 @@ const styles = {
     transition: "all 0.2s ease",
     ":hover": {
       backgroundColor: "rgba(212, 175, 55, 0.3)",
-    },
-  }),
-
-  infoSection: style({
-    display: "flex",
-    flexDirection: "column",
-    gap: "1rem",
-  }),
-
-  infoCard: style({
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    border: "1px solid rgba(212, 175, 55, 0.2)",
-    borderRadius: "0.5rem",
-    padding: "1.5rem",
-  }),
-
-  infoTitle: style({
-    fontSize: "1.125rem",
-    fontWeight: "600",
-    color: "#d4af37",
-    marginBottom: "1rem",
-  }),
-
-  infoRow: style({
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "0.75rem 0",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-    ":last-child": {
-      borderBottom: "none",
-    },
-  }),
-
-  infoLabel: style({
-    color: "#b0b0b0",
-    fontSize: "0.875rem",
-  }),
-
-  infoValue: style({
-    color: "#f5f5f5",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-  }),
-
-  moveList: style({
-    maxHeight: "300px",
-    overflowY: "auto",
-    fontSize: "0.875rem",
-  }),
-
-  move: style({
-    padding: "0.5rem",
-    color: "#b0b0b0",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-    ":hover": {
-      backgroundColor: "rgba(255, 255, 255, 0.05)",
-    },
-  }),
-
-  backButton: style({
-    padding: "0.75rem 1.5rem",
-    fontSize: "1rem",
-    fontWeight: "500",
-    background: "transparent",
-    color: "#d4af37",
-    border: "2px solid #d4af37",
-    borderRadius: "0.5rem",
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-    marginBottom: "2rem",
-    ":hover": {
-      backgroundColor: "rgba(212, 175, 55, 0.1)",
     },
   }),
 };

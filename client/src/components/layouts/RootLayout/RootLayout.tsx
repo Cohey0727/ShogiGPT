@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { type ReactNode } from "react";
+import { HomeIcon, LayersIcon, GearIcon } from "@radix-ui/react-icons";
 import styles from "./RootLayout.css";
 
 interface RootLayoutProps {
@@ -9,21 +10,21 @@ interface RootLayoutProps {
 export function RootLayout({ children }: RootLayoutProps) {
   return (
     <div className={styles.root}>
-      <header className={styles.header}>
+      <aside className={styles.sidebar}>
+        <Link href="/" className={styles.logo}>
+          <HomeIcon width={24} height={24} />
+        </Link>
         <nav className={styles.nav}>
-          <Link href="/">
-            <a className={styles.logo}>将棋</a>
+          <Link href="/matches" className={styles.navLink}>
+            <LayersIcon width={20} height={20} />
+            <span className={styles.tooltip}>対局一覧</span>
           </Link>
-          <div className={styles.navLinks}>
-            <Link href="/matches">
-              <a className={styles.navLink}>対局一覧</a>
-            </Link>
-            <Link href="/settings">
-              <a className={styles.navLink}>設定</a>
-            </Link>
-          </div>
+          <Link href="/settings" className={styles.navLink}>
+            <GearIcon width={20} height={20} />
+            <span className={styles.tooltip}>設定</span>
+          </Link>
         </nav>
-      </header>
+      </aside>
       <main className={styles.main}>{children}</main>
     </div>
   );

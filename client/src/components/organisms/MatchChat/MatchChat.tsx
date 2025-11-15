@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { MessageBubble } from "../MessageBubble";
 import styles from "./MatchChat.css";
 
 export interface ChatMessage {
@@ -14,7 +15,7 @@ interface MatchChatProps {
   currentUser?: string;
 }
 
-export function MatchChat({ matchId, currentUser = "あなた" }: MatchChatProps) {
+export function MatchChat({ currentUser = "あなた" }: MatchChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "1",
@@ -54,26 +55,17 @@ export function MatchChat({ matchId, currentUser = "あなた" }: MatchChatProps
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h3 className={styles.title}>チャット</h3>
-        <span className={styles.matchId}>#{matchId}</span>
-      </div>
-
       <div className={styles.messagesContainer}>
         {messages.map((msg) => (
-          <div
+          <MessageBubble
             key={msg.id}
-            className={
-              msg.isCurrentUser ? styles.messageOwn : styles.messageOther
-            }
-          >
-            <div className={styles.messageSender}>{msg.sender}</div>
-            <div className={styles.messageContent}>{msg.message}</div>
-            <div className={styles.messageTime}>{msg.timestamp}</div>
-          </div>
+            sender={msg.sender}
+            message={msg.message}
+            timestamp={msg.timestamp}
+            isCurrentUser={msg.isCurrentUser}
+          />
         ))}
       </div>
-
       <form className={styles.inputContainer} onSubmit={handleSendMessage}>
         <input
           type="text"

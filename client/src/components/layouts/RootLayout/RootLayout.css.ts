@@ -6,7 +6,12 @@ const styles = {
     overflow: "hidden",
     background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
     display: "flex",
-    flexDirection: "row",
+    flexDirection: "column",
+    "@media": {
+      "(min-width: 769px)": {
+        flexDirection: "row",
+      },
+    },
   }),
 
   sidebar: style({
@@ -17,11 +22,16 @@ const styles = {
     backgroundColor: "rgba(0, 0, 0, 0.3)",
     borderRight: "1px solid rgba(212, 175, 55, 0.2)",
     padding: "2rem 0",
-    display: "flex",
+    display: "none",
     flexDirection: "column",
     gap: "2rem",
     alignItems: "center",
     overflowY: "auto",
+    "@media": {
+      "(min-width: 769px)": {
+        display: "flex",
+      },
+    },
   }),
 
   logo: style({
@@ -35,6 +45,12 @@ const styles = {
     ":hover": {
       color: "#f4e5a1",
     },
+  }),
+
+  logoText: style({
+    display: "none",
+    fontSize: "1rem",
+    fontWeight: "500",
   }),
 
   nav: style({
@@ -83,8 +99,13 @@ const styles = {
     flex: 1,
     display: "flex",
     flexDirection: "column",
-    height: "100vh",
+    height: "calc(100vh - 60px)",
     overflowY: "auto",
+    "@media": {
+      "(min-width: 769px)": {
+        height: "100vh",
+      },
+    },
   }),
 };
 

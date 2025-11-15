@@ -1,13 +1,8 @@
-import { Link } from "wouter";
 import styles from "./SettingsPage.css";
 
 export function SettingsPage() {
   return (
     <div className={styles.container}>
-      <Link href="/">
-        <button className={styles.backButton}>← ホームに戻る</button>
-      </Link>
-
       <div className={styles.header}>
         <h1 className={styles.title}>設定</h1>
         <p className={styles.subtitle}>

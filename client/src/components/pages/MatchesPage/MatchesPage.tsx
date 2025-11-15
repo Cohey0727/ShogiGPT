@@ -32,13 +32,11 @@ const matches = [
 export function MatchesPage() {
   return (
     <div className={styles.container}>
-      <Link href="/">
-        <button className={styles.backButton}>← ホームに戻る</button>
-      </Link>
-
       <div className={styles.header}>
         <h1 className={styles.title}>対局一覧</h1>
-        <p className={styles.subtitle}>進行中の対局と過去の対局を確認できます</p>
+        <p className={styles.subtitle}>
+          進行中の対局と過去の対局を確認できます
+        </p>
       </div>
 
       <div className={styles.matchList}>

@@ -9,14 +9,13 @@ const styles = {
   }),
 
   content: style({
-    display: "grid",
-    gridTemplateColumns: "1fr 2fr",
+    display: "flex",
+    flexDirection: "row",
     height: "100vh",
     width: "100vw",
     "@media": {
       "(max-width: 1024px)": {
-        gridTemplateColumns: "1fr",
-        gridTemplateRows: "1fr 1fr",
+        flexDirection: "column",
       },
     },
   }),
@@ -24,10 +23,13 @@ const styles = {
   chatSection: style({
     display: "flex",
     flexDirection: "column",
+    width: "400px",
     height: "100%",
     borderRight: "1px solid rgba(212, 175, 55, 0.15)",
     "@media": {
       "(max-width: 1024px)": {
+        width: "100%",
+        minWidth: "auto",
         borderRight: "none",
         borderBottom: "1px solid rgba(212, 175, 55, 0.15)",
       },
@@ -35,34 +37,11 @@ const styles = {
   }),
 
   boardSection: style({
+    flex: 1,
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    height: "100%",
-    padding: "2rem",
-    gap: "2rem",
-  }),
-
-  controls: style({
-    display: "flex",
-    gap: "0.5rem",
-    justifyContent: "center",
-  }),
-
-  controlButton: style({
-    padding: "0.5rem 1rem",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    background: "rgba(212, 175, 55, 0.2)",
-    color: "#d4af37",
-    border: "1px solid #d4af37",
-    borderRadius: "0.375rem",
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-    ":hover": {
-      backgroundColor: "rgba(212, 175, 55, 0.3)",
-    },
   }),
 };
 

@@ -1,13 +1,6 @@
 import { style } from "@vanilla-extract/css";
 
 const styles = {
-  container: style({
-    display: "flex",
-    flexDirection: "column",
-    gap: "1rem",
-    alignItems: "center",
-  }),
-
   board: style({
     display: "grid",
     gridTemplateColumns: "repeat(9, 1fr)",
@@ -17,8 +10,7 @@ const styles = {
     padding: "1px",
     borderRadius: "0.5rem",
     aspectRatio: "1",
-    maxWidth: "600px",
-    width: "100%",
+    height: "100%",
   }),
 
   cell: style({
@@ -67,23 +59,31 @@ const styles = {
     transform: "rotate(180deg)",
   }),
 
-  info: style({
-    display: "flex",
-    gap: "2rem",
-    width: "100%",
-    maxWidth: "600px",
-  }),
-
   captured: style({
-    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem",
     padding: "1rem",
     backgroundColor: "rgba(255, 255, 255, 0.05)",
     border: "1px solid rgba(212, 175, 55, 0.2)",
     borderRadius: "0.5rem",
+    width: "100%",
+  }),
+
+  capturedGote: style({
+    gridColumn: "1 / 2",
+    gridRow: "1 / 2",
+    alignSelf: "start",
+  }),
+
+  capturedSente: style({
+    gridColumn: "3 / 4",
+    gridRow: "3 / 4",
+    alignSelf: "end",
   }),
 
   capturedTitle: style({
-    fontSize: "0.875rem",
+    fontSize: "0.75rem",
     fontWeight: "600",
     color: "#d4af37",
     marginBottom: "0.5rem",
@@ -99,13 +99,6 @@ const styles = {
   capturedPiece: style({
     fontSize: "1rem",
     color: "#f5f5f5",
-  }),
-
-  turn: style({
-    fontSize: "1rem",
-    fontWeight: "600",
-    color: "#f5f5f5",
-    textAlign: "center",
   }),
 };
 

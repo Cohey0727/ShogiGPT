@@ -20,12 +20,6 @@ export function MatchDetailPage() {
 
         <div className={styles.boardSection}>
           <ShogiBoard board={board} />
-          <div className={styles.controls}>
-            <button className={styles.controlButton}>⏮ 最初</button>
-            <button className={styles.controlButton}>◀ 前へ</button>
-            <button className={styles.controlButton}>▶ 次へ</button>
-            <button className={styles.controlButton}>⏭ 最後</button>
-          </div>
         </div>
       </div>
     </div>

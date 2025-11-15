@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["bun"],
+    "allowImportingTsExtensions": false,
+    "verbatimModuleSyntax": true,
+    "outDir": "dist"
+  },
+  "include": ["src"]
+}

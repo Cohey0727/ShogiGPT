@@ -5,11 +5,8 @@ export function HomePage() {
   return (
     <div className={styles.container}>
       <div className={styles.hero}>
-        <h1 className={styles.kanji}>将棋</h1>
         <h2 className={styles.title}>ShogiGPT</h2>
-        <p className={styles.subtitle}>
-          AIと一緒に将棋を楽しもう
-        </p>
+        <p className={styles.subtitle}>AIと一緒に将棋を楽しもう</p>
 
         <div className={styles.buttonContainer}>
           <Link href="/matches">

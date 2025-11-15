@@ -10,12 +10,18 @@ install:
 
 # Start dev servers
 dev:
-	#!/usr/bin/env bash
-	set -euo pipefail
-	trap 'trap - INT TERM EXIT; kill 0' INT TERM EXIT
-	(cd {{server_dir}} && bun run dev) &
-	(cd {{client_dir}} && bun run dev) &
-	wait
+	if command -v mprocs >/dev/null 2>&1; then \
+		mprocs \
+			"cd {{server_dir}} && bun run dev" \
+			"cd {{client_dir}} && bun run dev"; \
+	else \
+		echo "mprocs not found; falling back to simple background runner" >&2; \
+		set -euo pipefail; \
+		trap 'trap - INT TERM EXIT; kill 0' INT TERM EXIT; \
+		(cd {{server_dir}} && bun run dev) & \
+		(cd {{client_dir}} && bun run dev) & \
+		wait; \
+	fi
 
 # Build both packages
 build:

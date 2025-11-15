@@ -38,7 +38,8 @@ shogi-web/
 
 ## セットアップ
 1. Bun をインストール (例: `curl -fsSL https://bun.sh/install | bash`)
-2. 依存関係をインストール
+2. 開発用のプロセスマネージャー `mprocs` をインストール（`brew install mprocs` や `cargo install mprocs` など）。
+3. 依存関係をインストール
    ```bash
    just install
    ```
@@ -49,6 +50,8 @@ shogi-web/
 | `just dev` | ホットリロード付き開発サーバー (デフォルトで `http://localhost:3000`) |
 | `just build` | `dist/` へ静的アセットを出力 |
 | `just start` | `dist/` を `bunx serve` で配信 (本番検証用) |
+
+`just dev` は複数プロセスを [`mprocs`](https://github.com/pvolok/mprocs) で監視しながら起動します。まだ `mprocs` が無い場合は `brew install mprocs` もしくは `cargo install mprocs` で導入してください。インストールされていない場合は自動的に従来のバックグラウンド起動方式へフォールバックします。
 
 ### ルートから実行できる `just` コマンド
 プロジェクトルート (`shogi-web/`) に `justfile` を用意し、`cd client` なしに主要タスクを実行できるようにしています。

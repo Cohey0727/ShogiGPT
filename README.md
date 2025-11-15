@@ -39,9 +39,19 @@ shogi-web/
 ## セットアップ
 1. Bun をインストール (例: `curl -fsSL https://bun.sh/install | bash`)
 2. 開発用のプロセスマネージャー `mprocs` をインストール（`brew install mprocs` や `cargo install mprocs` など）。
-3. 依存関係をインストール
+3. Docker と Docker Compose をインストール（データベースに必要）
+4. 環境変数を設定
+   ```bash
+   cp .env.example .env
+   ```
+   必要に応じて `.env` ファイルを編集してください。
+5. 依存関係をインストール
    ```bash
    just install
+   ```
+6. PostgreSQL データベースを起動
+   ```bash
+   just db-up
    ```
 
 ## 開発・ビルド
@@ -50,6 +60,10 @@ shogi-web/
 | `just dev` | ホットリロード付き開発サーバー (デフォルトで `http://localhost:3000`) |
 | `just build` | `dist/` へ静的アセットを出力 |
 | `just start` | `dist/` を `bunx serve` で配信 (本番検証用) |
+| `just db-up` | PostgreSQL データベースを起動 |
+| `just db-down` | PostgreSQL データベースを停止 |
+| `just db-logs` | PostgreSQL データベースのログを表示 |
+| `just db-reset` | データベースを完全にリセット（データ削除） |
 
 `just dev` は複数プロセスを [`mprocs`](https://github.com/pvolok/mprocs) で監視しながら起動します。まだ `mprocs` が無い場合は `brew install mprocs` もしくは `cargo install mprocs` で導入してください。インストールされていない場合は自動的に従来のバックグラウンド起動方式へフォールバックします。
 

@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: shogi-postgres
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-shogi_db}
+      POSTGRES_USER: ${POSTGRES_USER:-shogi_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shogi_password}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # 初期化スクリプト用（必要に応じて作成）
+      # - ./server/db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-shogi_user} -d ${POSTGRES_DB:-shogi_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - shogi-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  shogi-network:
+    driver: bridge

@@ -1,6 +1,6 @@
 import { graphqlServer } from "@hono/graphql-server";
 import { Hono } from "hono";
-import { schema } from "./graphql/schema";
+import { schema } from "./resolvers/schema";
 
 const app = new Hono();
 
@@ -8,7 +8,7 @@ app.get("/", (c) =>
   c.json({
     message: "Shogi backend is running",
     graphqlEndpoint: "/graphql",
-    docs: "https://github.com/kohei/shogi-web",
+    docs: "https://github.com/kohei/shogi-gpt",
   })
 );
 

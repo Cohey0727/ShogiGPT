@@ -42,6 +42,20 @@ const styles = {
     boxShadow: "inset 0 0 0 3px #ff9800",
   }),
 
+  possibleMove: style({
+    backgroundColor: "#a8d5a8",
+    position: "relative",
+    "::after": {
+      content: "",
+      position: "absolute",
+      width: "30%",
+      height: "30%",
+      backgroundColor: "#4caf50",
+      borderRadius: "50%",
+      opacity: 0.7,
+    },
+  }),
+
   piece: style({
     userSelect: "none",
     width: "80%",

@@ -1,6 +1,7 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Player, pieceProperties } from "../../../shared/consts";
 import type { Board, BoardIndex, Position } from "../../../shared/consts";
+import { getPossibleMoves } from "../../../services";
 import styles from "./ShogiBoard.css";
 
 interface ShogiBoardProps {
@@ -12,6 +13,12 @@ export function ShogiBoard({ board: initialBoard }: ShogiBoardProps) {
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(
     null
   );
+
+  // 移動可能なマスを計算
+  const possibleMoves = useMemo(() => {
+    if (!selectedPosition) return [];
+    return getPossibleMoves(board, selectedPosition);
+  }, [board, selectedPosition]);
 
   const handleCellClick = useCallback(
     (row: BoardIndex, col: BoardIndex) => {
@@ -53,12 +60,16 @@ export function ShogiBoard({ board: initialBoard }: ShogiBoardProps) {
               selectedPosition?.row === rowIndex &&
               selectedPosition?.col === colIndex;
 
+            const isPossibleMove = possibleMoves.some(
+              (move) => move.row === rowIndex && move.col === colIndex
+            );
+
             return (
               <div
                 key={`${rowIndex}-${colIndex}`}
                 className={`${styles.cell} ${
                   isSelected ? styles.selected : ""
-                }`}
+                } ${isPossibleMove ? styles.possibleMove : ""}`}
                 onClick={() =>
                   handleCellClick(
                     rowIndex as BoardIndex,

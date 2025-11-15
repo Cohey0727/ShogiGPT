@@ -40,3 +40,13 @@ start:
 lint:
 	cd {{client_dir}} && bun run lint
 	cd {{server_dir}} && bun run lint
+
+# Generate GraphQL types
+codegen:
+	cd {{server_dir}} && bun run codegen
+
+# Reset database (WARNING: deletes all data)
+db-reset:
+	docker compose down -v
+	docker compose up -d postgres
+

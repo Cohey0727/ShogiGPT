@@ -1,7 +1,8 @@
 import { Link, useParams } from "wouter";
-import { ShogiBoard } from "../../components/organisms";
-import { createInitialBoard } from "../../utils/shogi";
+import { ShogiBoard } from "../../organisms";
+
 import styles from "./MatchDetailPage.css";
+import { createInitialBoard } from "../../../utils/shogi";
 
 export function MatchDetailPage() {
   const params = useParams<{ matchId: string }>();

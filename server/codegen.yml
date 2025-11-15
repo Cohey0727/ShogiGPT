@@ -1,9 +1,10 @@
-schema: ./src/graphql/schema.graphql
+schema: ./schema.graphql
 generates:
-  ./src/graphql/generated/types.ts:
+  ./generated/graph/types.ts:
     plugins:
       - typescript
       - typescript-resolvers
     config:
       useIndexSignature: true
+      useTypeImports: true
       maybeValue: T | null | undefined

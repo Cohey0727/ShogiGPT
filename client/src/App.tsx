@@ -5,8 +5,8 @@ import {
   NotFoundPage,
   MatchesPage,
   MatchDetailPage,
-} from "./pages";
-import { RootLayout } from "./layouts";
+} from "./components/pages";
+import { RootLayout } from "./components/layouts";
 import { renderRoutes, type RouteConfigWithNotFound } from "./lib/router";
 
 const routeConfig: RouteConfigWithNotFound = {

@@ -1,5 +1,5 @@
 import { Link, useParams } from "wouter";
-import { ShogiBoard } from "../../components/ShogiBoard";
+import { ShogiBoard } from "../../components/organisms";
 import { createInitialBoard } from "../../utils/shogi";
 import styles from "./MatchDetailPage.css";
 
@@ -22,9 +22,7 @@ export function MatchDetailPage() {
     currentTurn: "先手",
   };
 
-  const moves = [
-    "対局開始",
-  ];
+  const moves = ["対局開始"];
 
   return (
     <div className={styles.container}>

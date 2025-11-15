@@ -37,6 +37,11 @@ const styles = {
     },
   }),
 
+  selected: style({
+    backgroundColor: "#f0d090",
+    boxShadow: "inset 0 0 0 3px #ff9800",
+  }),
+
   piece: style({
     userSelect: "none",
     width: "80%",

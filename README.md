@@ -47,22 +47,19 @@ shogi-web/
 ## 開発・ビルド
 | コマンド | 用途 |
 | --- | --- |
-| `just dev` | ホットリロード付き開発サーバー (デフォルトで `http://localhost:3000`) |
-| `just build` | `dist/` へ静的アセットを出力 |
-| `just start` | `dist/` を `bunx serve` で配信 (本番検証用) |
-| `just db-up` | PostgreSQL データベースを起動 |
-| `just db-down` | PostgreSQL データベースを停止 |
-| `just db-logs` | PostgreSQL データベースのログを表示 |
-| `just db-reset` | データベースを完全にリセット（データ削除） |
+| `just install` | 依存関係をインストール |
+| `just dev` | ホットリロード付き開発サーバー (server: `http://localhost:8787`, client: `http://localhost:5173`) |
+| `just build` | クライアントとサーバーをビルド |
+| `just start` | ビルド済みのクライアントとサーバーを起動（本番検証用） |
+| `just lint` | クライアントとサーバーのコードをリント |
+| `just codegen` | GraphQLスキーマから型定義を生成 |
+| `just db-reset` | データベースを完全にリセット（**警告**: すべてのデータを削除） |
 
 `just dev` は複数プロセスを [`mprocs`](https://github.com/pvolok/mprocs) で監視しながら起動します。まだ `mprocs` が無い場合は `brew install mprocs` もしくは `cargo install mprocs` で導入してください。インストールされていない場合は自動的に従来のバックグラウンド起動方式へフォールバックします。
 
 ### ルートから実行できる `just` コマンド
-プロジェクトルート (`shogi-web/`) に `justfile` を用意し、`cd client` なしに主要タスクを実行できるようにしています。
-- `just install` – 依存関係インストール (`bun install`)
-- `just dev` – 開発サーバー起動 (`bun run dev`)
-- `just build` – ビルド (`bun run build`)
-- `just start` – 本番用サーブ (`bun run start`)
+プロジェクトルート (`shogi-web/`) に `justfile` を用意し、各ディレクトリに移動することなく主要タスクを実行できるようにしています。
+すべてのコマンドは、クライアントとサーバーの両方に対して実行されます（該当する場合）。
 
 ## 今後のTODO例
 1. 将棋盤 UI と棋譜管理の実装

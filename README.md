@@ -38,20 +38,10 @@ shogi-web/
 
 ## セットアップ
 1. Bun をインストール (例: `curl -fsSL https://bun.sh/install | bash`)
-2. 開発用のプロセスマネージャー `mprocs` をインストール（`brew install mprocs` や `cargo install mprocs` など）。
-3. Docker と Docker Compose をインストール（データベースに必要）
-4. 環境変数を設定
-   ```bash
-   cp .env.example .env
-   ```
-   必要に応じて `.env` ファイルを編集してください。
-5. 依存関係をインストール
+2. 開発用のプロセスマネージャー `mprocs` をインストール（`brew install mprocs` や `cargo install mprocs` など）
+3. 依存関係をインストール
    ```bash
    just install
-   ```
-6. PostgreSQL データベースを起動
-   ```bash
-   just db-up
    ```
 
 ## 開発・ビルド

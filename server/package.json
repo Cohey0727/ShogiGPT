@@ -11,9 +11,9 @@
     "codegen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
-    "@graphql-tools/schema": "^10.0.20",
+    "@graphql-tools/schema": "^10.0.29",
     "@hono/graphql-server": "^0.7.0",
-    "graphql": "^16.9.0",
+    "graphql": "^16.12.0",
     "hono": "^4.10.6"
   },
   "devDependencies": {

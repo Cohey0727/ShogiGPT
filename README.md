@@ -1,0 +1,66 @@
+# ShogiGPT
+
+将棋を Web ベースで提供し、AI による指し手の根拠提示まで行うことを目指すプロジェクトです。現時点ではフロントエンド (Bun + React + vanilla-extract + Vite) の雛形を整備しており、今後 AI 推論サービスやバックエンド API と接続していきます。
+
+このリポジトリはモノレポ構成で、今は `client/` パッケージのみ存在します。将来的にサーバー・AI ワーカーなどのパッケージを追加してもルート管理下で共存できます。
+
+## 主な特徴
+- Bun 1.2 以降で動作する高速な開発環境
+- React 19 + vanilla-extract による型安全なスタイリング
+- Vite ベースのホットリロード開発体験
+- Bun 標準コマンドで統一されたシンプルなビルド/サーブパイプライン
+
+## 技術スタック
+- ランタイム: [Bun](https://bun.sh)（bunfig / bun.lock で管理）
+- フレームワーク: React 19、TypeScript
+- スタイリング: vanilla-extract（ゼロランタイム CSS-in-TS）
+- バンドラ/開発ツール: Vite（Rolldown Vite） + Bun build / bunx serve
+
+## ディレクトリ構成
+```
+shogi-web/
+├─ README.md (このファイル)
+└─ client/  # Web クライアント (Bun + React + vanilla-extract + Vite)
+   ├─ src/
+   │  ├─ main.tsx           # ルートエントリ (React 19 + Vite)
+   │  ├─ App.tsx            # UI ルートコンポーネント（vanilla-extract を適用）
+   │  ├─ styles/            # vanilla-extract のスタイル定義 (`app.css.ts` など)
+   │  └─ index.css          # リセットや共通スタイル
+   ├─ package.json
+   ├─ bunfig.toml / bun.lock
+   └─ README.md (Bun テンプレート既定の説明)
+
+### client パッケージ概要
+- 目的: ブラウザ上の将棋 UI、API テスター、AI の指し手根拠表示 UI の実験場
+- 技術スタック: Bun 1.2 以降、React 19、TypeScript、vanilla-extract、Vite
+- エントリポイント: `src/main.tsx` → `App.tsx`（将棋 UI/説明 UI を順次追加予定）
+```
+
+## セットアップ
+1. Bun をインストール (例: `curl -fsSL https://bun.sh/install | bash`)
+2. 依存関係をインストール
+   ```bash
+   just install
+   ```
+
+## 開発・ビルド
+| コマンド | 用途 |
+| --- | --- |
+| `just dev` | ホットリロード付き開発サーバー (デフォルトで `http://localhost:3000`) |
+| `just build` | `dist/` へ静的アセットを出力 |
+| `just start` | `dist/` を `bunx serve` で配信 (本番検証用) |
+
+### ルートから実行できる `just` コマンド
+プロジェクトルート (`shogi-web/`) に `justfile` を用意し、`cd client` なしに主要タスクを実行できるようにしています。
+- `just install` – 依存関係インストール (`bun install`)
+- `just dev` – 開発サーバー起動 (`bun run dev`)
+- `just build` – ビルド (`bun run build`)
+- `just start` – 本番用サーブ (`bun run start`)
+
+## 今後のTODO例
+1. 将棋盤 UI と棋譜管理の実装
+2. DeepSeek などの AI 推論 API との連携、および指し手根拠の表示 UI
+3. バックエンド API (例: /api/move, /api/explain) の設計とセキュリティ
+4. E2E / 単体テスト整備
+
+README の内容を更新したい点があれば、気軽に教えてください。

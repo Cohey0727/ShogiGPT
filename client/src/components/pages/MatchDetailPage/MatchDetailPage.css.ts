@@ -3,7 +3,7 @@ import { style } from "@vanilla-extract/css";
 const styles = {
   container: style({
     height: "100vh",
-    width: "100vw",
+    width: "100%",
     overflow: "hidden",
     background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
   }),
@@ -12,7 +12,7 @@ const styles = {
     display: "flex",
     flexDirection: "row",
     height: "100vh",
-    width: "100vw",
+    width: "100%",
     "@media": {
       "(max-width: 1024px)": {
         flexDirection: "column",

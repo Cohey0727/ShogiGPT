@@ -25,8 +25,7 @@ shogi-web/
 └─ client/  # Web クライアント (Bun + React + vanilla-extract + Vite)
    ├─ src/
    │  ├─ main.tsx           # ルートエントリ (React 19 + Vite)
-   │  ├─ App.tsx            # UI ルートコンポーネント（vanilla-extract を適用）
-   │  ├─ styles/            # vanilla-extract のスタイル定義 (`app.css.ts` など)
+   │  ├─ App.tsx            # UI ルートコンポーネント
    │  └─ index.css          # リセットや共通スタイル
    ├─ package.json
    ├─ bunfig.toml / bun.lock

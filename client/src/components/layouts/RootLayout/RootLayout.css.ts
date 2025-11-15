@@ -16,8 +16,7 @@ const styles = {
 
   sidebar: style({
     width: "80px",
-    minWidth: "80px",
-    flexShrink: 0,
+    flex: "0 0 80px",
     height: "100vh",
     backgroundColor: "rgba(0, 0, 0, 0.3)",
     borderRight: "1px solid rgba(212, 175, 55, 0.2)",
@@ -100,6 +99,7 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     height: "calc(100vh - 60px)",
+    overflowX: "hidden",
     overflowY: "auto",
     "@media": {
       "(min-width: 769px)": {

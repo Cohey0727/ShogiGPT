@@ -1,3 +1,3 @@
-import type { Resolvers } from "../generated/graph/types";
+import type { Resolvers } from "../generated/graphql/types";
 
 export type Query = Resolvers["Query"];

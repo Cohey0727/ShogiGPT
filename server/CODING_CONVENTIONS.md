@@ -60,7 +60,7 @@ resolvers/
 
 ```ts
 // Query/health.ts
-import type { QueryResolvers } from "../../generated/graph/types";
+import type { QueryResolvers } from "../../generated/graphql/types";
 
 export const health: QueryResolvers["health"] = () => ({
   status: "ok",
@@ -86,7 +86,7 @@ export * from "./matches";
 
 ```ts
 // resolvers.ts
-import type { Resolvers } from "../generated/graph/types";
+import type { Resolvers } from "../generated/graphql/types";
 import * as Query from "./Query";
 import * as Mutation from "./Mutation";
 
@@ -225,7 +225,7 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
 
 ```ts
 // ✅ 良い例
-import type { QueryResolvers } from "../generated/graph/types";
+import type { QueryResolvers } from "../generated/graphql/types";
 import { someFunction } from "./utils";
 
 // ❌ 悪い例
@@ -293,7 +293,7 @@ bun run codegen
 自動生成された `QueryResolvers`, `MutationResolvers` などの型を使用する。
 
 ```ts
-import type { QueryResolvers } from "../generated/graph/types";
+import type { QueryResolvers } from "../generated/graphql/types";
 
 export const health: QueryResolvers["health"] = () => ({
   status: "ok",

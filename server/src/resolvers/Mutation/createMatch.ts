@@ -1,7 +1,7 @@
 import type {
   MatchStatus,
   MutationResolvers,
-} from "../../generated/graph/types";
+} from "../../generated/graphql/types";
 import { PrismaClient } from "../../generated/prisma";
 
 const prisma = new PrismaClient();

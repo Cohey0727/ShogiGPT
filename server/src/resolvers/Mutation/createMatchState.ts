@@ -1,7 +1,4 @@
-import type {
-  MutationResolvers,
-  Player,
-} from "../../generated/graph/types";
+import type { MutationResolvers, Player } from "../../generated/graphql/types";
 import { PrismaClient } from "../../generated/prisma";
 
 const prisma = new PrismaClient();

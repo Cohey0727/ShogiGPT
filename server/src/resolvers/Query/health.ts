@@ -1,4 +1,4 @@
-import type { QueryResolvers } from "../../generated/graph/types";
+import type { QueryResolvers } from "../../generated/graphql/types";
 
 export const health: QueryResolvers["health"] = () => ({
   status: "ok",

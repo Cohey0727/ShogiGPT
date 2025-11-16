@@ -1,35 +1,55 @@
 import { Link } from "wouter";
+import {
+  useGetMatchesQuery,
+  MatchStatus,
+} from "../../../generated/graphql/types";
 import styles from "./MatchesPage.css";
 
-// ダミーデータ
-const matches = [
-  {
-    id: "match-001",
-    player1: "田中太郎",
-    player2: "佐藤花子",
-    status: "進行中",
-    date: "2025-01-15",
-    moves: 42,
-  },
-  {
-    id: "match-002",
-    player1: "鈴木一郎",
-    player2: "山田次郎",
-    status: "完了",
-    date: "2025-01-14",
-    moves: 87,
-  },
-  {
-    id: "match-003",
-    player1: "高橋三郎",
-    player2: "渡辺四郎",
-    status: "進行中",
-    date: "2025-01-15",
-    moves: 15,
-  },
-];
+const getStatusLabel = (status: MatchStatus): string => {
+  switch (status) {
+    case MatchStatus.Ongoing:
+      return "進行中";
+    case MatchStatus.Completed:
+      return "完了";
+    case MatchStatus.Abandoned:
+      return "中断";
+  }
+};
+
+const formatDate = (isoString: string): string => {
+  const date = new Date(isoString);
+  return date.toLocaleDateString("ja-JP");
+};
 
 export function MatchesPage() {
+  const [result] = useGetMatchesQuery();
+
+  const { data, fetching, error } = result;
+
+  if (fetching) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>対局一覧</h1>
+        </div>
+        <p>読み込み中...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>対局一覧</h1>
+        </div>
+        <p>エラー: {error.message}</p>
+      </div>
+    );
+  }
+
+  const matches = data?.getMatches || [];
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -40,31 +60,41 @@ export function MatchesPage() {
       </div>
 
       <div className={styles.matchList}>
-        {matches.map((match) => (
-          <Link key={match.id} href={`/matches/${match.id}`}>
-            <div className={styles.matchCard}>
-              <div className={styles.matchHeader}>
-                <span className={styles.matchId}>#{match.id}</span>
-                <span className={styles.matchStatus}>{match.status}</span>
-              </div>
-
-              <div className={styles.matchPlayers}>
-                <div className={styles.player}>
-                  <span className={styles.playerName}>{match.player1}</span>
+        {matches.length === 0 ? (
+          <p>対局がありません</p>
+        ) : (
+          matches.map((match) => (
+            <Link key={match.id} href={`/matches/${match.id}`}>
+              <div className={styles.matchCard}>
+                <div className={styles.matchHeader}>
+                  <span className={styles.matchId}>#{match.id}</span>
+                  <span className={styles.matchStatus}>
+                    {getStatusLabel(match.status)}
+                  </span>
                 </div>
-                <span className={styles.vs}>VS</span>
-                <div className={styles.player}>
-                  <span className={styles.playerName}>{match.player2}</span>
+
+                <div className={styles.matchPlayers}>
+                  <div className={styles.player}>
+                    <span className={styles.playerName}>
+                      {match.playerSente || "先手"}
+                    </span>
+                  </div>
+                  <span className={styles.vs}>VS</span>
+                  <div className={styles.player}>
+                    <span className={styles.playerName}>
+                      {match.playerGote || "後手"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className={styles.matchInfo}>
+                  <span>{formatDate(match.createdAt)}</span>
+                  <span>{match.states.length}手</span>
                 </div>
               </div>
-
-              <div className={styles.matchInfo}>
-                <span>📅 {match.date}</span>
-                <span>🎯 {match.moves}手</span>
-              </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          ))
+        )}
       </div>
     </div>
   );

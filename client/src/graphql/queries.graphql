@@ -4,3 +4,32 @@ query Health {
     timestamp
   }
 }
+
+query GetMatches {
+  getMatches {
+    id
+    createdAt
+    updatedAt
+    status
+    playerSente
+    playerGote
+    states {
+      id
+      createdAt
+      matchId
+      index
+      moveNotation
+      player
+      sfen
+      thinkingTime
+    }
+    messages {
+      id
+      createdAt
+      matchId
+      role
+      content
+      metadata
+    }
+  }
+}

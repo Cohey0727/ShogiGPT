@@ -1,4 +1,4 @@
-import type { MutationResolvers } from "../../generated/graph/types";
+import type { MutationResolvers } from "../../generated/graphql/types";
 import { analyzePositionAnalyzePost } from "../../generated/shogi-api";
 
 export const analyzePosition: MutationResolvers["analyzePosition"] = async (

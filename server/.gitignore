@@ -4,5 +4,3 @@ node_modules
 
 # Prisma
 /src/generated/prisma
-*.db
-*.db-journal

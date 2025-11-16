@@ -209,9 +209,18 @@ export default {
 
 ### 2. クラス名の結合
 
-複数のクラス名を結合する場合はテンプレートリテラルを使用。
+複数のクラス名を結合する場合は`clsx`を使用する。
 
 ```tsx
+import { clsx } from "clsx";
+
+// ✅ 良い例
+className={clsx(styles.base, styles.variant[variant], className)}
+
+// 条件付きクラス
+className={clsx(styles.base, isActive && styles.active, className)}
+
+// ❌ 悪い例（テンプレートリテラルは使用しない）
 className={`${styles.base} ${styles.variant[variant]} ${className || ""}`}
 ```
 

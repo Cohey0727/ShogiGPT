@@ -11,20 +11,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// 対局状況
+enum MatchStatus {
+  ONGOING // 対局中
+  COMPLETED // 完了
+  ABANDONED // 中断
+}
+
+/// プレイヤー
+enum Player {
+  SENTE // 先手
+  GOTE // 後手
+}
+
+/// メッセージの送信者ロール
+enum MessageRole {
+  USER // ユーザー
+  ASSISTANT // AI
+  SYSTEM // システム
+}
+
 /// 対局情報
 model Match {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  /// 対局のステータス (ongoing, completed, abandoned)
-  status String @default("ongoing")
-
-  /// 現在の局面（SFEN形式）
-  sfen String?
-
-  /// 指し手履歴（USI形式、スペース区切り）
-  moves String?
+  /// 対局状況
+  status MatchStatus @default(ONGOING)
 
   /// 先手のプレイヤー名
   playerSente String?
@@ -32,36 +46,45 @@ model Match {
   /// 後手のプレイヤー名
   playerGote String?
 
-  /// 対局結果 (sente_win, gote_win, draw, ongoing)
-  result String @default("ongoing")
+  /// この対局の局面履歴
+  states MatchState[]
 
-  /// この対局に紐づくチャット
-  chats Chat[]
+  /// この対局のチャットメッセージ
+  messages ChatMessage[]
 
   @@index([createdAt])
   @@index([status])
   @@map("matches")
 }
 
-/// チャットセッション（対局ごとに作成）
-model Chat {
+/// 局面情報（ある時点での盤面状態と、そこに至った指し手）
+model MatchState {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   /// 紐づく対局ID
   matchId String
   match   Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
 
-  /// チャットのタイトル（オプション）
-  title String?
+  /// 局面番号（何手目か、0から開始。0は初期局面）
+  index Int
 
-  /// このチャットのメッセージ
-  messages ChatMessage[]
+  /// この局面に至った指し手表記（USI形式、例: "7g7f"）
+  /// 初期局面（index=0）の場合はnull
+  moveNotation String?
+
+  /// この盤面での手番プレイヤー
+  player Player
+
+  /// 盤面（SFEN形式）
+  sfen String
+
+  /// 消費時間（秒、オプション）
+  thinkingTime Int?
 
   @@index([matchId])
-  @@index([createdAt])
-  @@map("chats")
+  @@index([matchId, index])
+  @@map("match_states")
 }
 
 /// チャットメッセージ
@@ -69,12 +92,12 @@ model ChatMessage {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
-  /// 紐づくチャットID
-  chatId String
-  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  /// 紐づく対局ID
+  matchId String
+  match   Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
 
-  /// メッセージの送信者ロール (user, assistant, system)
-  role String
+  /// メッセージの送信者ロール
+  role MessageRole
 
   /// メッセージ本文
   content String
@@ -82,7 +105,7 @@ model ChatMessage {
   /// メタデータ（JSON形式、AI推論データなど）
   metadata String?
 
-  @@index([chatId])
+  @@index([matchId])
   @@index([createdAt])
   @@map("chat_messages")
 }

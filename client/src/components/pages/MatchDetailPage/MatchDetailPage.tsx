@@ -30,6 +30,12 @@ export function MatchDetailPage() {
   const senteCaptured = convertCapturedPieces(board.capturedBySente);
   const goteCaptured = convertCapturedPieces(board.capturedByGote);
 
+  // 盤面変更時にプレイヤーを交代
+  const handleBoardChange = (newBoard: Board) => {
+    setBoard(newBoard);
+    setCurrentPlayer(currentPlayer === Player.Sente ? Player.Gote : Player.Sente);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -44,7 +50,7 @@ export function MatchDetailPage() {
           <ShogiBoard
             board={board}
             currentPlayer={currentPlayer}
-            onBoardChange={setBoard}
+            onBoardChange={handleBoardChange}
           />
           <div className={styles.sentePieceStand}>
             <PieceStand player="sente" capturedPieces={senteCaptured} />

@@ -1,7 +1,7 @@
-import type { QueryResolvers } from "../../generated/graph/types";
+import type { MutationResolvers } from "../../generated/graph/types";
 import { analyzePositionAnalyzePost } from "../../generated/shogi-api";
 
-export const analyzePosition: QueryResolvers["analyzePosition"] = async (
+export const analyzePosition: MutationResolvers["analyzePosition"] = async (
   _,
   { input }
 ) => {

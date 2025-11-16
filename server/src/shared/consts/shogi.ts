@@ -177,3 +177,317 @@ export const pieceProperties: Record<PieceType, PieceProperties> = {
     unpromoted: PieceType.Pawn,
   },
 };
+
+/**
+ * SFEN表記で使用する駒の文字マッピング
+ */
+const SFEN_PIECE_MAP: Record<PieceType, string> = {
+  [PieceType.King]: "k",
+  [PieceType.Rook]: "r",
+  [PieceType.Bishop]: "b",
+  [PieceType.Gold]: "g",
+  [PieceType.Silver]: "s",
+  [PieceType.Knight]: "n",
+  [PieceType.Lance]: "l",
+  [PieceType.Pawn]: "p",
+  [PieceType.PromotedRook]: "+r",
+  [PieceType.PromotedBishop]: "+b",
+  [PieceType.PromotedSilver]: "+s",
+  [PieceType.PromotedKnight]: "+n",
+  [PieceType.PromotedLance]: "+l",
+  [PieceType.PromotedPawn]: "+p",
+};
+
+/**
+ * SFEN文字から駒タイプへの逆マッピング
+ */
+const SFEN_TO_PIECE_TYPE: Record<string, PieceType> = Object.entries(
+  SFEN_PIECE_MAP
+).reduce(
+  (acc, [type, sfen]) => {
+    acc[sfen] = type as PieceType;
+    return acc;
+  },
+  {} as Record<string, PieceType>
+);
+
+/**
+ * 盤面をSFEN形式の文字列に変換
+ * @param board 盤面データ
+ * @returns SFEN形式の文字列
+ */
+export function boardToSfen(board: Board): string {
+  // 1. 盤面部分
+  const rows: string[] = [];
+  for (let row = 0; row < 9; row++) {
+    let rowStr = "";
+    let emptyCount = 0;
+
+    for (let col = 0; col < 9; col++) {
+      const cell = board.cells[row][col];
+
+      if (cell === null) {
+        emptyCount++;
+      } else {
+        // 空きマスがあればその数を追加
+        if (emptyCount > 0) {
+          rowStr += emptyCount.toString();
+          emptyCount = 0;
+        }
+
+        // 駒を追加
+        const pieceSfen = SFEN_PIECE_MAP[cell.type];
+        const pieceChar =
+          cell.player === Player.Sente
+            ? pieceSfen.toUpperCase()
+            : pieceSfen.toLowerCase();
+        rowStr += pieceChar;
+      }
+    }
+
+    // 行末の空きマスを追加
+    if (emptyCount > 0) {
+      rowStr += emptyCount.toString();
+    }
+
+    rows.push(rowStr);
+  }
+
+  const boardPart = rows.join("/");
+
+  // 2. 手番部分
+  const turnPart = board.turn === Player.Sente ? "b" : "w";
+
+  // 3. 持ち駒部分
+  const handPart = formatHand(board);
+
+  // 4. 手数部分（デフォルトは1）
+  const movePart = "1";
+
+  return `${boardPart} ${turnPart} ${handPart} ${movePart}`;
+}
+
+/**
+ * 持ち駒をSFEN形式にフォーマット
+ */
+function formatHand(board: Board): string {
+  const pieces: string[] = [];
+
+  // 先手の持ち駒
+  const senteCounts = countPieces(board.capturedBySente);
+  for (const [type, count] of Object.entries(senteCounts)) {
+    const sfen = SFEN_PIECE_MAP[type as PieceType];
+    const pieceStr = count > 1 ? `${count}${sfen}` : sfen;
+    pieces.push(pieceStr.toUpperCase());
+  }
+
+  // 後手の持ち駒
+  const goteCounts = countPieces(board.capturedByGote);
+  for (const [type, count] of Object.entries(goteCounts)) {
+    const sfen = SFEN_PIECE_MAP[type as PieceType];
+    const pieceStr = count > 1 ? `${count}${sfen}` : sfen;
+    pieces.push(pieceStr.toLowerCase());
+  }
+
+  return pieces.length > 0 ? pieces.join("") : "-";
+}
+
+/**
+ * 駒のリストを種類ごとにカウント
+ */
+function countPieces(pieces: PieceType[]): Record<string, number> {
+  const counts: Record<string, number> = {};
+
+  // SFEN順序: 飛、角、金、銀、桂、香、歩
+  const order = [
+    PieceType.Rook,
+    PieceType.Bishop,
+    PieceType.Gold,
+    PieceType.Silver,
+    PieceType.Knight,
+    PieceType.Lance,
+    PieceType.Pawn,
+  ];
+
+  for (const piece of pieces) {
+    counts[piece] = (counts[piece] || 0) + 1;
+  }
+
+  // 順序を保証するために並べ替え
+  const sortedCounts: Record<string, number> = {};
+  for (const type of order) {
+    if (counts[type]) {
+      sortedCounts[type] = counts[type];
+    }
+  }
+
+  return sortedCounts;
+}
+
+/**
+ * SFEN形式の文字列を盤面データに変換
+ * @param sfen SFEN形式の文字列
+ * @returns 盤面データ
+ */
+export function sfenToBoard(sfen: string): Board {
+  const parts = sfen.trim().split(/\s+/);
+
+  if (parts.length < 2) {
+    throw new Error("Invalid SFEN format: insufficient parts");
+  }
+
+  const [boardPart, turnPart, handPart = "-"] = parts;
+
+  // 1. 盤面の解析
+  const cells: Cell[][] = [];
+  const rows = boardPart.split("/");
+
+  if (rows.length !== 9) {
+    throw new Error(`Invalid SFEN format: expected 9 rows, got ${rows.length}`);
+  }
+
+  for (const rowStr of rows) {
+    const row: Cell[] = [];
+    let i = 0;
+
+    while (i < rowStr.length) {
+      const char = rowStr[i];
+
+      // 数字（空きマス）の場合
+      if (/\d/.test(char)) {
+        const emptyCount = parseInt(char, 10);
+        for (let j = 0; j < emptyCount; j++) {
+          row.push(null);
+        }
+        i++;
+      }
+      // 成り駒の場合
+      else if (char === "+") {
+        const nextChar = rowStr[i + 1];
+        if (!nextChar) {
+          throw new Error(`Invalid SFEN format: incomplete promoted piece`);
+        }
+
+        const sfenKey = `+${nextChar.toLowerCase()}`;
+        const pieceType = SFEN_TO_PIECE_TYPE[sfenKey];
+
+        if (!pieceType) {
+          throw new Error(
+            `Invalid SFEN format: unknown promoted piece ${sfenKey}`
+          );
+        }
+
+        const player = /[A-Z]/.test(nextChar) ? Player.Sente : Player.Gote;
+        row.push({ type: pieceType, player });
+        i += 2;
+      }
+      // 通常の駒の場合
+      else {
+        const sfenKey = char.toLowerCase();
+        const pieceType = SFEN_TO_PIECE_TYPE[sfenKey];
+
+        if (!pieceType) {
+          throw new Error(`Invalid SFEN format: unknown piece ${char}`);
+        }
+
+        const player = /[A-Z]/.test(char) ? Player.Sente : Player.Gote;
+        row.push({ type: pieceType, player });
+        i++;
+      }
+    }
+
+    if (row.length !== 9) {
+      throw new Error(
+        `Invalid SFEN format: expected 9 columns, got ${row.length}`
+      );
+    }
+
+    cells.push(row);
+  }
+
+  // 2. 手番の解析
+  const turn = turnPart === "b" ? Player.Sente : Player.Gote;
+
+  // 3. 持ち駒の解析
+  const { capturedBySente, capturedByGote } = parseHand(handPart);
+
+  return {
+    cells,
+    capturedBySente,
+    capturedByGote,
+    turn,
+  };
+}
+
+/**
+ * SFEN形式の持ち駒文字列を解析
+ */
+function parseHand(handPart: string): {
+  capturedBySente: PieceType[];
+  capturedByGote: PieceType[];
+} {
+  const capturedBySente: PieceType[] = [];
+  const capturedByGote: PieceType[] = [];
+
+  if (handPart === "-") {
+    return { capturedBySente, capturedByGote };
+  }
+
+  let i = 0;
+  while (i < handPart.length) {
+    const char = handPart[i];
+
+    // 数字の場合
+    if (/\d/.test(char)) {
+      // 数字を読み取る
+      let numStr = char;
+      i++;
+      while (i < handPart.length && /\d/.test(handPart[i])) {
+        numStr += handPart[i];
+        i++;
+      }
+      const count = parseInt(numStr, 10);
+
+      // 次の文字が駒
+      if (i >= handPart.length) {
+        throw new Error("Invalid SFEN hand format: number without piece");
+      }
+
+      const pieceChar = handPart[i];
+      const sfenKey = pieceChar.toLowerCase();
+      const pieceType = SFEN_TO_PIECE_TYPE[sfenKey];
+
+      if (!pieceType) {
+        throw new Error(`Invalid SFEN hand format: unknown piece ${pieceChar}`);
+      }
+
+      const targetArray = /[A-Z]/.test(pieceChar)
+        ? capturedBySente
+        : capturedByGote;
+
+      for (let j = 0; j < count; j++) {
+        targetArray.push(pieceType);
+      }
+
+      i++;
+    }
+    // 駒の場合
+    else {
+      const sfenKey = char.toLowerCase();
+      const pieceType = SFEN_TO_PIECE_TYPE[sfenKey];
+
+      if (!pieceType) {
+        throw new Error(`Invalid SFEN hand format: unknown piece ${char}`);
+      }
+
+      const targetArray = /[A-Z]/.test(char)
+        ? capturedBySente
+        : capturedByGote;
+      targetArray.push(pieceType);
+
+      i++;
+    }
+  }
+
+  return { capturedBySente, capturedByGote };
+}

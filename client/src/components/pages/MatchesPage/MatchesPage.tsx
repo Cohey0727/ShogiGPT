@@ -57,6 +57,9 @@ export function MatchesPage() {
         <p className={styles.subtitle}>
           進行中の対局と過去の対局を確認できます
         </p>
+        <Link href="/matches/new">
+          <button className={styles.newMatchButton}>新規対局</button>
+        </Link>
       </div>
 
       <div className={styles.matchList}>

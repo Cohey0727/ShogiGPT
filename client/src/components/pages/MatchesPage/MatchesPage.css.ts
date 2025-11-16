@@ -10,6 +10,9 @@ const styles = {
   header: style({
     maxWidth: "1200px",
     margin: "0 auto 2rem",
+    display: "flex",
+    flexDirection: "column",
+    gap: "1rem",
   }),
 
   title: style({
@@ -113,6 +116,24 @@ const styles = {
     marginBottom: "2rem",
     ":hover": {
       backgroundColor: "rgba(212, 175, 55, 0.1)",
+    },
+  }),
+
+  newMatchButton: style({
+    padding: "0.75rem 1.5rem",
+    fontSize: "1rem",
+    fontWeight: "600",
+    background: "#d4af37",
+    color: "#1a1a1a",
+    border: "none",
+    borderRadius: "0.5rem",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    alignSelf: "flex-start",
+    ":hover": {
+      background: "#e5c158",
+      transform: "translateY(-2px)",
+      boxShadow: "0 4px 12px rgba(212, 175, 55, 0.4)",
     },
   }),
 };

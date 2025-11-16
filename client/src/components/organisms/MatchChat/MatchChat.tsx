@@ -1,57 +1,81 @@
 import { useState } from "react";
 import { MessageBubble } from "../MessageBubble";
+import {
+  useGetChatMessagesQuery,
+  useCreateChatMessageMutation,
+  MessageRole,
+} from "../../../generated/graphql/types";
 import styles from "./MatchChat.css";
-
-export interface ChatMessage {
-  id: string;
-  sender: string;
-  message: string;
-  timestamp: string;
-  isCurrentUser?: boolean;
-}
 
 interface MatchChatProps {
   matchId: string;
   currentUser?: string;
+  onFirstMessage?: () => Promise<string | null>;
 }
 
-export function MatchChat({ currentUser = "あなた" }: MatchChatProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "1",
-      sender: "田中太郎",
-      message: "よろしくお願いします！",
-      timestamp: "14:30",
-      isCurrentUser: false,
-    },
-    {
-      id: "2",
-      sender: "佐藤花子",
-      message: "よろしくお願いします。頑張りましょう！",
-      timestamp: "14:31",
-      isCurrentUser: false,
-    },
-  ]);
+const formatTimestamp = (isoString: string): string => {
+  const date = new Date(isoString);
+  return date.toLocaleTimeString("ja-JP", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+export function MatchChat({
+  matchId,
+  currentUser = "あなた",
+  onFirstMessage,
+}: MatchChatProps) {
+  const isNewMatch = matchId === "new";
   const [inputValue, setInputValue] = useState("");
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  // メッセージ取得（新規対局の場合はスキップ）
+  const [{ data, fetching }] = useGetChatMessagesQuery({
+    variables: { matchId },
+    pause: isNewMatch,
+  });
+
+  const [, createChatMessage] = useCreateChatMessageMutation();
+
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    const newMessage: ChatMessage = {
-      id: Date.now().toString(),
-      sender: currentUser,
-      message: inputValue,
-      timestamp: new Date().toLocaleTimeString("ja-JP", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      isCurrentUser: true,
-    };
+    let targetMatchId = matchId;
 
-    setMessages([...messages, newMessage]);
+    // 新規対局の最初のメッセージの場合、マッチを作成
+    if (isNewMatch && onFirstMessage) {
+      const newMatchId = await onFirstMessage();
+      if (!newMatchId) {
+        console.error("Failed to create match");
+        return;
+      }
+      targetMatchId = newMatchId;
+    }
+
+    // メッセージを作成
+    await createChatMessage({
+      input: {
+        matchId: targetMatchId,
+        role: MessageRole.User,
+        content: inputValue,
+      },
+    });
+
     setInputValue("");
   };
+
+  const messages = data?.getChatMessages || [];
+
+  if (fetching) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.messagesContainer}>
+          <p>読み込み中...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -59,10 +83,10 @@ export function MatchChat({ currentUser = "あなた" }: MatchChatProps) {
         {messages.map((msg) => (
           <MessageBubble
             key={msg.id}
-            sender={msg.sender}
-            message={msg.message}
-            timestamp={msg.timestamp}
-            isCurrentUser={msg.isCurrentUser}
+            sender={msg.role === MessageRole.User ? "あなた" : "アシスタント"}
+            message={msg.content}
+            timestamp={formatTimestamp(msg.createdAt)}
+            isCurrentUser={msg.role === MessageRole.User}
           />
         ))}
       </div>

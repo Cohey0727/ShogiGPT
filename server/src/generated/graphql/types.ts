@@ -189,8 +189,14 @@ export enum Player {
 
 export type Query = {
   __typename?: 'Query';
+  getChatMessages: Array<ChatMessage>;
   getMatches: Array<Match>;
   health: Health;
+};
+
+
+export type QueryGetChatMessagesArgs = {
+  matchId: Scalars['ID']['input'];
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -368,6 +374,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 }>;
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  getChatMessages?: Resolver<Array<ResolversTypes['ChatMessage']>, ParentType, ContextType, RequireFields<QueryGetChatMessagesArgs, 'matchId'>>;
   getMatches?: Resolver<Array<ResolversTypes['Match']>, ParentType, ContextType>;
   health?: Resolver<ResolversTypes['Health'], ParentType, ContextType>;
 }>;

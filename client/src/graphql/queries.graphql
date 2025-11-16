@@ -33,3 +33,70 @@ query GetMatches {
     }
   }
 }
+
+query GetChatMessages($matchId: ID!) {
+  getChatMessages(matchId: $matchId) {
+    id
+    createdAt
+    matchId
+    role
+    content
+    metadata
+  }
+}
+
+mutation CreateMatch($input: CreateMatchInput!) {
+  createMatch(input: $input) {
+    id
+    createdAt
+    updatedAt
+    status
+    playerSente
+    playerGote
+    states {
+      id
+      createdAt
+      matchId
+      index
+      moveNotation
+      player
+      sfen
+      thinkingTime
+    }
+    messages {
+      id
+      createdAt
+      matchId
+      role
+      content
+      metadata
+    }
+  }
+}
+
+mutation CreateChatMessage($input: CreateChatMessageInput!) {
+  createChatMessage(input: $input) {
+    id
+    createdAt
+    matchId
+    role
+    content
+    metadata
+  }
+}
+
+mutation AnalyzePosition($input: AnalysisInput!) {
+  analyzePosition(input: $input) {
+    bestmove
+    variations {
+      move
+      scoreCp
+      scoreMate
+      depth
+      nodes
+      pv
+    }
+    timeMs
+    engineName
+  }
+}

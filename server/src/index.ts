@@ -1,8 +1,12 @@
 import { graphqlServer } from "@hono/graphql-server";
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { schema } from "./resolvers/schema";
 
 const app = new Hono();
+
+// CORS設定 - すべて許可
+app.use("/*", cors());
 
 app.get("/", (c) =>
   c.json({

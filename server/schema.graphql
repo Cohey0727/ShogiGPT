@@ -1,6 +1,7 @@
 type Query {
   health: Health!
   getMatches: [Match!]!
+  getChatMessages(matchId: ID!): [ChatMessage!]!
 }
 
 type Mutation {

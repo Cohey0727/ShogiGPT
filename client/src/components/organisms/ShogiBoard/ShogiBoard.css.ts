@@ -58,48 +58,6 @@ const styles = {
   gote: style({
     transform: "rotate(180deg)",
   }),
-
-  captured: style({
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.5rem",
-    padding: "1rem",
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    border: "1px solid rgba(212, 175, 55, 0.2)",
-    borderRadius: "0.5rem",
-    width: "100%",
-  }),
-
-  capturedGote: style({
-    gridColumn: "1 / 2",
-    gridRow: "1 / 2",
-    alignSelf: "start",
-  }),
-
-  capturedSente: style({
-    gridColumn: "3 / 4",
-    gridRow: "3 / 4",
-    alignSelf: "end",
-  }),
-
-  capturedTitle: style({
-    fontSize: "0.75rem",
-    fontWeight: "600",
-    color: "#d4af37",
-    marginBottom: "0.5rem",
-  }),
-
-  capturedList: style({
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "0.25rem",
-    minHeight: "2rem",
-  }),
-
-  capturedPiece: style({
-    fontSize: "1rem",
-    color: "#f5f5f5",
-  }),
 };
 
 export default styles;

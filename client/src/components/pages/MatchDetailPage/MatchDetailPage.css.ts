@@ -38,10 +38,20 @@ const styles = {
 
   boardSection: style({
     flex: 1,
+    padding: "1rem",
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    gap: "1rem",
+  }),
+
+  gotePieceStand: style({
+    alignSelf: "flex-start",
+  }),
+
+  sentePieceStand: style({
+    alignSelf: "flex-end",
   }),
 };
 

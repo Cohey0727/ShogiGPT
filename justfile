@@ -45,7 +45,23 @@ codegen:
 	cd {{server_dir}} && bun run codegen
 	cd {{client_dir}} && bun run codegen
 
-# Reset database (WARNING: deletes all data)
+# Run database migrations
+db-migrate:
+	cd {{server_dir}} && DATABASE_URL="file:./dev.db" bunx prisma migrate dev
+
+# Generate Prisma Client
+db-generate:
+	cd {{server_dir}} && DATABASE_URL="file:./dev.db" bunx prisma generate
+
+# Open Prisma Studio (database GUI)
+db-studio:
+	cd {{server_dir}} && DATABASE_URL="file:./dev.db" bunx prisma studio
+
+# Reset Prisma database (WARNING: deletes all data)
+db-migrate-reset:
+	cd {{server_dir}} && DATABASE_URL="file:./dev.db" bunx prisma migrate reset --force
+
+# Reset Docker database (WARNING: deletes all data)
 db-reset:
 	docker compose down -v
 	docker compose up -d

@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// 対局情報
+model Match {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// 対局のステータス (ongoing, completed, abandoned)
+  status String @default("ongoing")
+
+  /// 現在の局面（SFEN形式）
+  sfen String?
+
+  /// 指し手履歴（USI形式、スペース区切り）
+  moves String?
+
+  /// 先手のプレイヤー名
+  playerSente String?
+
+  /// 後手のプレイヤー名
+  playerGote String?
+
+  /// 対局結果 (sente_win, gote_win, draw, ongoing)
+  result String @default("ongoing")
+
+  /// この対局に紐づくチャット
+  chats Chat[]
+
+  @@index([createdAt])
+  @@index([status])
+  @@map("matches")
+}
+
+/// チャットセッション（対局ごとに作成）
+model Chat {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// 紐づく対局ID
+  matchId String
+  match   Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  /// チャットのタイトル（オプション）
+  title String?
+
+  /// このチャットのメッセージ
+  messages ChatMessage[]
+
+  @@index([matchId])
+  @@index([createdAt])
+  @@map("chats")
+}
+
+/// チャットメッセージ
+model ChatMessage {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  /// 紐づくチャットID
+  chatId String
+  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  /// メッセージの送信者ロール (user, assistant, system)
+  role String
+
+  /// メッセージ本文
+  content String
+
+  /// メタデータ（JSON形式、AI推論データなど）
+  metadata String?
+
+  @@index([chatId])
+  @@index([createdAt])
+  @@map("chat_messages")
+}

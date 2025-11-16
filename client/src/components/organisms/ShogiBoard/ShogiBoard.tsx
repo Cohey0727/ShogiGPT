@@ -7,10 +7,11 @@ import styles from "./ShogiBoard.css";
 
 interface ShogiBoardProps {
   board: Board;
+  currentPlayer: Player;
   onBoardChange: (board: Board) => void;
 }
 
-export function ShogiBoard({ board, onBoardChange }: ShogiBoardProps) {
+export function ShogiBoard({ board, currentPlayer, onBoardChange }: ShogiBoardProps) {
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(
     null
   );
@@ -77,13 +78,14 @@ export function ShogiBoard({ board, onBoardChange }: ShogiBoardProps) {
         }
       } else {
         // 駒を掴んでいない状態
-        if (board.cells[row][col]) {
-          // 駒があるマスをクリック -> 選択
+        const piece = board.cells[row][col];
+        if (piece && piece.player === currentPlayer) {
+          // 自分の駒があるマスをクリック -> 選択
           setSelectedPosition({ row, col });
         }
       }
     },
-    [board, selectedPosition, possibleMoves, onBoardChange]
+    [board, selectedPosition, possibleMoves, onBoardChange, currentPlayer]
   );
 
   return (

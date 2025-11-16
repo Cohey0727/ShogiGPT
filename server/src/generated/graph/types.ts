@@ -6,6 +6,7 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: 
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string; }
@@ -15,15 +16,65 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+/** 局面解析リクエスト */
+export type AnalysisInput = {
+  /** 探索深さ（指定時はtimeMsを無視） */
+  depth?: InputMaybe<Scalars['Int']['input']>;
+  /** 初期局面からの指し手リスト（USI形式） */
+  moves?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** 候補手の数（MultiPV、デフォルト: 1） */
+  multipv?: InputMaybe<Scalars['Int']['input']>;
+  /** SFEN形式の局面文字列（省略時は平手初期局面） */
+  sfen?: InputMaybe<Scalars['String']['input']>;
+  /** 思考時間（ミリ秒、デフォルト: 1000） */
+  timeMs?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** 局面解析結果 */
+export type AnalysisResult = {
+  __typename?: 'AnalysisResult';
+  /** 最善手（USI形式） */
+  bestmove: Scalars['String']['output'];
+  /** エンジン名 */
+  engineName: Scalars['String']['output'];
+  /** 実際の思考時間（ミリ秒） */
+  timeMs: Scalars['Int']['output'];
+  /** 候補手リスト（MultiPV） */
+  variations: Array<MoveVariation>;
+};
+
 export type Health = {
   __typename?: 'Health';
   status: Scalars['String']['output'];
   timestamp: Scalars['String']['output'];
 };
 
+/** 1つの候補手情報 */
+export type MoveVariation = {
+  __typename?: 'MoveVariation';
+  /** 探索深さ */
+  depth: Scalars['Int']['output'];
+  /** 指し手（USI形式） */
+  move: Scalars['String']['output'];
+  /** 探索ノード数 */
+  nodes?: Maybe<Scalars['Int']['output']>;
+  /** 読み筋（PV） */
+  pv?: Maybe<Array<Scalars['String']['output']>>;
+  /** 評価値（センチポーン） */
+  scoreCp?: Maybe<Scalars['Int']['output']>;
+  /** 詰みまでの手数（プライ数） */
+  scoreMate?: Maybe<Scalars['Int']['output']>;
+};
+
 export type Query = {
   __typename?: 'Query';
+  analyzePosition: AnalysisResult;
   health: Health;
+};
+
+
+export type QueryAnalyzePositionArgs = {
+  input: AnalysisInput;
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -100,18 +151,33 @@ export type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = 
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
+  AnalysisInput: AnalysisInput;
+  AnalysisResult: ResolverTypeWrapper<AnalysisResult>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Health: ResolverTypeWrapper<Health>;
+  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  MoveVariation: ResolverTypeWrapper<MoveVariation>;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
+  AnalysisInput: AnalysisInput;
+  AnalysisResult: AnalysisResult;
   Boolean: Scalars['Boolean']['output'];
   Health: Health;
+  Int: Scalars['Int']['output'];
+  MoveVariation: MoveVariation;
   Query: Record<PropertyKey, never>;
   String: Scalars['String']['output'];
+}>;
+
+export type AnalysisResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['AnalysisResult'] = ResolversParentTypes['AnalysisResult']> = ResolversObject<{
+  bestmove?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  engineName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  timeMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  variations?: Resolver<Array<ResolversTypes['MoveVariation']>, ParentType, ContextType>;
 }>;
 
 export type HealthResolvers<ContextType = any, ParentType extends ResolversParentTypes['Health'] = ResolversParentTypes['Health']> = ResolversObject<{
@@ -119,12 +185,24 @@ export type HealthResolvers<ContextType = any, ParentType extends ResolversParen
   timestamp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 
+export type MoveVariationResolvers<ContextType = any, ParentType extends ResolversParentTypes['MoveVariation'] = ResolversParentTypes['MoveVariation']> = ResolversObject<{
+  depth?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  move?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  nodes?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  pv?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  scoreCp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  scoreMate?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+}>;
+
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  analyzePosition?: Resolver<ResolversTypes['AnalysisResult'], ParentType, ContextType, RequireFields<QueryAnalyzePositionArgs, 'input'>>;
   health?: Resolver<ResolversTypes['Health'], ParentType, ContextType>;
 }>;
 
 export type Resolvers<ContextType = any> = ResolversObject<{
+  AnalysisResult?: AnalysisResultResolvers<ContextType>;
   Health?: HealthResolvers<ContextType>;
+  MoveVariation?: MoveVariationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
 }>;
 

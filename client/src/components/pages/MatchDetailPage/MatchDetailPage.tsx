@@ -5,6 +5,7 @@ import { ShogiBoard, MatchChat, PieceStand } from "../../organisms";
 import styles from "./MatchDetailPage.css";
 import { createInitialBoard } from "../../../utils/shogi";
 import type { PieceType as PieceTypeType, Board } from "../../../shared/consts";
+import { Player } from "../../../shared/consts";
 
 export function MatchDetailPage() {
   const params = useParams<{ matchId: string }>();
@@ -12,6 +13,8 @@ export function MatchDetailPage() {
 
   // 盤面の状態管理（初期盤面、持ち駒は空）
   const [board, setBoard] = useState<Board>(createInitialBoard());
+  // 現在のプレイヤー（先手から開始）
+  const [currentPlayer, setCurrentPlayer] = useState<Player>(Player.Sente);
 
   // PieceType[] から { [key in PieceType]?: number } への変換
   const convertCapturedPieces = (
@@ -38,7 +41,11 @@ export function MatchDetailPage() {
           <div className={styles.gotePieceStand}>
             <PieceStand player="gote" capturedPieces={goteCaptured} />
           </div>
-          <ShogiBoard board={board} onBoardChange={setBoard} />
+          <ShogiBoard
+            board={board}
+            currentPlayer={currentPlayer}
+            onBoardChange={setBoard}
+          />
           <div className={styles.sentePieceStand}>
             <PieceStand player="sente" capturedPieces={senteCaptured} />
           </div>

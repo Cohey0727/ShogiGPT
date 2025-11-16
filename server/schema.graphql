@@ -1,8 +1,87 @@
 type Query {
   health: Health!
+  analyzePosition(input: AnalysisInput!): AnalysisResult!
 }
 
 type Health {
   status: String!
   timestamp: String!
+}
+
+"""
+局面解析リクエスト
+"""
+input AnalysisInput {
+  """
+  SFEN形式の局面文字列（省略時は平手初期局面）
+  """
+  sfen: String
+  """
+  初期局面からの指し手リスト（USI形式）
+  """
+  moves: [String!]
+  """
+  思考時間（ミリ秒、デフォルト: 1000）
+  """
+  timeMs: Int
+  """
+  探索深さ（指定時はtimeMsを無視）
+  """
+  depth: Int
+  """
+  候補手の数（MultiPV、デフォルト: 1）
+  """
+  multipv: Int
+}
+
+"""
+局面解析結果
+"""
+type AnalysisResult {
+  """
+  最善手（USI形式）
+  """
+  bestmove: String!
+  """
+  候補手リスト（MultiPV）
+  """
+  variations: [MoveVariation!]!
+  """
+  実際の思考時間（ミリ秒）
+  """
+  timeMs: Int!
+  """
+  エンジン名
+  """
+  engineName: String!
+}
+
+"""
+1つの候補手情報
+"""
+type MoveVariation {
+  """
+  指し手（USI形式）
+  """
+  move: String!
+  """
+  評価値（センチポーン）
+  """
+  scoreCp: Int
+  """
+  詰みまでの手数（プライ数）
+  """
+  scoreMate: Int
+  """
+  探索深さ
+  """
+  depth: Int!
+  """
+  探索ノード数
+  """
+  nodes: Int
+  """
+  読み筋（PV）
+  """
+  pv: [String!]
 }

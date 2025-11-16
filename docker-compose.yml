@@ -23,9 +23,27 @@ services:
     networks:
       - shogi-network
 
+  shogi-api:
+    platform: linux/amd64
+    build:
+      context: ./shogi-ai
+      dockerfile: Dockerfile
+    container_name: shogi-api
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    # 開発時はvolumesをコメントアウトする（.venvが上書きされるため）
+    # volumes:
+    #   - ./shogi-ai/app:/app
+    restart: unless-stopped
+    networks:
+      - shogi-network
+
 volumes:
   postgres_data:
     driver: local
+  engine-data:
 
 networks:
   shogi-network:

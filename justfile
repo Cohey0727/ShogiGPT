@@ -8,20 +8,16 @@ install:
 	cd {{client_dir}} && bun install
 	cd {{server_dir}} && bun install
 
-# Start dev servers
+# Start dev servers (Docker Compose + client + server)
 dev:
-	if command -v mprocs >/dev/null 2>&1; then \
-		mprocs \
-			"cd {{server_dir}} && bun run dev" \
-			"cd {{client_dir}} && bun run dev"; \
-	else \
-		echo "mprocs not found; falling back to simple background runner" >&2; \
-		set -euo pipefail; \
-		trap 'trap - INT TERM EXIT; kill 0' INT TERM EXIT; \
-		(cd {{server_dir}} && bun run dev) & \
-		(cd {{client_dir}} && bun run dev) & \
-		wait; \
-	fi
+	@echo "Starting Docker Compose services..."
+	@docker compose up -d
+	@echo "Waiting for services to be ready..."
+	@sleep 2
+	mprocs \
+		"docker compose logs -f" \
+		"cd {{server_dir}} && bun run dev" \
+		"cd {{client_dir}} && bun run dev"
 
 # Build both packages
 build:
@@ -52,5 +48,5 @@ codegen:
 # Reset database (WARNING: deletes all data)
 db-reset:
 	docker compose down -v
-	docker compose up -d postgres
+	docker compose up -d
 

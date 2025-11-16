@@ -38,19 +38,23 @@ const styles = {
     minHeight: "2rem",
   }),
 
-  capturedPieceItem: style({
+  itemContainer: style({
     position: "relative",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     padding: "0.25rem",
-    backgroundColor: "rgba(212, 165, 116, 0.2)",
+
     borderRadius: "0.25rem",
     cursor: "pointer",
     transition: "background-color 0.2s",
     ":hover": {
       backgroundColor: "rgba(212, 165, 116, 0.4)",
     },
+  }),
+
+  itemContainerBg: style({
+    backgroundColor: "rgba(212, 165, 116, 0.2)",
   }),
 
   capturedPieceImage: style({

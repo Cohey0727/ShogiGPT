@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import clsx from "clsx";
 import { Player, pieceProperties } from "../../../shared/consts";
 import type { Board, BoardIndex, Position } from "../../../shared/consts";
 import { getPossibleMoves } from "../../../services";
@@ -6,10 +7,10 @@ import styles from "./ShogiBoard.css";
 
 interface ShogiBoardProps {
   board: Board;
+  onBoardChange: (board: Board) => void;
 }
 
-export function ShogiBoard({ board: initialBoard }: ShogiBoardProps) {
-  const [board, setBoard] = useState(initialBoard);
+export function ShogiBoard({ board, onBoardChange }: ShogiBoardProps) {
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(
     null
   );
@@ -28,16 +29,50 @@ export function ShogiBoard({ board: initialBoard }: ShogiBoardProps) {
           // 同じマスをクリック -> 選択解除
           setSelectedPosition(null);
         } else {
-          // 別のマスをクリック -> 駒を移動
-          const newCells = board.cells.map((r) => r.slice());
-          const piece = newCells[selectedPosition.row][selectedPosition.col];
-          newCells[selectedPosition.row][selectedPosition.col] = null;
-          newCells[row][col] = piece;
+          // 別のマスをクリック -> 駒を移動（合法手の場合のみ）
+          const isPossibleMove = possibleMoves.some(
+            (move) => move.row === row && move.col === col
+          );
 
-          setBoard({
-            ...board,
-            cells: newCells,
-          });
+          if (isPossibleMove) {
+            // 合法手の場合のみ移動を実行
+            const newCells = board.cells.map((r) => r.slice());
+            const piece = newCells[selectedPosition.row][selectedPosition.col];
+            const capturedPiece = newCells[row][col];
+
+            // 駒を移動
+            newCells[selectedPosition.row][selectedPosition.col] = null;
+            newCells[row][col] = piece;
+
+            // 持ち駒の更新
+            const newCapturedBySente = [...board.capturedBySente];
+            const newCapturedByGote = [...board.capturedByGote];
+
+            if (capturedPiece) {
+              // 駒を取った場合、持ち駒に追加
+              // 成り駒の場合は元の駒に戻す
+              const capturedType =
+                pieceProperties[capturedPiece.type].unpromoted ||
+                capturedPiece.type;
+
+              if (piece?.player === Player.Sente) {
+                // 先手が取った
+                newCapturedBySente.push(capturedType);
+              } else {
+                // 後手が取った
+                newCapturedByGote.push(capturedType);
+              }
+            }
+
+            onBoardChange({
+              ...board,
+              cells: newCells,
+              capturedBySente: newCapturedBySente,
+              capturedByGote: newCapturedByGote,
+            });
+          }
+
+          // 合法手でもそうでなくても選択を解除
           setSelectedPosition(null);
         }
       } else {
@@ -48,7 +83,7 @@ export function ShogiBoard({ board: initialBoard }: ShogiBoardProps) {
         }
       }
     },
-    [board, selectedPosition]
+    [board, selectedPosition, possibleMoves, onBoardChange]
   );
 
   return (
@@ -66,9 +101,10 @@ export function ShogiBoard({ board: initialBoard }: ShogiBoardProps) {
           return (
             <div
               key={`${rowIndex}-${colIndex}`}
-              className={`${styles.cell} ${isSelected ? styles.selected : ""} ${
-                isPossibleMove ? styles.possibleMove : ""
-              }`}
+              className={clsx(styles.cell, {
+                [styles.selected]: isSelected,
+                [styles.possibleMove]: isPossibleMove,
+              })}
               onClick={() =>
                 handleCellClick(rowIndex as BoardIndex, colIndex as BoardIndex)
               }
@@ -77,9 +113,9 @@ export function ShogiBoard({ board: initialBoard }: ShogiBoardProps) {
                 <img
                   src={pieceProperties[cell.type].image}
                   alt={pieceProperties[cell.type].name}
-                  className={`${styles.piece} ${
-                    cell.player === Player.Gote ? styles.gote : ""
-                  }`}
+                  className={clsx(styles.piece, {
+                    [styles.gote]: cell.player === Player.Gote,
+                  })}
                 />
               )}
             </div>

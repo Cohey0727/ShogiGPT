@@ -1,26 +1,31 @@
 import { useParams } from "wouter";
+import { useState } from "react";
 import { ShogiBoard, MatchChat, PieceStand } from "../../organisms";
 
 import styles from "./MatchDetailPage.css";
 import { createInitialBoard } from "../../../utils/shogi";
+import type { PieceType as PieceTypeType, Board } from "../../../shared/consts";
 
 export function MatchDetailPage() {
   const params = useParams<{ matchId: string }>();
   const matchId = params.matchId;
 
-  // 初期盤面を生成
-  const board = createInitialBoard();
+  // 盤面の状態管理（初期盤面、持ち駒は空）
+  const [board, setBoard] = useState<Board>(createInitialBoard());
 
-  // テスト用の持ち駒
-  const testCapturedPieces = {
-    pawn: 3,
-    lance: 2,
-    knight: 1,
-    silver: 2,
-    gold: 1,
-    bishop: 1,
-    rook: 1,
+  // PieceType[] から { [key in PieceType]?: number } への変換
+  const convertCapturedPieces = (
+    pieces: PieceTypeType[]
+  ): { [key in PieceTypeType]?: number } => {
+    const result: { [key in PieceTypeType]?: number } = {};
+    for (const piece of pieces) {
+      result[piece] = (result[piece] || 0) + 1;
+    }
+    return result;
   };
+
+  const senteCaptured = convertCapturedPieces(board.capturedBySente);
+  const goteCaptured = convertCapturedPieces(board.capturedByGote);
 
   return (
     <div className={styles.container}>
@@ -31,11 +36,11 @@ export function MatchDetailPage() {
 
         <div className={styles.boardSection}>
           <div className={styles.gotePieceStand}>
-            <PieceStand player="gote" capturedPieces={testCapturedPieces} />
+            <PieceStand player="gote" capturedPieces={goteCaptured} />
           </div>
-          <ShogiBoard board={board} />
+          <ShogiBoard board={board} onBoardChange={setBoard} />
           <div className={styles.sentePieceStand}>
-            <PieceStand player="sente" capturedPieces={testCapturedPieces} />
+            <PieceStand player="sente" capturedPieces={senteCaptured} />
           </div>
         </div>
       </div>

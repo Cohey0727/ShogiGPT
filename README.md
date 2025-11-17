@@ -18,6 +18,18 @@ ShogiGPTは、将棋AIの思考プロセス（Reasoning、Thinking）を可視�
 - スタイリング: vanilla-extract（ゼロランタイム CSS-in-TS）
 - バンドラ/開発ツール: Vite（Rolldown Vite） + Bun build / bunx serve
 
+## サービスポート一覧
+
+| ポート | サービス | 目的 |
+| --- | --- | --- |
+| 5173 | Client (Vite) | フロントエンド開発サーバー（React UI） |
+| 8787 | Server (Hono) | カスタム GraphQL API サーバー（ビジネスロジック） |
+| 8000 | Shogi API (FastAPI) | 将棋エンジン API（局面解析、指し手生成） |
+| 7777 | Hasura GraphQL API | データベース自動生成 GraphQL API + Subscription |
+| 7776 | Hasura Console | Hasura 管理コンソール） |
+| 5432 | PostgreSQL | データベース（対局、局面、チャット履歴） |
+
+
 ## ディレクトリ構成
 ```
 shogi-web/
@@ -40,7 +52,15 @@ shogi-web/
 ## セットアップ
 1. Bun をインストール (例: `curl -fsSL https://bun.sh/install | bash`)
 2. 開発用のプロセスマネージャー `mprocs` をインストール（`brew install mprocs` や `cargo install mprocs` など）
-3. 依存関係をインストール
+3. Hasura CLI をインストール
+   ```bash
+   # macOS/Linux
+   curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | bash
+
+   # または Homebrew
+   brew install hasura-cli
+   ```
+4. 依存関係をインストール
    ```bash
    just install
    ```
@@ -49,7 +69,7 @@ shogi-web/
 | コマンド | 用途 |
 | --- | --- |
 | `just install` | 依存関係をインストール |
-| `just dev` | ホットリロード付き開発サーバー (server: `http://localhost:8787`, client: `http://localhost:5173`) |
+| `just dev` | ホットリロード付き開発サーバー (server: `http://localhost:8787`, client: `http://localhost:5173`, hasura console: `http://localhost:7776`, hasura API: `http://localhost:7777`) |
 | `just build` | クライアントとサーバーをビルド |
 | `just start` | ビルド済みのクライアントとサーバーを起動（本番検証用） |
 | `just lint` | クライアントとサーバーのコードをリント |

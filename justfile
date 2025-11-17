@@ -2,13 +2,14 @@ set shell := ["bash", "-lc"]
 
 client_dir := "client"
 server_dir := "server"
+hasura_dir := "hasura"
 
 # Install dependencies
 install:
 	cd {{client_dir}} && bun install
 	cd {{server_dir}} && bun install
 
-# Start dev servers (Docker Compose + client + server)
+# Start dev servers
 dev:
 	@echo "Starting Docker Compose services..."
 	@docker compose up -d
@@ -17,7 +18,8 @@ dev:
 	mprocs \
 		"docker compose logs -f" \
 		"cd {{server_dir}} && bun run dev" \
-		"cd {{client_dir}} && bun run dev"
+		"cd {{client_dir}} && bun run dev" \
+		"cd {{hasura_dir}} && hasura console --endpoint http://localhost:7777 --admin-secret shogi_password --console-port 7776"
 
 # Build both packages
 build:
@@ -42,6 +44,9 @@ codegen:
 	@echo "Fetching OpenAPI spec from shogi-ai..."
 	curl -s http://localhost:8000/openapi.json | jq '.' > shogi-ai/openapi.json
 	@echo "Saved to shogi-ai/openapi.json"
+	@echo "Exporting Hasura GraphQL schema..."
+	bunx get-graphql-schema http://localhost:7777/v1/graphql > {{hasura_dir}}/schema.graphql
+	@echo "Saved to {{hasura_dir}}/schema.graphql"
 	cd {{server_dir}} && bun run codegen
 	cd {{client_dir}} && bun run codegen
 

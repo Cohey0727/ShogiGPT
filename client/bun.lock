@@ -27,6 +27,7 @@
         "@vanilla-extract/css": "^1.17.4",
         "clsx": "^2.1.1",
         "graphql": "^16.12.0",
+        "graphql-ws": "^6.0.6",
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
         "url-join": "^5.0.0",

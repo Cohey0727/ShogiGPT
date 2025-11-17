@@ -1,0 +1,55 @@
+table:
+  name: match_states
+  schema: public
+object_relationships:
+  - name: match
+    using:
+      foreign_key_constraint_on: matchId
+insert_permissions:
+  - role: anonymous
+    permission:
+      check: {}
+      columns:
+        - player
+        - index
+        - thinkingTime
+        - id
+        - matchId
+        - moveNotation
+        - sfen
+        - createdAt
+    comment: ""
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - player
+        - index
+        - thinkingTime
+        - id
+        - matchId
+        - moveNotation
+        - sfen
+        - createdAt
+      filter: {}
+    comment: ""
+update_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - player
+        - index
+        - thinkingTime
+        - id
+        - matchId
+        - moveNotation
+        - sfen
+        - createdAt
+      filter: {}
+      check: {}
+    comment: ""
+delete_permissions:
+  - role: anonymous
+    permission:
+      filter: {}
+    comment: ""

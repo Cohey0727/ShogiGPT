@@ -1,4 +1,6 @@
-schema: ./schema.graphql
+schema:
+  - ../server/schema.graphql
+  - ../hasura/schema.graphql
 documents: src/**/*.graphql
 generates:
   ./src/generated/graphql/types.ts:
@@ -10,3 +12,8 @@ generates:
       useTypeImports: true
       maybeValue: T | null | undefined
       enumsAsConst: true
+      scalars:
+        MatchStatus: "'ONGOING' | 'COMPLETED' | 'ABANDONED'"
+        MessageRole: "'USER' | 'ASSISTANT' | 'SYSTEM'"
+        Player: "'SENTE' | 'GOTE'"
+        timestamp: string

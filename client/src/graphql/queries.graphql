@@ -6,14 +6,14 @@ query Health {
 }
 
 query GetMatches {
-  getMatches {
+  matches(orderBy: { createdAt: DESC }) {
     id
     createdAt
     updatedAt
     status
     playerSente
     playerGote
-    states {
+    matchStates(orderBy: { index: ASC }) {
       id
       createdAt
       matchId
@@ -23,7 +23,7 @@ query GetMatches {
       sfen
       thinkingTime
     }
-    messages {
+    chatMessages(orderBy: { createdAt: ASC }) {
       id
       createdAt
       matchId
@@ -34,8 +34,11 @@ query GetMatches {
   }
 }
 
-query GetChatMessages($matchId: ID!) {
-  getChatMessages(matchId: $matchId) {
+query GetChatMessages($matchId: String!) {
+  chatMessages(
+    where: { matchId: { _eq: $matchId } }
+    orderBy: { createdAt: ASC }
+  ) {
     id
     createdAt
     matchId
@@ -45,15 +48,31 @@ query GetChatMessages($matchId: ID!) {
   }
 }
 
-mutation CreateMatch($input: CreateMatchInput!) {
-  createMatch(input: $input) {
+subscription SubscribeChatMessages($matchId: String!) {
+  chatMessages(
+    where: { matchId: { _eq: $matchId } }
+    orderBy: { createdAt: ASC }
+  ) {
+    id
+    createdAt
+    matchId
+    role
+    content
+    metadata
+  }
+}
+
+mutation CreateMatch($playerSente: String, $playerGote: String) {
+  insertMatchesOne(
+    object: { playerSente: $playerSente, playerGote: $playerGote }
+  ) {
     id
     createdAt
     updatedAt
     status
     playerSente
     playerGote
-    states {
+    matchStates(orderBy: { index: ASC }) {
       id
       createdAt
       matchId
@@ -63,7 +82,7 @@ mutation CreateMatch($input: CreateMatchInput!) {
       sfen
       thinkingTime
     }
-    messages {
+    chatMessages(orderBy: { createdAt: ASC }) {
       id
       createdAt
       matchId
@@ -74,8 +93,20 @@ mutation CreateMatch($input: CreateMatchInput!) {
   }
 }
 
-mutation CreateChatMessage($input: CreateChatMessageInput!) {
-  createChatMessage(input: $input) {
+mutation CreateChatMessage(
+  $matchId: String!
+  $role: MessageRole!
+  $content: String!
+  $metadata: String
+) {
+  insertChatMessagesOne(
+    object: {
+      matchId: $matchId
+      role: $role
+      content: $content
+      metadata: $metadata
+    }
+  ) {
     id
     createdAt
     matchId

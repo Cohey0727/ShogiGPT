@@ -15,7 +15,11 @@ services:
       # 初期化スクリプト用（必要に応じて作成）
       # - ./server/db/init:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-shogi_user} -d ${POSTGRES_DB:-shogi_db}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-shogi_user} -d ${POSTGRES_DB:-shogi_db}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,7 +40,21 @@ services:
     # 開発時はvolumesをコメントアウトする（.venvが上書きされるため）
     # volumes:
     #   - ./shogi-ai/app:/app
-    restart: unless-stopped
+    networks:
+      - shogi-network
+
+  hasura:
+    image: hasura/graphql-engine:v2.48.6
+    container_name: shogi-hasura
+    env_file:
+      - ./hasura/.env
+    ports:
+      - "${HASURA_PORT:-7777}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./hasura/metadata:/hasura-metadata
     networks:
       - shogi-network
 

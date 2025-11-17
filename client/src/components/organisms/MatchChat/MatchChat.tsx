@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { MessageBubble } from "../MessageBubble";
 import {
-  useGetChatMessagesQuery,
+  useSubscribeChatMessagesSubscription,
   useCreateChatMessageMutation,
-  MessageRole,
 } from "../../../generated/graphql/types";
 import styles from "./MatchChat.css";
 
@@ -21,16 +20,12 @@ const formatTimestamp = (isoString: string): string => {
   });
 };
 
-export function MatchChat({
-  matchId,
-  currentUser = "あなた",
-  onFirstMessage,
-}: MatchChatProps) {
+export function MatchChat({ matchId, onFirstMessage }: MatchChatProps) {
   const isNewMatch = matchId === "new";
   const [inputValue, setInputValue] = useState("");
 
-  // メッセージ取得（新規対局の場合はスキップ）
-  const [{ data, fetching }] = useGetChatMessagesQuery({
+  // メッセージ取得（新規対局の場合はスキップ）- Subscriptionでリアルタイム更新
+  const [{ data, fetching }] = useSubscribeChatMessagesSubscription({
     variables: { matchId },
     pause: isNewMatch,
   });
@@ -55,17 +50,15 @@ export function MatchChat({
 
     // メッセージを作成
     await createChatMessage({
-      input: {
-        matchId: targetMatchId,
-        role: MessageRole.User,
-        content: inputValue,
-      },
+      matchId: targetMatchId,
+      role: "USER" as const,
+      content: inputValue,
     });
 
     setInputValue("");
   };
 
-  const messages = data?.getChatMessages || [];
+  const messages = data?.chatMessages || [];
 
   if (fetching) {
     return (
@@ -83,10 +76,10 @@ export function MatchChat({
         {messages.map((msg) => (
           <MessageBubble
             key={msg.id}
-            sender={msg.role === MessageRole.User ? "あなた" : "アシスタント"}
+            sender={msg.role === "USER" ? "あなた" : "アシスタント"}
             message={msg.content}
             timestamp={formatTimestamp(msg.createdAt)}
-            isCurrentUser={msg.role === MessageRole.User}
+            isCurrentUser={msg.role === "USER"}
           />
         ))}
       </div>

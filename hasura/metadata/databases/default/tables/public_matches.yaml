@@ -1,0 +1,60 @@
+table:
+  name: matches
+  schema: public
+array_relationships:
+  - name: chatMessages
+    using:
+      foreign_key_constraint_on:
+        column: matchId
+        table:
+          name: chat_messages
+          schema: public
+  - name: matchStates
+    using:
+      foreign_key_constraint_on:
+        column: matchId
+        table:
+          name: match_states
+          schema: public
+insert_permissions:
+  - role: anonymous
+    permission:
+      check: {}
+      columns:
+        - status
+        - id
+        - playerGote
+        - playerSente
+        - createdAt
+        - updatedAt
+    comment: ""
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - status
+        - id
+        - playerGote
+        - playerSente
+        - createdAt
+        - updatedAt
+      filter: {}
+    comment: ""
+update_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - status
+        - id
+        - playerGote
+        - playerSente
+        - createdAt
+        - updatedAt
+      filter: {}
+      check: {}
+    comment: ""
+delete_permissions:
+  - role: anonymous
+    permission:
+      filter: {}
+    comment: ""

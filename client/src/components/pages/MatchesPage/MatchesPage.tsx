@@ -1,18 +1,18 @@
 import { Link } from "wouter";
-import {
-  useGetMatchesQuery,
-  MatchStatus,
-} from "../../../generated/graphql/types";
+import { useGetMatchesQuery } from "../../../generated/graphql/types";
+import type { Scalars } from "../../../generated/graphql/types";
 import styles from "./MatchesPage.css";
 
-const getStatusLabel = (status: MatchStatus): string => {
+const getStatusLabel = (status: Scalars["MatchStatus"]["input"]): string => {
   switch (status) {
-    case MatchStatus.Ongoing:
+    case "ONGOING":
       return "進行中";
-    case MatchStatus.Completed:
+    case "COMPLETED":
       return "完了";
-    case MatchStatus.Abandoned:
+    case "ABANDONED":
       return "中断";
+    default:
+      return "不明";
   }
 };
 
@@ -22,10 +22,7 @@ const formatDate = (isoString: string): string => {
 };
 
 export function MatchesPage() {
-  const [result] = useGetMatchesQuery();
-
-  const { data, fetching, error } = result;
-
+  const [{ data, fetching, error }] = useGetMatchesQuery();
   if (fetching) {
     return (
       <div className={styles.container}>
@@ -48,7 +45,7 @@ export function MatchesPage() {
     );
   }
 
-  const matches = data?.getMatches || [];
+  const matches = data?.matches || [];
 
   return (
     <div className={styles.container}>
@@ -92,7 +89,7 @@ export function MatchesPage() {
 
                 <div className={styles.matchInfo}>
                   <span>{formatDate(match.createdAt)}</span>
-                  <span>{match.states.length}手</span>
+                  <span>{match.matchStates.length}手</span>
                 </div>
               </div>
             </Link>

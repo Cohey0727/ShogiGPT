@@ -1,0 +1,49 @@
+table:
+  name: chat_messages
+  schema: public
+object_relationships:
+  - name: match
+    using:
+      foreign_key_constraint_on: matchId
+insert_permissions:
+  - role: anonymous
+    permission:
+      check: {}
+      columns:
+        - role
+        - content
+        - id
+        - matchId
+        - metadata
+        - createdAt
+    comment: ""
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - role
+        - content
+        - id
+        - matchId
+        - metadata
+        - createdAt
+      filter: {}
+    comment: ""
+update_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - role
+        - content
+        - id
+        - matchId
+        - metadata
+        - createdAt
+      filter: {}
+      check: {}
+    comment: ""
+delete_permissions:
+  - role: anonymous
+    permission:
+      filter: {}
+    comment: ""

@@ -2,6 +2,12 @@ import { graphqlServer } from "@hono/graphql-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { schema } from "./resolvers/schema";
+import { client as shogiApiClient } from "./generated/shogi-api/client.gen";
+
+// shogi-apiクライアントの初期化
+const shogiApiUrl = Bun.env.SHOGI_API_URL || "http://localhost:8000";
+shogiApiClient.setConfig({ baseUrl: shogiApiUrl });
+console.log(`🔧 Shogi API client configured: ${shogiApiUrl}`);
 
 const app = new Hono();
 

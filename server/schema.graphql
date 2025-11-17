@@ -4,6 +4,7 @@ type Query {
 
 type Mutation {
   analyzePosition(input: AnalysisInput!): AnalysisResult!
+  sendChatMessage(input: SendChatMessageInput!): SendChatMessageResult!
 }
 
 type Health {
@@ -87,5 +88,59 @@ type MoveVariation {
   読み筋（PV）
   """
   pv: [String!]
+}
+
+"""
+チャットメッセージ送信リクエスト
+"""
+input SendChatMessageInput {
+  """
+  対局ID
+  """
+  matchId: String!
+  """
+  メッセージ内容
+  """
+  content: String!
+}
+
+"""
+チャットメッセージ送信結果
+"""
+type SendChatMessageResult {
+  """
+  作成されたユーザーメッセージ
+  """
+  userMessage: ChatMessage!
+  """
+  AIアシスタントの応答メッセージ
+  """
+  assistantMessage: ChatMessage!
+}
+
+"""
+チャットメッセージ
+"""
+type ChatMessage {
+  """
+  メッセージID
+  """
+  id: String!
+  """
+  対局ID
+  """
+  matchId: String!
+  """
+  メッセージ役割
+  """
+  role: String!
+  """
+  メッセージ内容
+  """
+  content: String!
+  """
+  作成日時
+  """
+  createdAt: String!
 }
 

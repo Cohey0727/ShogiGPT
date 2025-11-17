@@ -48,6 +48,21 @@ export type AnalysisResult = {
   variations: Array<MoveVariation>;
 };
 
+/** チャットメッセージ */
+export type ChatMessage = {
+  __typename?: 'ChatMessage';
+  /** メッセージ内容 */
+  content: Scalars['String']['output'];
+  /** 作成日時 */
+  createdAt: Scalars['String']['output'];
+  /** メッセージID */
+  id: Scalars['String']['output'];
+  /** 対局ID */
+  matchId: Scalars['String']['output'];
+  /** メッセージ役割 */
+  role: Scalars['String']['output'];
+};
+
 /** columns and relationships of "chat_messages" */
 export type ChatMessages = {
   __typename?: 'ChatMessages';
@@ -745,16 +760,6 @@ export type MoveVariation = {
   scoreMate?: Maybe<Scalars['Int']['output']>;
 };
 
-export type Mutation = {
-  __typename?: 'Mutation';
-  analyzePosition: AnalysisResult;
-};
-
-
-export type MutationAnalyzePositionArgs = {
-  input: AnalysisInput;
-};
-
 /** column ordering options */
 export const OrderBy = {
   /** in ascending order, nulls last */
@@ -785,9 +790,21 @@ export type PlayerComparisonExp = {
   _nin?: InputMaybe<Array<Scalars['Player']['input']>>;
 };
 
-export type Query = {
-  __typename?: 'Query';
-  health: Health;
+/** チャットメッセージ送信リクエスト */
+export type SendChatMessageInput = {
+  /** メッセージ内容 */
+  content: Scalars['String']['input'];
+  /** 対局ID */
+  matchId: Scalars['String']['input'];
+};
+
+/** チャットメッセージ送信結果 */
+export type SendChatMessageResult = {
+  __typename?: 'SendChatMessageResult';
+  /** AIアシスタントの応答メッセージ */
+  assistantMessage: ChatMessage;
+  /** 作成されたユーザーメッセージ */
+  userMessage: ChatMessage;
 };
 
 /** Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'. */
@@ -864,6 +881,7 @@ export type Mutation_Root = {
   insertMatches?: Maybe<MatchesMutationResponse>;
   /** insert a single row into the table: "matches" */
   insertMatchesOne?: Maybe<Matches>;
+  sendChatMessage: SendChatMessageResult;
   /** update data of the table: "chat_messages" */
   updateChatMessages?: Maybe<ChatMessagesMutationResponse>;
   /** update single row of the table: "chat_messages" */
@@ -966,6 +984,12 @@ export type Mutation_RootInsertMatchesArgs = {
 export type Mutation_RootInsertMatchesOneArgs = {
   object: MatchesInsertInput;
   onConflict?: InputMaybe<MatchesOnConflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootSendChatMessageArgs = {
+  input: SendChatMessageInput;
 };
 
 
@@ -1206,15 +1230,13 @@ export type CreateMatchMutationVariables = Exact<{
 
 export type CreateMatchMutation = { __typename?: 'mutation_root', insertMatchesOne?: { __typename?: 'Matches', id: string, createdAt: string, updatedAt: string, status: 'ONGOING' | 'COMPLETED' | 'ABANDONED', playerSente?: string | null | undefined, playerGote?: string | null | undefined, matchStates: Array<{ __typename?: 'MatchStates', id: string, createdAt: string, matchId: string, index: number, moveNotation?: string | null | undefined, player: 'SENTE' | 'GOTE', sfen: string, thinkingTime?: number | null | undefined }>, chatMessages: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, matchId: string, role: 'USER' | 'ASSISTANT' | 'SYSTEM', content: string, metadata?: string | null | undefined }> } | null | undefined };
 
-export type CreateChatMessageMutationVariables = Exact<{
+export type SendChatMessageMutationVariables = Exact<{
   matchId: Scalars['String']['input'];
-  role: Scalars['MessageRole']['input'];
   content: Scalars['String']['input'];
-  metadata?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type CreateChatMessageMutation = { __typename?: 'mutation_root', insertChatMessagesOne?: { __typename?: 'ChatMessages', id: string, createdAt: string, matchId: string, role: 'USER' | 'ASSISTANT' | 'SYSTEM', content: string, metadata?: string | null | undefined } | null | undefined };
+export type SendChatMessageMutation = { __typename?: 'mutation_root', sendChatMessage: { __typename?: 'SendChatMessageResult', userMessage: { __typename?: 'ChatMessage', id: string, matchId: string, role: string, content: string, createdAt: string }, assistantMessage: { __typename?: 'ChatMessage', id: string, matchId: string, role: string, content: string, createdAt: string } } };
 
 export type AnalyzePositionMutationVariables = Exact<{
   input: AnalysisInput;
@@ -1336,23 +1358,29 @@ export const CreateMatchDocument = gql`
 export function useCreateMatchMutation() {
   return Urql.useMutation<CreateMatchMutation, CreateMatchMutationVariables>(CreateMatchDocument);
 };
-export const CreateChatMessageDocument = gql`
-    mutation CreateChatMessage($matchId: String!, $role: MessageRole!, $content: String!, $metadata: String) {
-  insertChatMessagesOne(
-    object: {matchId: $matchId, role: $role, content: $content, metadata: $metadata}
-  ) {
-    id
-    createdAt
-    matchId
-    role
-    content
-    metadata
+export const SendChatMessageDocument = gql`
+    mutation SendChatMessage($matchId: String!, $content: String!) {
+  sendChatMessage(input: {matchId: $matchId, content: $content}) {
+    userMessage {
+      id
+      matchId
+      role
+      content
+      createdAt
+    }
+    assistantMessage {
+      id
+      matchId
+      role
+      content
+      createdAt
+    }
   }
 }
     `;
 
-export function useCreateChatMessageMutation() {
-  return Urql.useMutation<CreateChatMessageMutation, CreateChatMessageMutationVariables>(CreateChatMessageDocument);
+export function useSendChatMessageMutation() {
+  return Urql.useMutation<SendChatMessageMutation, SendChatMessageMutationVariables>(SendChatMessageDocument);
 };
 export const AnalyzePositionDocument = gql`
     mutation AnalyzePosition($input: AnalysisInput!) {

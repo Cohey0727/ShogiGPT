@@ -93,26 +93,22 @@ mutation CreateMatch($playerSente: String, $playerGote: String) {
   }
 }
 
-mutation CreateChatMessage(
-  $matchId: String!
-  $role: MessageRole!
-  $content: String!
-  $metadata: String
-) {
-  insertChatMessagesOne(
-    object: {
-      matchId: $matchId
-      role: $role
-      content: $content
-      metadata: $metadata
+mutation SendChatMessage($matchId: String!, $content: String!) {
+  sendChatMessage(input: { matchId: $matchId, content: $content }) {
+    userMessage {
+      id
+      matchId
+      role
+      content
+      createdAt
     }
-  ) {
-    id
-    createdAt
-    matchId
-    role
-    content
-    metadata
+    assistantMessage {
+      id
+      matchId
+      role
+      content
+      createdAt
+    }
   }
 }
 

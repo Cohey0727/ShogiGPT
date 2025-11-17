@@ -2,7 +2,7 @@ import { useState } from "react";
 import { MessageBubble } from "../MessageBubble";
 import {
   useSubscribeChatMessagesSubscription,
-  useCreateChatMessageMutation,
+  useSendChatMessageMutation,
 } from "../../../generated/graphql/types";
 import styles from "./MatchChat.css";
 
@@ -30,7 +30,7 @@ export function MatchChat({ matchId, onFirstMessage }: MatchChatProps) {
     pause: isNewMatch,
   });
 
-  const [, createChatMessage] = useCreateChatMessageMutation();
+  const [, sendChatMessage] = useSendChatMessageMutation();
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,10 +48,9 @@ export function MatchChat({ matchId, onFirstMessage }: MatchChatProps) {
       targetMatchId = newMatchId;
     }
 
-    // メッセージを作成
-    await createChatMessage({
+    // メッセージを送信（サーバーがユーザーメッセージとAI応答の両方を作成）
+    await sendChatMessage({
       matchId: targetMatchId,
-      role: "USER" as const,
       content: inputValue,
     });
 

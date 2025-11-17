@@ -1,6 +1,5 @@
 schema:
-  - ../server/schema.graphql
-  - ../hasura/schema.graphql
+  - ./schema.graphql
 documents: src/**/*.graphql
 generates:
   ./src/generated/graphql/types.ts:

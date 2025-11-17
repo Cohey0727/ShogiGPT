@@ -46,6 +46,24 @@ type AnalysisResult {
   variations: [MoveVariation!]!
 }
 
+"""チャットメッセージ"""
+type ChatMessage {
+  """メッセージ内容"""
+  content: String!
+
+  """作成日時"""
+  createdAt: String!
+
+  """メッセージID"""
+  id: String!
+
+  """対局ID"""
+  matchId: String!
+
+  """メッセージ役割"""
+  role: String!
+}
+
 """
 columns and relationships of "chat_messages"
 """
@@ -1011,6 +1029,7 @@ type mutation_root {
     """upsert condition"""
     onConflict: MatchesOnConflict
   ): Matches
+  sendChatMessage(input: SendChatMessageInput!): SendChatMessageResult!
 
   """
   update data of the table: "chat_messages"
@@ -1207,6 +1226,24 @@ type query_root {
 
   """fetch data from the table: "matches" using primary key columns"""
   matchesByPk(id: String!): Matches
+}
+
+"""チャットメッセージ送信リクエスト"""
+input SendChatMessageInput {
+  """メッセージ内容"""
+  content: String!
+
+  """対局ID"""
+  matchId: String!
+}
+
+"""チャットメッセージ送信結果"""
+type SendChatMessageResult {
+  """AIアシスタントの応答メッセージ"""
+  assistantMessage: ChatMessage!
+
+  """作成されたユーザーメッセージ"""
+  userMessage: ChatMessage!
 }
 
 """

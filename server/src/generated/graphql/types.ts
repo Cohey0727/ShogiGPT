@@ -43,6 +43,21 @@ export type AnalysisResult = {
   variations: Array<MoveVariation>;
 };
 
+/** チャットメッセージ */
+export type ChatMessage = {
+  __typename?: 'ChatMessage';
+  /** メッセージ内容 */
+  content: Scalars['String']['output'];
+  /** 作成日時 */
+  createdAt: Scalars['String']['output'];
+  /** メッセージID */
+  id: Scalars['String']['output'];
+  /** 対局ID */
+  matchId: Scalars['String']['output'];
+  /** メッセージ役割 */
+  role: Scalars['String']['output'];
+};
+
 export type Health = {
   __typename?: 'Health';
   status: Scalars['String']['output'];
@@ -69,6 +84,7 @@ export type MoveVariation = {
 export type Mutation = {
   __typename?: 'Mutation';
   analyzePosition: AnalysisResult;
+  sendChatMessage: SendChatMessageResult;
 };
 
 
@@ -76,9 +92,31 @@ export type MutationAnalyzePositionArgs = {
   input: AnalysisInput;
 };
 
+
+export type MutationSendChatMessageArgs = {
+  input: SendChatMessageInput;
+};
+
 export type Query = {
   __typename?: 'Query';
   health: Health;
+};
+
+/** チャットメッセージ送信リクエスト */
+export type SendChatMessageInput = {
+  /** メッセージ内容 */
+  content: Scalars['String']['input'];
+  /** 対局ID */
+  matchId: Scalars['String']['input'];
+};
+
+/** チャットメッセージ送信結果 */
+export type SendChatMessageResult = {
+  __typename?: 'SendChatMessageResult';
+  /** AIアシスタントの応答メッセージ */
+  assistantMessage: ChatMessage;
+  /** 作成されたユーザーメッセージ */
+  userMessage: ChatMessage;
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -158,11 +196,14 @@ export type ResolversTypes = ResolversObject<{
   AnalysisInput: AnalysisInput;
   AnalysisResult: ResolverTypeWrapper<AnalysisResult>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  ChatMessage: ResolverTypeWrapper<ChatMessage>;
   Health: ResolverTypeWrapper<Health>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   MoveVariation: ResolverTypeWrapper<MoveVariation>;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
+  SendChatMessageInput: SendChatMessageInput;
+  SendChatMessageResult: ResolverTypeWrapper<SendChatMessageResult>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
 }>;
 
@@ -171,11 +212,14 @@ export type ResolversParentTypes = ResolversObject<{
   AnalysisInput: AnalysisInput;
   AnalysisResult: AnalysisResult;
   Boolean: Scalars['Boolean']['output'];
+  ChatMessage: ChatMessage;
   Health: Health;
   Int: Scalars['Int']['output'];
   MoveVariation: MoveVariation;
   Mutation: Record<PropertyKey, never>;
   Query: Record<PropertyKey, never>;
+  SendChatMessageInput: SendChatMessageInput;
+  SendChatMessageResult: SendChatMessageResult;
   String: Scalars['String']['output'];
 }>;
 
@@ -184,6 +228,14 @@ export type AnalysisResultResolvers<ContextType = any, ParentType extends Resolv
   engineName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   timeMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   variations?: Resolver<Array<ResolversTypes['MoveVariation']>, ParentType, ContextType>;
+}>;
+
+export type ChatMessageResolvers<ContextType = any, ParentType extends ResolversParentTypes['ChatMessage'] = ResolversParentTypes['ChatMessage']> = ResolversObject<{
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  matchId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  role?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 
 export type HealthResolvers<ContextType = any, ParentType extends ResolversParentTypes['Health'] = ResolversParentTypes['Health']> = ResolversObject<{
@@ -202,17 +254,25 @@ export type MoveVariationResolvers<ContextType = any, ParentType extends Resolve
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   analyzePosition?: Resolver<ResolversTypes['AnalysisResult'], ParentType, ContextType, RequireFields<MutationAnalyzePositionArgs, 'input'>>;
+  sendChatMessage?: Resolver<ResolversTypes['SendChatMessageResult'], ParentType, ContextType, RequireFields<MutationSendChatMessageArgs, 'input'>>;
 }>;
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   health?: Resolver<ResolversTypes['Health'], ParentType, ContextType>;
 }>;
 
+export type SendChatMessageResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['SendChatMessageResult'] = ResolversParentTypes['SendChatMessageResult']> = ResolversObject<{
+  assistantMessage?: Resolver<ResolversTypes['ChatMessage'], ParentType, ContextType>;
+  userMessage?: Resolver<ResolversTypes['ChatMessage'], ParentType, ContextType>;
+}>;
+
 export type Resolvers<ContextType = any> = ResolversObject<{
   AnalysisResult?: AnalysisResultResolvers<ContextType>;
+  ChatMessage?: ChatMessageResolvers<ContextType>;
   Health?: HealthResolvers<ContextType>;
   MoveVariation?: MoveVariationResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  SendChatMessageResult?: SendChatMessageResultResolvers<ContextType>;
 }>;
 

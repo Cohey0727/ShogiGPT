@@ -20,30 +20,31 @@ const styles = {
 
   variant: {
     default: style({
-      backgroundColor: "#3b82f6",
-      color: "white",
+      backgroundColor: "#d4af37",
+      color: "#1a1a1a",
       selectors: {
         "&:hover:not(:disabled)": {
-          backgroundColor: "#2563eb",
+          backgroundColor: "#e5c158",
         },
       },
     }),
     outline: style({
       backgroundColor: "transparent",
-      border: "1px solid #e5e7eb",
-      color: "#374151",
+      border: "1px solid rgba(212, 175, 55, 0.3)",
+      color: "#b0b0b0",
       selectors: {
         "&:hover:not(:disabled)": {
-          backgroundColor: "#f9fafb",
+          backgroundColor: "rgba(255, 255, 255, 0.05)",
+          color: "#f5f5f5",
         },
       },
     }),
     ghost: style({
       backgroundColor: "transparent",
-      color: "#374151",
+      color: "#b0b0b0",
       selectors: {
         "&:hover:not(:disabled)": {
-          backgroundColor: "#f9fafb",
+          backgroundColor: "rgba(255, 255, 255, 0.05)",
         },
       },
     }),

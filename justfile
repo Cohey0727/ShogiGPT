@@ -14,7 +14,7 @@ dev:
 	@echo "Starting Docker Compose services..."
 	@docker compose up -d
 	@echo "Waiting for services to be ready..."
-	@sleep 2
+	@sleep 3
 	mprocs \
 		"docker compose logs -f" \
 		"cd {{server_dir}} && bun run dev" \
@@ -44,6 +44,8 @@ codegen:
 	@echo "Fetching OpenAPI spec from shogi-ai..."
 	curl -s http://localhost:8000/openapi.json | jq '.' > shogi-ai/openapi.json
 	@echo "Saved to shogi-ai/openapi.json"
+	@echo "Reloading Hasura metadata to include remote schemas..."
+	@cd {{hasura_dir}} && hasura metadata reload --endpoint http://localhost:7777 --admin-secret shogi_password
 	@echo "Exporting Hasura GraphQL schema..."
 	bunx get-graphql-schema http://localhost:7777/v1/graphql > {{hasura_dir}}/schema.graphql
 	@echo "Saved to {{hasura_dir}}/schema.graphql"
@@ -53,6 +55,20 @@ codegen:
 # Run database migrations
 migrate:
 	cd {{server_dir}} && bunx prisma migrate dev
+	@echo "Reloading Hasura metadata after migration..."
+	@cd {{hasura_dir}} && hasura metadata reload --endpoint http://localhost:7777 --admin-secret shogi_password
+
+# Reload Hasura metadata (useful after schema changes)
+hasura-reload:
+	@echo "Reloading Hasura metadata..."
+	@cd {{hasura_dir}} && hasura metadata reload --endpoint http://localhost:7777 --admin-secret shogi_password
+	@echo "Metadata reloaded successfully"
+
+# Apply Hasura metadata from files
+hasura-apply:
+	@echo "Applying Hasura metadata..."
+	@cd {{hasura_dir}} && hasura metadata apply --endpoint http://localhost:7777 --admin-secret shogi_password
+	@echo "Metadata applied successfully"
 
 # Reset Docker database (WARNING: deletes all data)
 reset:

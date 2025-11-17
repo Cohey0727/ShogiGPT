@@ -40,6 +40,7 @@ CREATE TABLE "chat_messages" (
     "matchId" TEXT NOT NULL,
     "role" "MessageRole" NOT NULL,
     "content" TEXT NOT NULL,
+    "isPartial" BOOLEAN NOT NULL DEFAULT false,
     "metadata" TEXT,
 
     CONSTRAINT "chat_messages_pkey" PRIMARY KEY ("id")

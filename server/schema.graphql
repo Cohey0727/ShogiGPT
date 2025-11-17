@@ -5,6 +5,8 @@ type Query {
 type Mutation {
   analyzePosition(input: AnalysisInput!): AnalysisResult!
   sendChatMessage(input: SendChatMessageInput!): SendChatMessageResult!
+  createMatch(input: CreateMatchInput!): Match!
+  saveMatchStateAndGetCandidates(input: SaveMatchStateInput!): SaveMatchStateResult!
 }
 
 type Health {
@@ -138,6 +140,148 @@ type ChatMessage {
   メッセージ内容
   """
   content: String!
+  """
+  入力途中かどうか（AI応答待ち）
+  """
+  isPartial: Boolean!
+  """
+  作成日時
+  """
+  createdAt: String!
+}
+
+"""
+対局作成リクエスト
+"""
+input CreateMatchInput {
+  """
+  対局ID（指定しない場合は自動生成）
+  """
+  id: String
+  """
+  先手のプレイヤー名
+  """
+  playerSente: String
+  """
+  後手のプレイヤー名
+  """
+  playerGote: String
+}
+
+"""
+対局情報
+"""
+type Match {
+  """
+  対局ID
+  """
+  id: String!
+  """
+  作成日時
+  """
+  createdAt: String!
+  """
+  更新日時
+  """
+  updatedAt: String!
+  """
+  対局状況
+  """
+  status: String!
+  """
+  先手のプレイヤー名
+  """
+  playerSente: String
+  """
+  後手のプレイヤー名
+  """
+  playerGote: String
+}
+
+"""
+対局状態保存リクエスト
+"""
+input SaveMatchStateInput {
+  """
+  対局ID
+  """
+  matchId: String!
+  """
+  局面番号（何手目か）
+  """
+  index: Int!
+  """
+  この局面に至った指し手（USI形式）
+  """
+  moveNotation: String
+  """
+  この盤面での手番プレイヤー（SENTE/GOTE）
+  """
+  player: String!
+  """
+  盤面（SFEN形式）
+  """
+  sfen: String!
+  """
+  消費時間（秒）
+  """
+  thinkingTime: Int
+  """
+  候補手の数（MultiPV、デフォルト: 3）
+  """
+  multipv: Int
+  """
+  思考時間（ミリ秒、デフォルト: 1000）
+  """
+  timeMs: Int
+}
+
+"""
+対局状態保存結果
+"""
+type SaveMatchStateResult {
+  """
+  保存された対局状態
+  """
+  matchState: MatchState!
+  """
+  次の候補手リスト
+  """
+  candidates: [MoveVariation!]!
+}
+
+"""
+対局状態
+"""
+type MatchState {
+  """
+  状態ID
+  """
+  id: String!
+  """
+  対局ID
+  """
+  matchId: String!
+  """
+  局面番号
+  """
+  index: Int!
+  """
+  指し手（USI形式）
+  """
+  moveNotation: String
+  """
+  手番プレイヤー
+  """
+  player: String!
+  """
+  盤面（SFEN形式）
+  """
+  sfen: String!
+  """
+  消費時間（秒）
+  """
+  thinkingTime: Int
   """
   作成日時
   """

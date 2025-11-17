@@ -9,7 +9,6 @@ import styles from "./MatchChat.css";
 interface MatchChatProps {
   matchId: string;
   currentUser?: string;
-  onFirstMessage?: () => Promise<string | null>;
 }
 
 const formatTimestamp = (isoString: string): string => {
@@ -20,14 +19,12 @@ const formatTimestamp = (isoString: string): string => {
   });
 };
 
-export function MatchChat({ matchId, onFirstMessage }: MatchChatProps) {
-  const isNewMatch = matchId === "new";
+export function MatchChat({ matchId }: MatchChatProps) {
   const [inputValue, setInputValue] = useState("");
 
-  // メッセージ取得（新規対局の場合はスキップ）- Subscriptionでリアルタイム更新
+  // メッセージ取得 - Subscriptionでリアルタイム更新
   const [{ data, fetching }] = useSubscribeChatMessagesSubscription({
     variables: { matchId },
-    pause: isNewMatch,
   });
 
   const [, sendChatMessage] = useSendChatMessageMutation();
@@ -36,21 +33,9 @@ export function MatchChat({ matchId, onFirstMessage }: MatchChatProps) {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    let targetMatchId = matchId;
-
-    // 新規対局の最初のメッセージの場合、マッチを作成
-    if (isNewMatch && onFirstMessage) {
-      const newMatchId = await onFirstMessage();
-      if (!newMatchId) {
-        console.error("Failed to create match");
-        return;
-      }
-      targetMatchId = newMatchId;
-    }
-
     // メッセージを送信（サーバーがユーザーメッセージとAI応答の両方を作成）
     await sendChatMessage({
-      matchId: targetMatchId,
+      matchId,
       content: inputValue,
     });
 

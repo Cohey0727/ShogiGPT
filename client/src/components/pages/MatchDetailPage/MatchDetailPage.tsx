@@ -1,10 +1,7 @@
-import { useParams, useLocation } from "wouter";
+import { useParams } from "wouter";
 import { useState } from "react";
 import { ShogiBoard, MatchChat, PieceStand } from "../../organisms";
-import {
-  useCreateMatchMutation,
-  useAnalyzePositionMutation,
-} from "../../../generated/graphql/types";
+import { useAnalyzePositionMutation } from "../../../generated/graphql/types";
 import styles from "./MatchDetailPage.css";
 import { createInitialBoard } from "../../../utils/shogi";
 import type { PieceType as PieceTypeType, Board } from "../../../shared/consts";
@@ -13,11 +10,6 @@ import { Player, boardToSfen } from "../../../shared/consts";
 export function MatchDetailPage() {
   const params = useParams<{ matchId: string }>();
   const matchId = params.matchId;
-  const [, setLocation] = useLocation();
-  const [actualMatchId, setActualMatchId] = useState<string | null>(
-    matchId === "new" ? null : matchId || null
-  );
-  const [, createMatch] = useCreateMatchMutation();
   const [, analyzePosition] = useAnalyzePositionMutation();
 
   // 盤面の状態管理（初期盤面、持ち駒は空）
@@ -55,8 +47,10 @@ export function MatchDetailPage() {
       const result = await analyzePosition({
         input: {
           sfen,
-          timeMs: 1000, // 1秒思考
-          multipv: 3, // 候補手3つ
+          timeMs: 1000,
+          multipv: 3,
+          depth: null,
+          moves: null,
         },
       });
 
@@ -86,34 +80,20 @@ export function MatchDetailPage() {
     }
   };
 
-  // 最初のメッセージ送信時にマッチを作成（matchIdが"new"の場合）
-  const handleFirstMessage = async () => {
-    if (actualMatchId) return actualMatchId; // すでにマッチが作成されている場合
-
-    const result = await createMatch({
-      playerSente: "先手",
-      playerGote: "後手",
-    });
-
-    if (result.data?.insertMatchesOne) {
-      const newMatchId = result.data.insertMatchesOne.id;
-      setActualMatchId(newMatchId);
-      // URLを置き換え
-      setLocation(`/matches/${newMatchId}`, { replace: true });
-      return newMatchId;
-    }
-
-    return null;
-  };
+  // matchIdが存在しない場合はエラー表示
+  if (!matchId) {
+    return (
+      <div className={styles.container}>
+        <p>対局IDが指定されていません</p>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
       <div className={styles.content}>
         <div className={styles.chatSection}>
-          <MatchChat
-            matchId={actualMatchId || "new"}
-            onFirstMessage={matchId === "new" ? handleFirstMessage : undefined}
-          />
+          <MatchChat matchId={matchId} />
         </div>
 
         <div className={styles.boardSection}>

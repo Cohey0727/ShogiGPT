@@ -1,6 +1,9 @@
-import { Link } from "wouter";
-import { useGetMatchesQuery } from "../../../generated/graphql/types";
+import { Link, useLocation } from "wouter";
+import { useState } from "react";
+import { createId } from "@paralleldrive/cuid2";
+import { useGetMatchesQuery, useCreateMatchMutation } from "../../../generated/graphql/types";
 import type { Scalars } from "../../../generated/graphql/types";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, Button, Row, SegmentButton } from "../../atoms";
 import styles from "./MatchesPage.css";
 
 const getStatusLabel = (status: Scalars["MatchStatus"]["input"]): string => {
@@ -23,6 +26,35 @@ const formatDate = (isoString: string): string => {
 
 export function MatchesPage() {
   const [{ data, fetching, error }] = useGetMatchesQuery();
+  const [, setLocation] = useLocation();
+  const [, createMatch] = useCreateMatchMutation();
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [selectedSide, setSelectedSide] = useState<"sente" | "gote">("sente");
+
+  const handleCreateMatch = async () => {
+    setIsCreating(true);
+    try {
+      const newMatchId = createId();
+      const result = await createMatch({
+        id: newMatchId,
+        playerSente: selectedSide === "sente" ? "あなた" : "AI",
+        playerGote: selectedSide === "gote" ? "あなた" : "AI",
+      });
+
+      if (result.data?.createMatch) {
+        setLocation(`/matches/${result.data.createMatch.id}`);
+      } else if (result.error) {
+        alert(`対局の作成に失敗しました: ${result.error.message}`);
+      }
+    } catch (error) {
+      alert(`対局の作成に失敗しました: ${error}`);
+    } finally {
+      setIsCreating(false);
+      setShowConfirmDialog(false);
+    }
+  };
+
   if (fetching) {
     return (
       <div className={styles.container}>
@@ -54,9 +86,13 @@ export function MatchesPage() {
         <p className={styles.subtitle}>
           進行中の対局と過去の対局を確認できます
         </p>
-        <Link href="/matches/new">
-          <button className={styles.newMatchButton}>新規対局</button>
-        </Link>
+        <button
+          className={styles.newMatchButton}
+          onClick={() => setShowConfirmDialog(true)}
+          disabled={isCreating}
+        >
+          {isCreating ? "作成中..." : "新規対局"}
+        </button>
       </div>
 
       <div className={styles.matchList}>
@@ -96,6 +132,40 @@ export function MatchesPage() {
           ))
         )}
       </div>
+
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent>
+          <DialogTitle>新規対局を開始</DialogTitle>
+          <DialogDescription>あなたの手番を選択してください</DialogDescription>
+          <Row justify="center" style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+            <SegmentButton
+              options={[
+                { value: "sente", label: "先手" },
+                { value: "gote", label: "後手" },
+              ]}
+              value={selectedSide}
+              onChange={setSelectedSide}
+              disabled={isCreating}
+            />
+          </Row>
+          <Row gap="sm" justify="end">
+            <Button
+              variant="outline"
+              onClick={() => setShowConfirmDialog(false)}
+              disabled={isCreating}
+            >
+              キャンセル
+            </Button>
+            <Button
+              variant="default"
+              onClick={handleCreateMatch}
+              disabled={isCreating}
+            >
+              {isCreating ? "作成中..." : "開始"}
+            </Button>
+          </Row>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

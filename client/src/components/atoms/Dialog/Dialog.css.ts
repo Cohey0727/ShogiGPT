@@ -20,10 +20,11 @@ const styles = {
   }),
 
   content: style({
-    backgroundColor: "white",
+    backgroundColor: "#2d2d2d",
+    border: "1px solid rgba(212, 175, 55, 0.2)",
     borderRadius: "0.5rem",
     boxShadow:
-      "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+      "0 10px 30px -3px rgba(0, 0, 0, 0.5), 0 4px 12px -2px rgba(0, 0, 0, 0.3)",
     position: "fixed",
     top: "50%",
     left: "50%",
@@ -43,11 +44,12 @@ const styles = {
     fontSize: "1.125rem",
     fontWeight: "600",
     marginBottom: "1rem",
+    color: "#f5f5f5",
   }),
 
   description: style({
     fontSize: "0.875rem",
-    color: "#6b7280",
+    color: "#b0b0b0",
     marginBottom: "1rem",
   }),
 
@@ -61,16 +63,17 @@ const styles = {
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "#6b7280",
+    color: "#b0b0b0",
     cursor: "pointer",
     border: "none",
     backgroundColor: "transparent",
     ":hover": {
-      backgroundColor: "#f3f4f6",
+      backgroundColor: "rgba(255, 255, 255, 0.1)",
+      color: "#f5f5f5",
     },
     ":focus": {
       outline: "none",
-      boxShadow: "0 0 0 2px #3b82f6",
+      boxShadow: "0 0 0 2px rgba(212, 175, 55, 0.5)",
     },
   }),
 };

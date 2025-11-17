@@ -1,5 +1,6 @@
 schema:
   - ./schema.graphql
+  - ../server/schema.graphql
 documents: src/**/*.graphql
 generates:
   ./src/generated/graphql/types.ts:
@@ -11,6 +12,7 @@ generates:
       useTypeImports: true
       maybeValue: T | null | undefined
       enumsAsConst: true
+      avoidOptionals: true
       scalars:
         MatchStatus: "'ONGOING' | 'COMPLETED' | 'ABANDONED'"
         MessageRole: "'USER' | 'ASSISTANT' | 'SYSTEM'"

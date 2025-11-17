@@ -62,9 +62,9 @@ subscription SubscribeChatMessages($matchId: String!) {
   }
 }
 
-mutation CreateMatch($playerSente: String, $playerGote: String) {
-  insertMatchesOne(
-    object: { playerSente: $playerSente, playerGote: $playerGote }
+mutation CreateMatch($id: String, $playerSente: String, $playerGote: String) {
+  createMatch(
+    input: { id: $id, playerSente: $playerSente, playerGote: $playerGote }
   ) {
     id
     createdAt
@@ -72,24 +72,6 @@ mutation CreateMatch($playerSente: String, $playerGote: String) {
     status
     playerSente
     playerGote
-    matchStates(orderBy: { index: ASC }) {
-      id
-      createdAt
-      matchId
-      index
-      moveNotation
-      player
-      sfen
-      thinkingTime
-    }
-    chatMessages(orderBy: { createdAt: ASC }) {
-      id
-      createdAt
-      matchId
-      role
-      content
-      metadata
-    }
   }
 }
 

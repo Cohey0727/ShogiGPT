@@ -15,6 +15,7 @@ insert_permissions:
         - id
         - matchId
         - metadata
+        - isPartial
         - createdAt
     comment: ""
 select_permissions:
@@ -26,6 +27,7 @@ select_permissions:
         - id
         - matchId
         - metadata
+        - isPartial
         - createdAt
       filter: {}
     comment: ""
@@ -38,6 +40,7 @@ update_permissions:
         - id
         - matchId
         - metadata
+        - isPartial
         - createdAt
       filter: {}
       check: {}

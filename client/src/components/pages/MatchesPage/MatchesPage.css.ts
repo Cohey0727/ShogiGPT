@@ -136,6 +136,45 @@ const styles = {
       boxShadow: "0 4px 12px rgba(212, 175, 55, 0.4)",
     },
   }),
+
+  dialogActions: style({
+    display: "flex",
+    gap: "0.5rem",
+    justifyContent: "flex-end",
+    marginTop: "1rem",
+  }),
+
+  dialogButton: style({
+    padding: "0.5rem 1rem",
+    borderRadius: "0.375rem",
+    fontSize: "0.875rem",
+    fontWeight: "500",
+    cursor: "pointer",
+    transition: "all 0.2s",
+    border: "none",
+    ":disabled": {
+      opacity: 0.5,
+      cursor: "not-allowed",
+    },
+  }),
+
+  dialogButtonCancel: style({
+    background: "transparent",
+    border: "1px solid rgba(212, 175, 55, 0.3)",
+    color: "#b0b0b0",
+    ":hover": {
+      backgroundColor: "rgba(255, 255, 255, 0.05)",
+      color: "#f5f5f5",
+    },
+  }),
+
+  dialogButtonPrimary: style({
+    background: "#d4af37",
+    color: "#1a1a1a",
+    ":hover": {
+      background: "#e5c158",
+    },
+  }),
 };
 
 export default styles;

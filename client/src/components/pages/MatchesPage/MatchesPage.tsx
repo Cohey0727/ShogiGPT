@@ -30,7 +30,8 @@ export function MatchesPage() {
   const [, createMatch] = useCreateMatchMutation();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [selectedSide, setSelectedSide] = useState<"sente" | "gote">("sente");
+  const [senteType, setSenteType] = useState<"HUMAN" | "AI">("HUMAN");
+  const [goteType, setGoteType] = useState<"HUMAN" | "AI">("AI");
 
   const handleCreateMatch = async () => {
     setIsCreating(true);
@@ -38,8 +39,10 @@ export function MatchesPage() {
       const newMatchId = createId();
       const result = await createMatch({
         id: newMatchId,
-        playerSente: selectedSide === "sente" ? "あなた" : "AI",
-        playerGote: selectedSide === "gote" ? "あなた" : "AI",
+        playerSente: senteType === "HUMAN" ? "あなた" : "AI",
+        playerGote: goteType === "HUMAN" ? "あなた" : "AI",
+        senteType,
+        goteType,
       });
 
       if (result.data?.createMatch) {
@@ -86,13 +89,12 @@ export function MatchesPage() {
         <p className={styles.subtitle}>
           進行中の対局と過去の対局を確認できます
         </p>
-        <button
-          className={styles.newMatchButton}
+        <Button
           onClick={() => setShowConfirmDialog(true)}
           disabled={isCreating}
         >
           {isCreating ? "作成中..." : "新規対局"}
-        </button>
+        </Button>
       </div>
 
       <div className={styles.matchList}>
@@ -136,28 +138,54 @@ export function MatchesPage() {
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent>
           <DialogTitle>新規対局を開始</DialogTitle>
-          <DialogDescription>あなたの手番を選択してください</DialogDescription>
-          <Row justify="center" style={{ marginTop: "1rem", marginBottom: "1rem" }}>
-            <SegmentButton
-              options={[
-                { value: "sente", label: "先手" },
-                { value: "gote", label: "後手" },
-              ]}
-              value={selectedSide}
-              onChange={setSelectedSide}
-              disabled={isCreating}
-            />
-          </Row>
+          <DialogDescription>プレイヤーを選択してください</DialogDescription>
+
+          <div style={{ marginTop: "1.5rem", marginBottom: "1rem" }}>
+            <div style={{ marginBottom: "1.5rem" }}>
+              <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 500 }}>
+                先手
+              </label>
+              <Row justify="center">
+                <SegmentButton
+                  options={[
+                    { value: "HUMAN", label: "人間" },
+                    { value: "AI", label: "AI" },
+                  ]}
+                  value={senteType}
+                  onChange={setSenteType}
+                  disabled={isCreating}
+                />
+              </Row>
+            </div>
+
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 500 }}>
+                後手
+              </label>
+              <Row justify="center">
+                <SegmentButton
+                  options={[
+                    { value: "HUMAN", label: "人間" },
+                    { value: "AI", label: "AI" },
+                  ]}
+                  value={goteType}
+                  onChange={setGoteType}
+                  disabled={isCreating}
+                />
+              </Row>
+            </div>
+          </div>
+
           <Row gap="sm" justify="end">
             <Button
-              variant="outline"
+              variant="outlined"
               onClick={() => setShowConfirmDialog(false)}
               disabled={isCreating}
             >
               キャンセル
             </Button>
             <Button
-              variant="default"
+              variant="filled"
               onClick={handleCreateMatch}
               disabled={isCreating}
             >

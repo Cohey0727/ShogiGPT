@@ -4,7 +4,7 @@ import styles from "./PieceStand.css";
 
 interface PieceStandProps {
   player: Player;
-  capturedPieces: { [key in PieceType]?: number };
+  pieces: PieceType[];
 }
 
 // 持ち駒として表示する駒の種類（価値の高い順）
@@ -18,8 +18,14 @@ const PIECE_ORDER: PieceType[] = [
   PieceType.Pawn,
 ];
 
-export function PieceStand({ player, capturedPieces }: PieceStandProps) {
+export function PieceStand({ player, pieces }: PieceStandProps) {
   const isGote = player === Player.Gote;
+
+  // PieceType[] から { [key in PieceType]?: number } への変換
+  const pieceCounts = pieces.reduce((acc, piece) => {
+    acc[piece] = (acc[piece] || 0) + 1;
+    return acc;
+  }, {} as { [key in PieceType]?: number });
 
   return (
     <div
@@ -30,7 +36,7 @@ export function PieceStand({ player, capturedPieces }: PieceStandProps) {
     >
       <div className={styles.capturedList}>
         {PIECE_ORDER.map((pieceType) => {
-          const count = capturedPieces[pieceType] || 0;
+          const count = pieceCounts[pieceType] || 0;
           const piece = pieceProperties[pieceType];
           const captured = count > 0;
 

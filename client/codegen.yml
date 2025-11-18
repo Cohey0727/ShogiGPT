@@ -12,9 +12,10 @@ generates:
       useTypeImports: true
       maybeValue: T | null | undefined
       enumsAsConst: true
-      avoidOptionals: true
+      avoidOptionals: false
       scalars:
         MatchStatus: "'ONGOING' | 'COMPLETED' | 'ABANDONED'"
         MessageRole: "'USER' | 'ASSISTANT' | 'SYSTEM'"
         Player: "'SENTE' | 'GOTE'"
+        PlayerType: "'HUMAN' | 'AI'"
         timestamp: string

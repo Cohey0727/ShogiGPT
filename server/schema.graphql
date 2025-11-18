@@ -3,10 +3,10 @@ type Query {
 }
 
 type Mutation {
-  analyzePosition(input: AnalysisInput!): AnalysisResult!
   sendChatMessage(input: SendChatMessageInput!): SendChatMessageResult!
   createMatch(input: CreateMatchInput!): Match!
   saveMatchStateAndGetCandidates(input: SaveMatchStateInput!): SaveMatchStateResult!
+  evaluateMatchState(input: EvaluateMatchStateInput!): EvaluateMatchStateResult!
 }
 
 type Health {
@@ -15,52 +15,9 @@ type Health {
 }
 
 """
-局面解析リクエスト
+プレイヤータイプ（HUMAN または AI）
 """
-input AnalysisInput {
-  """
-  SFEN形式の局面文字列（省略時は平手初期局面）
-  """
-  sfen: String
-  """
-  初期局面からの指し手リスト（USI形式）
-  """
-  moves: [String!]
-  """
-  思考時間（ミリ秒、デフォルト: 1000）
-  """
-  timeMs: Int
-  """
-  探索深さ（指定時はtimeMsを無視）
-  """
-  depth: Int
-  """
-  候補手の数（MultiPV、デフォルト: 1）
-  """
-  multipv: Int
-}
-
-"""
-局面解析結果
-"""
-type AnalysisResult {
-  """
-  最善手（USI形式）
-  """
-  bestmove: String!
-  """
-  候補手リスト（MultiPV）
-  """
-  variations: [MoveVariation!]!
-  """
-  実際の思考時間（ミリ秒）
-  """
-  timeMs: Int!
-  """
-  エンジン名
-  """
-  engineName: String!
-}
+scalar PlayerType
 
 """
 1つの候補手情報
@@ -166,6 +123,14 @@ input CreateMatchInput {
   後手のプレイヤー名
   """
   playerGote: String
+  """
+  先手のプレイヤータイプ
+  """
+  senteType: PlayerType
+  """
+  後手のプレイヤータイプ
+  """
+  goteType: PlayerType
 }
 
 """
@@ -196,6 +161,14 @@ type Match {
   後手のプレイヤー名
   """
   playerGote: String
+  """
+  先手のプレイヤータイプ
+  """
+  senteType: PlayerType!
+  """
+  後手のプレイヤータイプ
+  """
+  goteType: PlayerType!
 }
 
 """
@@ -286,5 +259,61 @@ type MatchState {
   作成日時
   """
   createdAt: String!
+}
+
+"""
+対局状態評価リクエスト
+"""
+input EvaluateMatchStateInput {
+  """
+  対局ID
+  """
+  matchId: String!
+  """
+  局面番号（何手目か）
+  """
+  index: Int!
+  """
+  この局面に至った指し手（USI形式）
+  """
+  moveNotation: String
+  """
+  この盤面での手番プレイヤー（SENTE/GOTE）
+  """
+  player: String!
+  """
+  盤面（SFEN形式）
+  """
+  sfen: String!
+  """
+  消費時間（秒）
+  """
+  thinkingTime: Int
+  """
+  候補手の数（MultiPV、デフォルト: 3）
+  """
+  multipv: Int
+  """
+  思考時間（ミリ秒、デフォルト: 1000）
+  """
+  timeMs: Int
+}
+
+"""
+対局状態評価結果
+"""
+type EvaluateMatchStateResult {
+  """
+  成功したかどうか
+  """
+  success: Boolean!
+  """
+  保存された対局状態
+  """
+  matchState: MatchState!
+  """
+  思考中を示すチャットメッセージ
+  """
+  thinkingMessage: ChatMessage!
 }
 

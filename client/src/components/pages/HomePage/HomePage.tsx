@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { Button } from "../../atoms/Button";
 import styles from "./HomePage.css";
 
 export function HomePage() {
@@ -10,10 +11,10 @@ export function HomePage() {
 
         <div className={styles.buttonContainer}>
           <Link href="/matches">
-            <button className={styles.startButton}>対局を始める</button>
+            <Button>対局を始める</Button>
           </Link>
           <Link href="/settings">
-            <button className={styles.secondaryButton}>設定</button>
+            <Button variant="outlined">設定</Button>
           </Link>
         </div>
       </div>

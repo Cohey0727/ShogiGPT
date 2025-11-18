@@ -42,7 +42,8 @@
     "remark-gfm": "^4.0.1",
     "url-join": "^5.0.0",
     "urql": "^5.0.1",
-    "wouter": "^3.7.1"
+    "wouter": "^3.7.1",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -52,7 +53,7 @@
     "@graphql-codegen/typescript-urql": "^4.0.1",
     "@graphql-tools/graphql-file-loader": "^8.1.6",
     "@types/node": "^24.10.1",
-    "@types/react": "^19.2.5",
+    "@types/react": "^19.2.6",
     "@types/react-dom": "^19.2.3",
     "@vanilla-extract/vite-plugin": "^5.1.1",
     "@vitejs/plugin-react": "^5.1.1",

@@ -13,39 +13,6 @@ directive @cached(
   refresh: Boolean! = false
 ) on QUERY
 
-"""局面解析リクエスト"""
-input AnalysisInput {
-  """探索深さ（指定時はtimeMsを無視）"""
-  depth: Int
-
-  """初期局面からの指し手リスト（USI形式）"""
-  moves: [String!]
-
-  """候補手の数（MultiPV、デフォルト: 1）"""
-  multipv: Int
-
-  """SFEN形式の局面文字列（省略時は平手初期局面）"""
-  sfen: String
-
-  """思考時間（ミリ秒、デフォルト: 1000）"""
-  timeMs: Int
-}
-
-"""局面解析結果"""
-type AnalysisResult {
-  """最善手（USI形式）"""
-  bestmove: String!
-
-  """エンジン名"""
-  engineName: String!
-
-  """実際の思考時間（ミリ秒）"""
-  timeMs: Int!
-
-  """候補手リスト（MultiPV）"""
-  variations: [MoveVariation!]!
-}
-
 """
 Boolean expression to compare columns of type "Boolean". All fields are combined with logical 'AND'.
 """
@@ -316,6 +283,9 @@ input ChatMessagesUpdates {
 
 """対局作成リクエスト"""
 input CreateMatchInput {
+  """後手のプレイヤータイプ"""
+  goteType: PlayerType
+
   """対局ID（指定しない場合は自動生成）"""
   id: String
 
@@ -324,6 +294,9 @@ input CreateMatchInput {
 
   """先手のプレイヤー名"""
   playerSente: String
+
+  """先手のプレイヤータイプ"""
+  senteType: PlayerType
 }
 
 """ordering argument of a cursor"""
@@ -333,6 +306,45 @@ enum CursorOrdering {
 
   """descending ordering of the cursor"""
   DESC
+}
+
+"""対局状態評価リクエスト"""
+input EvaluateMatchStateInput {
+  """局面番号（何手目か）"""
+  index: Int!
+
+  """対局ID"""
+  matchId: String!
+
+  """この局面に至った指し手（USI形式）"""
+  moveNotation: String
+
+  """候補手の数（MultiPV、デフォルト: 3）"""
+  multipv: Int
+
+  """この盤面での手番プレイヤー（SENTE/GOTE）"""
+  player: String!
+
+  """盤面（SFEN形式）"""
+  sfen: String!
+
+  """消費時間（秒）"""
+  thinkingTime: Int
+
+  """思考時間（ミリ秒、デフォルト: 1000）"""
+  timeMs: Int
+}
+
+"""対局状態評価結果"""
+type EvaluateMatchStateResult {
+  """保存された対局状態"""
+  matchState: MatchState!
+
+  """成功したかどうか"""
+  success: Boolean!
+
+  """思考中を示すチャットメッセージ"""
+  thinkingMessage: ChatMessage!
 }
 
 type Health {
@@ -360,6 +372,9 @@ type Match {
   """作成日時"""
   createdAt: String!
 
+  """後手のプレイヤータイプ"""
+  goteType: PlayerType!
+
   """対局ID"""
   id: String!
 
@@ -368,6 +383,9 @@ type Match {
 
   """先手のプレイヤー名"""
   playerSente: String
+
+  """先手のプレイヤータイプ"""
+  senteType: PlayerType!
 
   """対局状況"""
   status: String!
@@ -398,6 +416,7 @@ type Matches {
     where: ChatMessagesBoolExp
   ): [ChatMessages!]!
   createdAt: timestamp!
+  goteType: PlayerType!
   id: String!
 
   """An array relationship"""
@@ -419,6 +438,7 @@ type Matches {
   ): [MatchStates!]!
   playerGote: String
   playerSente: String
+  senteType: PlayerType!
   status: MatchStatus!
   updatedAt: timestamp!
 }
@@ -432,10 +452,12 @@ input MatchesBoolExp {
   _or: [MatchesBoolExp!]
   chatMessages: ChatMessagesBoolExp
   createdAt: TimestampComparisonExp
+  goteType: PlayerTypeComparisonExp
   id: StringComparisonExp
   matchStates: MatchStatesBoolExp
   playerGote: StringComparisonExp
   playerSente: StringComparisonExp
+  senteType: PlayerTypeComparisonExp
   status: MatchStatusComparisonExp
   updatedAt: TimestampComparisonExp
 }
@@ -456,10 +478,12 @@ input type for inserting data into table "matches"
 input MatchesInsertInput {
   chatMessages: ChatMessagesArrRelInsertInput
   createdAt: timestamp
+  goteType: PlayerType
   id: String
   matchStates: MatchStatesArrRelInsertInput
   playerGote: String
   playerSente: String
+  senteType: PlayerType
   status: MatchStatus
   updatedAt: timestamp
 }
@@ -498,10 +522,12 @@ input MatchesOnConflict {
 input MatchesOrderBy {
   chatMessagesAggregate: ChatMessagesAggregateOrderBy
   createdAt: OrderBy
+  goteType: OrderBy
   id: OrderBy
   matchStatesAggregate: MatchStatesAggregateOrderBy
   playerGote: OrderBy
   playerSente: OrderBy
+  senteType: OrderBy
   status: OrderBy
   updatedAt: OrderBy
 }
@@ -519,6 +545,9 @@ enum MatchesSelectColumn {
   createdAt
 
   """column name"""
+  goteType
+
+  """column name"""
   id
 
   """column name"""
@@ -526,6 +555,9 @@ enum MatchesSelectColumn {
 
   """column name"""
   playerSente
+
+  """column name"""
+  senteType
 
   """column name"""
   status
@@ -539,9 +571,11 @@ input type for updating data in table "matches"
 """
 input MatchesSetInput {
   createdAt: timestamp
+  goteType: PlayerType
   id: String
   playerGote: String
   playerSente: String
+  senteType: PlayerType
   status: MatchStatus
   updatedAt: timestamp
 }
@@ -560,9 +594,11 @@ input MatchesStreamCursorInput {
 """Initial value of the column from where the streaming should start"""
 input MatchesStreamCursorValueInput {
   createdAt: timestamp
+  goteType: PlayerType
   id: String
   playerGote: String
   playerSente: String
+  senteType: PlayerType
   status: MatchStatus
   updatedAt: timestamp
 }
@@ -575,6 +611,9 @@ enum MatchesUpdateColumn {
   createdAt
 
   """column name"""
+  goteType
+
+  """column name"""
   id
 
   """column name"""
@@ -582,6 +621,9 @@ enum MatchesUpdateColumn {
 
   """column name"""
   playerSente
+
+  """column name"""
+  senteType
 
   """column name"""
   status
@@ -1013,7 +1055,6 @@ type MoveVariation {
 
 """mutation root"""
 type mutation_root {
-  analyzePosition(input: AnalysisInput!): AnalysisResult!
   createMatch(input: CreateMatchInput!): Match!
 
   """
@@ -1054,6 +1095,7 @@ type mutation_root {
   delete single row from the table: "matches"
   """
   deleteMatchesByPk(id: String!): Matches
+  evaluateMatchState(input: EvaluateMatchStateInput!): EvaluateMatchStateResult!
 
   """
   insert data into the table: "chat_messages"
@@ -1250,6 +1292,23 @@ input PlayerComparisonExp {
   _lte: Player
   _neq: Player
   _nin: [Player!]
+}
+
+scalar PlayerType
+
+"""
+Boolean expression to compare columns of type "PlayerType". All fields are combined with logical 'AND'.
+"""
+input PlayerTypeComparisonExp {
+  _eq: PlayerType
+  _gt: PlayerType
+  _gte: PlayerType
+  _in: [PlayerType!]
+  _isNull: Boolean
+  _lt: PlayerType
+  _lte: PlayerType
+  _neq: PlayerType
+  _nin: [PlayerType!]
 }
 
 type query_root {

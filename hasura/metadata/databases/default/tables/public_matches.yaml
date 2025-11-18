@@ -21,6 +21,8 @@ insert_permissions:
     permission:
       check: {}
       columns:
+        - goteType
+        - senteType
         - status
         - id
         - playerGote
@@ -32,6 +34,8 @@ select_permissions:
   - role: anonymous
     permission:
       columns:
+        - goteType
+        - senteType
         - status
         - id
         - playerGote
@@ -44,6 +48,8 @@ update_permissions:
   - role: anonymous
     permission:
       columns:
+        - goteType
+        - senteType
         - status
         - id
         - playerGote

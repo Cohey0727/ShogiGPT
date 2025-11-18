@@ -19,6 +19,10 @@ model Match {
   playerSente String?
   /// 後手のプレイヤー名
   playerGote  String?
+  /// 先手のプレイヤータイプ
+  senteType   PlayerType    @default(HUMAN)
+  /// 後手のプレイヤータイプ
+  goteType    PlayerType    @default(HUMAN)
   messages    ChatMessage[]
   states      MatchState[]
 
@@ -59,8 +63,8 @@ model ChatMessage {
   matchId   String
   /// メッセージの送信者ロール
   role      MessageRole
-  /// メッセージ本文
-  content   String
+  /// メッセージコンテンツ（JSON形式、Markdownや候補手などを含む配列）
+  contents  Json
   /// 入力途中かどうか
   isPartial Boolean     @default(false)
   /// メタデータ（JSON形式、AI推論データなど）
@@ -83,6 +87,12 @@ enum MatchStatus {
 enum Player {
   SENTE
   GOTE
+}
+
+/// プレイヤータイプ
+enum PlayerType {
+  HUMAN
+  AI
 }
 
 /// メッセージの送信者ロール

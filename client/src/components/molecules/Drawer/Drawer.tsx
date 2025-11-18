@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect } from "react";
 import { Cross1Icon } from "@radix-ui/react-icons";
+import { Button } from "../../atoms/Button";
 import styles from "./Drawer.css";
 
 interface DrawerProps {
@@ -38,13 +39,13 @@ export function Drawer({ isOpen, onClose, children }: DrawerProps) {
     <>
       <div className={styles.overlay} onClick={onClose} />
       <aside className={`${styles.drawer} ${isOpen ? styles.open : ""}`}>
-        <button
-          className={styles.closeButton}
+        <Button
+          variant="ghost"
           onClick={onClose}
           aria-label="メニューを閉じる"
         >
           <Cross1Icon width={20} height={20} />
-        </button>
+        </Button>
         <h2 className={styles.title}>ShogiGPT</h2>
         {children}
       </aside>

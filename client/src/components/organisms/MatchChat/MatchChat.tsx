@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { MessageBubble } from "../MessageBubble";
+import { Button } from "../../atoms/Button";
 import {
   useSubscribeChatMessagesSubscription,
   useSendChatMessageMutation,
@@ -21,6 +22,7 @@ const formatTimestamp = (isoString: string): string => {
 
 export function MatchChat({ matchId }: MatchChatProps) {
   const [inputValue, setInputValue] = useState("");
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   // メッセージ取得 - Subscriptionでリアルタイム更新
   const [{ data, fetching }] = useSubscribeChatMessagesSubscription({
@@ -28,6 +30,15 @@ export function MatchChat({ matchId }: MatchChatProps) {
   });
 
   const [, sendChatMessage] = useSendChatMessageMutation();
+
+  const messages = useMemo(() => data?.chatMessages || [], [data?.chatMessages]);
+
+  // 新着メッセージがある場合は自動スクロール
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,8 +53,6 @@ export function MatchChat({ matchId }: MatchChatProps) {
     setInputValue("");
   };
 
-  const messages = data?.chatMessages || [];
-
   if (fetching) {
     return (
       <div className={styles.container}>
@@ -56,7 +65,7 @@ export function MatchChat({ matchId }: MatchChatProps) {
 
   return (
     <div className={styles.container}>
-      <div className={styles.messagesContainer}>
+      <div className={styles.messagesContainer} ref={messagesContainerRef}>
         {messages.map((msg) => (
           <MessageBubble
             key={msg.id}
@@ -75,9 +84,9 @@ export function MatchChat({ matchId }: MatchChatProps) {
           placeholder="メッセージを入力..."
           className={styles.input}
         />
-        <button type="submit" className={styles.sendButton}>
+        <Button type="submit">
           送信
-        </button>
+        </Button>
       </form>
     </div>
   );

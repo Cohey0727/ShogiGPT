@@ -1,7 +1,7 @@
 import { Link } from "wouter";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useState, Suspense } from "react";
 import { HomeIcon, LayersIcon, GearIcon } from "@radix-ui/react-icons";
-import { Header, Drawer } from "../../molecules";
+import { Header, Drawer, Loading } from "../../molecules";
 import styles from "./RootLayout.css";
 
 interface RootLayoutProps {
@@ -54,7 +54,9 @@ export function RootLayout({ children }: RootLayoutProps) {
         {navigationItems}
       </Drawer>
 
-      <main className={styles.main}>{children}</main>
+      <main className={styles.main}>
+        <Suspense fallback={<Loading />}>{children}</Suspense>
+      </main>
     </div>
   );
 }

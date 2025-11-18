@@ -1,3 +1,4 @@
+import { Button } from "../../atoms/Button";
 import styles from "./SettingsPage.css";
 
 export function SettingsPage() {
@@ -110,7 +111,7 @@ export function SettingsPage() {
           </div>
         </div>
 
-        <button className={styles.saveButton}>設定を保存</button>
+        <Button>設定を保存</Button>
       </div>
     </div>
   );

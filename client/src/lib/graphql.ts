@@ -33,4 +33,5 @@ export const client = createClient({
   ],
   fetchOptions: { headers: { "Content-Type": "application/json" } },
   preferGetMethod: false,
+  suspense: true,
 });

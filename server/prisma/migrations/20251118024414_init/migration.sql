@@ -5,6 +5,9 @@ CREATE TYPE "MatchStatus" AS ENUM ('ONGOING', 'COMPLETED', 'ABANDONED');
 CREATE TYPE "Player" AS ENUM ('SENTE', 'GOTE');
 
 -- CreateEnum
+CREATE TYPE "PlayerType" AS ENUM ('HUMAN', 'AI');
+
+-- CreateEnum
 CREATE TYPE "MessageRole" AS ENUM ('USER', 'ASSISTANT', 'SYSTEM');
 
 -- CreateTable
@@ -15,6 +18,8 @@ CREATE TABLE "matches" (
     "status" "MatchStatus" NOT NULL DEFAULT 'ONGOING',
     "playerSente" TEXT,
     "playerGote" TEXT,
+    "senteType" "PlayerType" NOT NULL DEFAULT 'HUMAN',
+    "goteType" "PlayerType" NOT NULL DEFAULT 'HUMAN',
 
     CONSTRAINT "matches_pkey" PRIMARY KEY ("id")
 );

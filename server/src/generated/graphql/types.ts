@@ -1,4 +1,4 @@
-import type { GraphQLResolveInfo } from 'graphql';
+import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 export type Maybe<T> = T | null | undefined;
 export type InputMaybe<T> = T | null | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -14,33 +14,8 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-};
-
-/** 局面解析リクエスト */
-export type AnalysisInput = {
-  /** 探索深さ（指定時はtimeMsを無視） */
-  depth?: InputMaybe<Scalars['Int']['input']>;
-  /** 初期局面からの指し手リスト（USI形式） */
-  moves?: InputMaybe<Array<Scalars['String']['input']>>;
-  /** 候補手の数（MultiPV、デフォルト: 1） */
-  multipv?: InputMaybe<Scalars['Int']['input']>;
-  /** SFEN形式の局面文字列（省略時は平手初期局面） */
-  sfen?: InputMaybe<Scalars['String']['input']>;
-  /** 思考時間（ミリ秒、デフォルト: 1000） */
-  timeMs?: InputMaybe<Scalars['Int']['input']>;
-};
-
-/** 局面解析結果 */
-export type AnalysisResult = {
-  __typename?: 'AnalysisResult';
-  /** 最善手（USI形式） */
-  bestmove: Scalars['String']['output'];
-  /** エンジン名 */
-  engineName: Scalars['String']['output'];
-  /** 実際の思考時間（ミリ秒） */
-  timeMs: Scalars['Int']['output'];
-  /** 候補手リスト（MultiPV） */
-  variations: Array<MoveVariation>;
+  /** プレイヤータイプ（HUMAN または AI） */
+  PlayerType: { input: any; output: any; }
 };
 
 /** チャットメッセージ */
@@ -62,12 +37,47 @@ export type ChatMessage = {
 
 /** 対局作成リクエスト */
 export type CreateMatchInput = {
+  /** 後手のプレイヤータイプ */
+  goteType?: InputMaybe<Scalars['PlayerType']['input']>;
   /** 対局ID（指定しない場合は自動生成） */
   id?: InputMaybe<Scalars['String']['input']>;
   /** 後手のプレイヤー名 */
   playerGote?: InputMaybe<Scalars['String']['input']>;
   /** 先手のプレイヤー名 */
   playerSente?: InputMaybe<Scalars['String']['input']>;
+  /** 先手のプレイヤータイプ */
+  senteType?: InputMaybe<Scalars['PlayerType']['input']>;
+};
+
+/** 対局状態評価リクエスト */
+export type EvaluateMatchStateInput = {
+  /** 局面番号（何手目か） */
+  index: Scalars['Int']['input'];
+  /** 対局ID */
+  matchId: Scalars['String']['input'];
+  /** この局面に至った指し手（USI形式） */
+  moveNotation?: InputMaybe<Scalars['String']['input']>;
+  /** 候補手の数（MultiPV、デフォルト: 3） */
+  multipv?: InputMaybe<Scalars['Int']['input']>;
+  /** この盤面での手番プレイヤー（SENTE/GOTE） */
+  player: Scalars['String']['input'];
+  /** 盤面（SFEN形式） */
+  sfen: Scalars['String']['input'];
+  /** 消費時間（秒） */
+  thinkingTime?: InputMaybe<Scalars['Int']['input']>;
+  /** 思考時間（ミリ秒、デフォルト: 1000） */
+  timeMs?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** 対局状態評価結果 */
+export type EvaluateMatchStateResult = {
+  __typename?: 'EvaluateMatchStateResult';
+  /** 保存された対局状態 */
+  matchState: MatchState;
+  /** 成功したかどうか */
+  success: Scalars['Boolean']['output'];
+  /** 思考中を示すチャットメッセージ */
+  thinkingMessage: ChatMessage;
 };
 
 export type Health = {
@@ -81,12 +91,16 @@ export type Match = {
   __typename?: 'Match';
   /** 作成日時 */
   createdAt: Scalars['String']['output'];
+  /** 後手のプレイヤータイプ */
+  goteType: Scalars['PlayerType']['output'];
   /** 対局ID */
   id: Scalars['String']['output'];
   /** 後手のプレイヤー名 */
   playerGote?: Maybe<Scalars['String']['output']>;
   /** 先手のプレイヤー名 */
   playerSente?: Maybe<Scalars['String']['output']>;
+  /** 先手のプレイヤータイプ */
+  senteType: Scalars['PlayerType']['output'];
   /** 対局状況 */
   status: Scalars['String']['output'];
   /** 更新日時 */
@@ -133,20 +147,20 @@ export type MoveVariation = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  analyzePosition: AnalysisResult;
   createMatch: Match;
+  evaluateMatchState: EvaluateMatchStateResult;
   saveMatchStateAndGetCandidates: SaveMatchStateResult;
   sendChatMessage: SendChatMessageResult;
 };
 
 
-export type MutationAnalyzePositionArgs = {
-  input: AnalysisInput;
+export type MutationCreateMatchArgs = {
+  input: CreateMatchInput;
 };
 
 
-export type MutationCreateMatchArgs = {
-  input: CreateMatchInput;
+export type MutationEvaluateMatchStateArgs = {
+  input: EvaluateMatchStateInput;
 };
 
 
@@ -284,17 +298,18 @@ export type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = 
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
-  AnalysisInput: AnalysisInput;
-  AnalysisResult: ResolverTypeWrapper<AnalysisResult>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   ChatMessage: ResolverTypeWrapper<ChatMessage>;
   CreateMatchInput: CreateMatchInput;
+  EvaluateMatchStateInput: EvaluateMatchStateInput;
+  EvaluateMatchStateResult: ResolverTypeWrapper<EvaluateMatchStateResult>;
   Health: ResolverTypeWrapper<Health>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Match: ResolverTypeWrapper<Match>;
   MatchState: ResolverTypeWrapper<MatchState>;
   MoveVariation: ResolverTypeWrapper<MoveVariation>;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
+  PlayerType: ResolverTypeWrapper<Scalars['PlayerType']['output']>;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   SaveMatchStateInput: SaveMatchStateInput;
   SaveMatchStateResult: ResolverTypeWrapper<SaveMatchStateResult>;
@@ -305,30 +320,24 @@ export type ResolversTypes = ResolversObject<{
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
-  AnalysisInput: AnalysisInput;
-  AnalysisResult: AnalysisResult;
   Boolean: Scalars['Boolean']['output'];
   ChatMessage: ChatMessage;
   CreateMatchInput: CreateMatchInput;
+  EvaluateMatchStateInput: EvaluateMatchStateInput;
+  EvaluateMatchStateResult: EvaluateMatchStateResult;
   Health: Health;
   Int: Scalars['Int']['output'];
   Match: Match;
   MatchState: MatchState;
   MoveVariation: MoveVariation;
   Mutation: Record<PropertyKey, never>;
+  PlayerType: Scalars['PlayerType']['output'];
   Query: Record<PropertyKey, never>;
   SaveMatchStateInput: SaveMatchStateInput;
   SaveMatchStateResult: SaveMatchStateResult;
   SendChatMessageInput: SendChatMessageInput;
   SendChatMessageResult: SendChatMessageResult;
   String: Scalars['String']['output'];
-}>;
-
-export type AnalysisResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['AnalysisResult'] = ResolversParentTypes['AnalysisResult']> = ResolversObject<{
-  bestmove?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  engineName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  timeMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  variations?: Resolver<Array<ResolversTypes['MoveVariation']>, ParentType, ContextType>;
 }>;
 
 export type ChatMessageResolvers<ContextType = any, ParentType extends ResolversParentTypes['ChatMessage'] = ResolversParentTypes['ChatMessage']> = ResolversObject<{
@@ -340,6 +349,12 @@ export type ChatMessageResolvers<ContextType = any, ParentType extends Resolvers
   role?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 
+export type EvaluateMatchStateResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['EvaluateMatchStateResult'] = ResolversParentTypes['EvaluateMatchStateResult']> = ResolversObject<{
+  matchState?: Resolver<ResolversTypes['MatchState'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  thinkingMessage?: Resolver<ResolversTypes['ChatMessage'], ParentType, ContextType>;
+}>;
+
 export type HealthResolvers<ContextType = any, ParentType extends ResolversParentTypes['Health'] = ResolversParentTypes['Health']> = ResolversObject<{
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -347,9 +362,11 @@ export type HealthResolvers<ContextType = any, ParentType extends ResolversParen
 
 export type MatchResolvers<ContextType = any, ParentType extends ResolversParentTypes['Match'] = ResolversParentTypes['Match']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  goteType?: Resolver<ResolversTypes['PlayerType'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   playerGote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   playerSente?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  senteType?: Resolver<ResolversTypes['PlayerType'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
@@ -375,11 +392,15 @@ export type MoveVariationResolvers<ContextType = any, ParentType extends Resolve
 }>;
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  analyzePosition?: Resolver<ResolversTypes['AnalysisResult'], ParentType, ContextType, RequireFields<MutationAnalyzePositionArgs, 'input'>>;
   createMatch?: Resolver<ResolversTypes['Match'], ParentType, ContextType, RequireFields<MutationCreateMatchArgs, 'input'>>;
+  evaluateMatchState?: Resolver<ResolversTypes['EvaluateMatchStateResult'], ParentType, ContextType, RequireFields<MutationEvaluateMatchStateArgs, 'input'>>;
   saveMatchStateAndGetCandidates?: Resolver<ResolversTypes['SaveMatchStateResult'], ParentType, ContextType, RequireFields<MutationSaveMatchStateAndGetCandidatesArgs, 'input'>>;
   sendChatMessage?: Resolver<ResolversTypes['SendChatMessageResult'], ParentType, ContextType, RequireFields<MutationSendChatMessageArgs, 'input'>>;
 }>;
+
+export interface PlayerTypeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['PlayerType'], any> {
+  name: 'PlayerType';
+}
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   health?: Resolver<ResolversTypes['Health'], ParentType, ContextType>;
@@ -396,13 +417,14 @@ export type SendChatMessageResultResolvers<ContextType = any, ParentType extends
 }>;
 
 export type Resolvers<ContextType = any> = ResolversObject<{
-  AnalysisResult?: AnalysisResultResolvers<ContextType>;
   ChatMessage?: ChatMessageResolvers<ContextType>;
+  EvaluateMatchStateResult?: EvaluateMatchStateResultResolvers<ContextType>;
   Health?: HealthResolvers<ContextType>;
   Match?: MatchResolvers<ContextType>;
   MatchState?: MatchStateResolvers<ContextType>;
   MoveVariation?: MoveVariationResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  PlayerType?: GraphQLScalarType;
   Query?: QueryResolvers<ContextType>;
   SaveMatchStateResult?: SaveMatchStateResultResolvers<ContextType>;
   SendChatMessageResult?: SendChatMessageResultResolvers<ContextType>;

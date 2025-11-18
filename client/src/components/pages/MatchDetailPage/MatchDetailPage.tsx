@@ -61,14 +61,13 @@ export function MatchDetailPage() {
         boardState.board.turn === "SENTE" ? "GOTE" : "SENTE";
       const nextMoveIndex = moveIndex + 1;
       const updatedBoard = { ...newBoard, turn: nextTurn };
-
       setBoardState({
         board: updatedBoard,
         moveIndex: nextMoveIndex,
       });
 
       // 盤面をSFEN形式に変換
-      const newSfen = boardToSfen(updatedBoard);
+      const newSfen = boardToSfen(newBoard);
 
       // MatchStateを保存（AIでも人間でも常に保存）
       const result = await insertMatchState({

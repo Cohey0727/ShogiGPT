@@ -84,15 +84,14 @@ function getPieceDirections(pieceType: PieceType, player: Player): Direction[] {
     case PieceType.PromotedKnight:
     case PieceType.PromotedLance:
     case PieceType.PromotedPawn:
-      // 金、成銀、成桂、成香、と金: 前、横、斜め後ろ
+      // 金、成銀、成桂、成香、と金: 前、斜め前、横、真後ろ
       return [
         { row: forward, col: 0, isRanged: false }, // 前
         { row: forward, col: 1, isRanged: false }, // 右前
         { row: forward, col: -1, isRanged: false }, // 左前
         { row: 0, col: 1, isRanged: false }, // 右
         { row: 0, col: -1, isRanged: false }, // 左
-        { row: -forward, col: 1, isRanged: false }, // 右後ろ
-        { row: -forward, col: -1, isRanged: false }, // 左後ろ
+        { row: -forward, col: 0, isRanged: false }, // 真後ろ
       ];
 
     case PieceType.Silver:

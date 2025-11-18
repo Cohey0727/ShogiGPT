@@ -19,13 +19,18 @@ export type Scalars = {
   PlayerType: { input: any; output: any; }
 };
 
-/** 最善手コンテンツ */
+/** 最善手コンテンツ（盤面解析結果） */
 export type BestMoveContent = {
   __typename?: 'BestMoveContent';
-  depth?: Maybe<Scalars['Int']['output']>;
-  evaluation?: Maybe<Scalars['Float']['output']>;
-  move: Scalars['String']['output'];
+  /** 最善手（USI形式） */
+  bestmove: Scalars['String']['output'];
+  /** エンジン名 */
+  engineName: Scalars['String']['output'];
+  /** 思考時間（ミリ秒） */
+  timeMs: Scalars['Int']['output'];
   type: Scalars['String']['output'];
+  /** 候補手リスト（MultiPV） */
+  variations: Array<MoveVariation>;
 };
 
 /** チャットメッセージ */
@@ -321,7 +326,6 @@ export type ResolversTypes = ResolversObject<{
   CreateMatchInput: CreateMatchInput;
   EvaluateMatchStateInput: EvaluateMatchStateInput;
   EvaluateMatchStateResult: ResolverTypeWrapper<Omit<EvaluateMatchStateResult, 'thinkingMessage'> & { thinkingMessage: ResolversTypes['ChatMessage'] }>;
-  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   Health: ResolverTypeWrapper<Health>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   MarkdownContent: ResolverTypeWrapper<MarkdownContent>;
@@ -347,7 +351,6 @@ export type ResolversParentTypes = ResolversObject<{
   CreateMatchInput: CreateMatchInput;
   EvaluateMatchStateInput: EvaluateMatchStateInput;
   EvaluateMatchStateResult: Omit<EvaluateMatchStateResult, 'thinkingMessage'> & { thinkingMessage: ResolversParentTypes['ChatMessage'] };
-  Float: Scalars['Float']['output'];
   Health: Health;
   Int: Scalars['Int']['output'];
   MarkdownContent: MarkdownContent;
@@ -366,10 +369,11 @@ export type ResolversParentTypes = ResolversObject<{
 }>;
 
 export type BestMoveContentResolvers<ContextType = any, ParentType extends ResolversParentTypes['BestMoveContent'] = ResolversParentTypes['BestMoveContent']> = ResolversObject<{
-  depth?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  evaluation?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
-  move?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  bestmove?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  engineName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  timeMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  variations?: Resolver<Array<ResolversTypes['MoveVariation']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

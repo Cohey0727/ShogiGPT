@@ -1,6 +1,13 @@
-import type { MutationResolvers } from "../../generated/graphql/types";
+import type {
+  EvaluateMatchStateResult,
+  MutationResolvers,
+} from "../../generated/graphql/types";
 import { db } from "../../lib/db";
 import { analyzePositionAnalyzePost } from "../../generated/shogi-api";
+import {
+  MessageContentsSchema,
+  type MessageContents,
+} from "../../shared/schemas/chatMessage";
 
 /**
  * 既に保存されたMatchStateに対して非同期で盤面評価を行う
@@ -13,15 +20,8 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
 
     // 1. MatchStateを取得
     const matchState = await db.matchState.findUnique({
-      where: {
-        matchId_index: {
-          matchId: input.matchId,
-          index: input.index,
-        },
-      },
-      include: {
-        match: true,
-      },
+      where: { matchId_index: { matchId: input.matchId, index: input.index } },
+      include: { match: true },
     });
 
     if (!matchState) {
@@ -38,125 +38,132 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
     console.log("  SFEN:", matchState.sfen);
 
     // 2. 思考中のチャットメッセージを作成（isPartial: true）
+    const thinkingContents = MessageContentsSchema.parse([
+      { type: "markdown", content: "思考中..." },
+    ]);
     const thinkingMessage = await db.chatMessage.create({
       data: {
         matchId: matchState.matchId,
         role: "ASSISTANT",
-        contents: [{ type: "markdown", content: "思考中..." }],
+        contents: thinkingContents,
         isPartial: true,
       },
     });
 
     console.log("💭 Thinking message created:", thinkingMessage.id);
 
+    const matchStateId = `${matchState.matchId}:${matchState.index}`;
+    const respond = (success: boolean, message: DbChatMessage) => ({
+      success,
+      matchStateId,
+      thinkingMessage: toGraphQLChatMessage(message),
+    });
+
     // 3. 非同期で盤面評価を実行
     const multipv = input.multipv ?? 5;
     const timeMs = input.thinkingTime ? input.thinkingTime * 1000 : 10000;
 
-    (async () => {
-      try {
-        console.log("🔍 Analyzing position asynchronously...");
-        console.log("  MultiPV:", multipv);
-        console.log("  Time:", timeMs, "ms");
+    try {
+      console.log("🔍 Analyzing position asynchronously...");
+      console.log("  MultiPV:", multipv);
+      console.log("  Time:", timeMs, "ms");
 
-        const { data, error } = await analyzePositionAnalyzePost({
-          body: {
-            sfen: matchState.sfen,
-            multipv,
-            time_ms: timeMs,
-            moves: null,
-            depth: null,
+      const { data, error } = await analyzePositionAnalyzePost({
+        body: {
+          sfen: matchState.sfen,
+          multipv,
+          time_ms: timeMs,
+          moves: null,
+          depth: null,
+        },
+      });
+
+      if (error || !data) {
+        console.error("❌ shogi-api error:", error);
+        // エラー時のメッセージ更新
+        const errorContents = MessageContentsSchema.parse([
+          { type: "markdown", content: "評価中にエラーが発生しました。" },
+        ]);
+        const errorMessage = await db.chatMessage.update({
+          where: { id: thinkingMessage.id },
+          data: {
+            contents: errorContents,
+            isPartial: false,
           },
         });
+        return respond(false, errorMessage);
+      }
 
-        if (error || !data) {
-          console.error("❌ shogi-api error:", error);
-          // エラー時のメッセージ更新
-          await db.chatMessage.update({
-            where: { id: thinkingMessage.id },
-            data: {
-              contents: [
-                {
-                  type: "markdown",
-                  content: "評価中にエラーが発生しました。",
-                },
-              ],
-              isPartial: false,
-            },
-          });
-          return;
-        }
+      console.log("✅ Analysis complete:");
+      console.log("  Best move:", data.bestmove);
+      console.log("  Candidates:", data.variations.length);
 
-        console.log("✅ Analysis complete:");
-        console.log("  Best move:", data.bestmove);
-        console.log("  Candidates:", data.variations.length);
+      // 評価結果をフォーマット
+      const resultText = formatEvaluationResult(data);
 
-        // 評価結果をフォーマット
-        const resultText = formatEvaluationResult(data);
-
-        // メタデータに最善手とその他の情報を保存
-        const metadata = {
+      // チャットメッセージのコンテンツを作成してバリデーション
+      const contents = MessageContentsSchema.parse([
+        {
+          type: "markdown",
+          content: resultText,
+        },
+        {
+          type: "bestmove",
           bestmove: data.bestmove,
           variations: data.variations.map((v) => ({
             move: v.move,
-            score_cp: v.score_cp,
-            score_mate: v.score_mate,
+            scoreCp: v.score_cp,
+            scoreMate: v.score_mate,
             depth: v.depth,
+            nodes: v.nodes,
+            pv: v.pv,
           })),
-        };
+          timeMs: data.time_ms,
+          engineName: data.engine_name,
+        },
+      ]);
 
-        // チャットメッセージを更新
-        await db.chatMessage.update({
-          where: { id: thinkingMessage.id },
-          data: {
-            contents: [{ type: "markdown", content: resultText }],
-            isPartial: false,
-            metadata: JSON.stringify(metadata),
-          },
-        });
+      // チャットメッセージを更新
+      const completedThinkingMessage = await db.chatMessage.update({
+        where: { id: thinkingMessage.id },
+        data: { contents, isPartial: false },
+      });
 
-        console.log("✅ Thinking message updated with evaluation result");
-      } catch (error) {
-        console.error("❌ Unexpected error during evaluation:", error);
-        // エラー時のメッセージ更新
-        await db.chatMessage.update({
-          where: { id: thinkingMessage.id },
-          data: {
-            contents: [
-              {
-                type: "markdown",
-                content: "評価中に予期しないエラーが発生しました。",
-              },
-            ],
-            isPartial: false,
-          },
-        });
-      }
-    })();
+      console.log("✅ Thinking message updated with evaluation result");
 
-    // 4. 即座にレスポンスを返す
-    return {
-      success: true,
-      matchStateId: `${matchState.matchId}:${matchState.index}`,
-      thinkingMessage: {
-        id: thinkingMessage.id,
-        matchId: thinkingMessage.matchId,
-        role: thinkingMessage.role,
-        contents: thinkingMessage.contents as unknown as Array<
-          | { __typename?: "MarkdownContent"; type: string; content: string }
-          | {
-              __typename?: "BestMoveContent";
-              type: string;
-              move: string;
-              evaluation?: number;
-              depth?: number;
-            }
-        >,
-        isPartial: thinkingMessage.isPartial,
-        createdAt: thinkingMessage.createdAt.toISOString(),
-      },
-    };
+      return respond(true, completedThinkingMessage);
+    } catch (error) {
+      console.error("❌ Unexpected error during evaluation:", error);
+      // エラー時のメッセージ更新
+      const unexpectedErrorContents = MessageContentsSchema.parse([
+        {
+          type: "markdown",
+          content: "評価中に予期しないエラーが発生しました。",
+        },
+      ]);
+      const unexpectedMessage = await db.chatMessage.update({
+        where: { id: thinkingMessage.id },
+        data: {
+          contents: unexpectedErrorContents,
+          isPartial: false,
+        },
+      });
+      return respond(false, unexpectedMessage);
+    }
   };
+
+type DbChatMessage = Awaited<ReturnType<typeof db.chatMessage.create>>;
+
+function toGraphQLChatMessage(message: DbChatMessage) {
+  return {
+    id: message.id,
+    matchId: message.matchId,
+    role: message.role,
+    contents: message.contents as MessageContents,
+    isPartial: message.isPartial,
+    createdAt: message.createdAt.toISOString(),
+  } satisfies EvaluateMatchStateResult["thinkingMessage"];
+}
 
 /**
  * 評価結果を人間が読みやすい形式にフォーマット

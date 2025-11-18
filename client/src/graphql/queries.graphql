@@ -126,9 +126,17 @@ mutation SendChatMessage($matchId: String!, $content: String!) {
         }
         ... on BestMoveContent {
           type
-          move
-          evaluation
-          depth
+          bestmove
+          variations {
+            move
+            scoreCp
+            scoreMate
+            depth
+            nodes
+            pv
+          }
+          timeMs
+          engineName
         }
       }
       createdAt
@@ -144,9 +152,17 @@ mutation SendChatMessage($matchId: String!, $content: String!) {
         }
         ... on BestMoveContent {
           type
-          move
-          evaluation
-          depth
+          bestmove
+          variations {
+            move
+            scoreCp
+            scoreMate
+            depth
+            nodes
+            pv
+          }
+          timeMs
+          engineName
         }
       }
       createdAt
@@ -219,9 +235,17 @@ mutation EvaluateMatchState($input: EvaluateMatchStateInput!) {
         }
         ... on BestMoveContent {
           type
-          move
-          evaluation
-          depth
+          bestmove
+          variations {
+            move
+            scoreCp
+            scoreMate
+            depth
+            nodes
+            pv
+          }
+          timeMs
+          engineName
         }
       }
       isPartial

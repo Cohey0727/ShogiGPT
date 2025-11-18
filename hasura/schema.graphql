@@ -13,12 +13,20 @@ directive @cached(
   refresh: Boolean! = false
 ) on QUERY
 
-"""最善手コンテンツ"""
+"""最善手コンテンツ（盤面解析結果）"""
 type BestMoveContent {
-  depth: Int
-  evaluation: Float
-  move: String!
+  """最善手（USI形式）"""
+  bestmove: String!
+
+  """エンジン名"""
+  engineName: String!
+
+  """思考時間（ミリ秒）"""
+  timeMs: Int!
   type: String!
+
+  """候補手リスト（MultiPV）"""
+  variations: [MoveVariation!]!
 }
 
 """

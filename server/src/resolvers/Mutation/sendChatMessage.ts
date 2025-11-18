@@ -102,9 +102,17 @@ export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
         | {
             __typename?: "BestMoveContent";
             type: string;
-            move: string;
-            evaluation?: number;
-            depth?: number;
+            bestmove: string;
+            variations: Array<{
+              move: string;
+              scoreCp?: number | null;
+              scoreMate?: number | null;
+              depth: number;
+              nodes?: number | null;
+              pv?: string[] | null;
+            }>;
+            timeMs: number;
+            engineName: string;
           }
       >,
       isPartial: userMessage.isPartial,
@@ -119,9 +127,17 @@ export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
         | {
             __typename?: "BestMoveContent";
             type: string;
-            move: string;
-            evaluation?: number;
-            depth?: number;
+            bestmove: string;
+            variations: Array<{
+              move: string;
+              scoreCp?: number | null;
+              scoreMate?: number | null;
+              depth: number;
+              nodes?: number | null;
+              pv?: string[] | null;
+            }>;
+            timeMs: number;
+            engineName: string;
           }
       >,
       isPartial: assistantMessage.isPartial,

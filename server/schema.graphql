@@ -30,13 +30,26 @@ type MarkdownContent {
 }
 
 """
-最善手コンテンツ
+最善手コンテンツ（盤面解析結果）
 """
 type BestMoveContent {
   type: String!
-  move: String!
-  evaluation: Float
-  depth: Int
+  """
+  最善手（USI形式）
+  """
+  bestmove: String!
+  """
+  候補手リスト（MultiPV）
+  """
+  variations: [MoveVariation!]!
+  """
+  思考時間（ミリ秒）
+  """
+  timeMs: Int!
+  """
+  エンジン名
+  """
+  engineName: String!
 }
 
 """

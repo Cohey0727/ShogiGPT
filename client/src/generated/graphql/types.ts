@@ -24,13 +24,18 @@ export type Scalars = {
   timestamp: { input: string; output: string; }
 };
 
-/** 最善手コンテンツ */
+/** 最善手コンテンツ（盤面解析結果） */
 export type BestMoveContent = {
   __typename?: 'BestMoveContent';
-  depth?: Maybe<Scalars['Int']['output']>;
-  evaluation?: Maybe<Scalars['Float']['output']>;
-  move: Scalars['String']['output'];
+  /** 最善手（USI形式） */
+  bestmove: Scalars['String']['output'];
+  /** エンジン名 */
+  engineName: Scalars['String']['output'];
+  /** 思考時間（ミリ秒） */
+  timeMs: Scalars['Int']['output'];
   type: Scalars['String']['output'];
+  /** 候補手リスト（MultiPV） */
+  variations: Array<MoveVariation>;
 };
 
 /** Boolean expression to compare columns of type "Boolean". All fields are combined with logical 'AND'. */
@@ -1528,10 +1533,10 @@ export type SendChatMessageMutationVariables = Exact<{
 
 
 export type SendChatMessageMutation = { __typename?: 'mutation_root', sendChatMessage: { __typename?: 'SendChatMessageResult', userMessage: { __typename?: 'ChatMessage', id: string, matchId: string, role: string, createdAt: string, contents: Array<
-        | { __typename?: 'BestMoveContent', type: string, move: string, evaluation?: number | null | undefined, depth?: number | null | undefined }
+        | { __typename?: 'BestMoveContent', type: string, bestmove: string, timeMs: number, engineName: string, variations: Array<{ __typename?: 'MoveVariation', move: string, scoreCp?: number | null | undefined, scoreMate?: number | null | undefined, depth: number, nodes?: number | null | undefined, pv?: Array<string> | null | undefined }> }
         | { __typename?: 'MarkdownContent', type: string, content: string }
       > }, assistantMessage: { __typename?: 'ChatMessage', id: string, matchId: string, role: string, createdAt: string, contents: Array<
-        | { __typename?: 'BestMoveContent', type: string, move: string, evaluation?: number | null | undefined, depth?: number | null | undefined }
+        | { __typename?: 'BestMoveContent', type: string, bestmove: string, timeMs: number, engineName: string, variations: Array<{ __typename?: 'MoveVariation', move: string, scoreCp?: number | null | undefined, scoreMate?: number | null | undefined, depth: number, nodes?: number | null | undefined, pv?: Array<string> | null | undefined }> }
         | { __typename?: 'MarkdownContent', type: string, content: string }
       > } } };
 
@@ -1560,7 +1565,7 @@ export type EvaluateMatchStateMutationVariables = Exact<{
 
 
 export type EvaluateMatchStateMutation = { __typename?: 'mutation_root', evaluateMatchState: { __typename?: 'EvaluateMatchStateResult', success: boolean, matchStateId: string, thinkingMessage: { __typename?: 'ChatMessage', id: string, matchId: string, role: string, isPartial: boolean, createdAt: string, contents: Array<
-        | { __typename?: 'BestMoveContent', type: string, move: string, evaluation?: number | null | undefined, depth?: number | null | undefined }
+        | { __typename?: 'BestMoveContent', type: string, bestmove: string, timeMs: number, engineName: string, variations: Array<{ __typename?: 'MoveVariation', move: string, scoreCp?: number | null | undefined, scoreMate?: number | null | undefined, depth: number, nodes?: number | null | undefined, pv?: Array<string> | null | undefined }> }
         | { __typename?: 'MarkdownContent', type: string, content: string }
       > } } };
 
@@ -1706,9 +1711,17 @@ export const SendChatMessageDocument = gql`
         }
         ... on BestMoveContent {
           type
-          move
-          evaluation
-          depth
+          bestmove
+          variations {
+            move
+            scoreCp
+            scoreMate
+            depth
+            nodes
+            pv
+          }
+          timeMs
+          engineName
         }
       }
       createdAt
@@ -1724,9 +1737,17 @@ export const SendChatMessageDocument = gql`
         }
         ... on BestMoveContent {
           type
-          move
-          evaluation
-          depth
+          bestmove
+          variations {
+            move
+            scoreCp
+            scoreMate
+            depth
+            nodes
+            pv
+          }
+          timeMs
+          engineName
         }
       }
       createdAt
@@ -1800,9 +1821,17 @@ export const EvaluateMatchStateDocument = gql`
         }
         ... on BestMoveContent {
           type
-          move
-          evaluation
-          depth
+          bestmove
+          variations {
+            move
+            scoreCp
+            scoreMate
+            depth
+            nodes
+            pv
+          }
+          timeMs
+          engineName
         }
       }
       isPartial

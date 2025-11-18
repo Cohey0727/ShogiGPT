@@ -1,3 +1,5 @@
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import styles from "./MessageBubble.css";
 
 export interface MessageBubbleProps {
@@ -16,7 +18,9 @@ export function MessageBubble({
   return (
     <div className={isCurrentUser ? styles.messageOwn : styles.messageOther}>
       <div className={styles.messageSender}>{sender}</div>
-      <div className={styles.messageContent}>{message}</div>
+      <div className={styles.messageContent}>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{message}</ReactMarkdown>
+      </div>
       <div className={styles.messageTime}>{timestamp}</div>
     </div>
   );

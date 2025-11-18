@@ -109,3 +109,26 @@ mutation AnalyzePosition($input: AnalysisInput!) {
     engineName
   }
 }
+
+mutation SaveMatchStateAndGetCandidates($input: SaveMatchStateInput!) {
+  saveMatchStateAndGetCandidates(input: $input) {
+    matchState {
+      id
+      matchId
+      index
+      moveNotation
+      player
+      sfen
+      thinkingTime
+      createdAt
+    }
+    candidates {
+      move
+      scoreCp
+      scoreMate
+      depth
+      nodes
+      pv
+    }
+  }
+}

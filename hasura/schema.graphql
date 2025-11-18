@@ -598,6 +598,33 @@ input MatchesUpdates {
   where: MatchesBoolExp!
 }
 
+"""対局状態"""
+type MatchState {
+  """作成日時"""
+  createdAt: String!
+
+  """状態ID"""
+  id: String!
+
+  """局面番号"""
+  index: Int!
+
+  """対局ID"""
+  matchId: String!
+
+  """指し手（USI形式）"""
+  moveNotation: String
+
+  """手番プレイヤー"""
+  player: String!
+
+  """盤面（SFEN形式）"""
+  sfen: String!
+
+  """消費時間（秒）"""
+  thinkingTime: Int
+}
+
 """
 columns and relationships of "match_states"
 """
@@ -1093,6 +1120,7 @@ type mutation_root {
     """upsert condition"""
     onConflict: MatchesOnConflict
   ): Matches
+  saveMatchStateAndGetCandidates(input: SaveMatchStateInput!): SaveMatchStateResult!
   sendChatMessage(input: SendChatMessageInput!): SendChatMessageResult!
 
   """
@@ -1290,6 +1318,42 @@ type query_root {
 
   """fetch data from the table: "matches" using primary key columns"""
   matchesByPk(id: String!): Matches
+}
+
+"""対局状態保存リクエスト"""
+input SaveMatchStateInput {
+  """局面番号（何手目か）"""
+  index: Int!
+
+  """対局ID"""
+  matchId: String!
+
+  """この局面に至った指し手（USI形式）"""
+  moveNotation: String
+
+  """候補手の数（MultiPV、デフォルト: 3）"""
+  multipv: Int
+
+  """この盤面での手番プレイヤー（SENTE/GOTE）"""
+  player: String!
+
+  """盤面（SFEN形式）"""
+  sfen: String!
+
+  """消費時間（秒）"""
+  thinkingTime: Int
+
+  """思考時間（ミリ秒、デフォルト: 1000）"""
+  timeMs: Int
+}
+
+"""対局状態保存結果"""
+type SaveMatchStateResult {
+  """次の候補手リスト"""
+  candidates: [MoveVariation!]!
+
+  """保存された対局状態"""
+  matchState: MatchState!
 }
 
 """チャットメッセージ送信リクエスト"""

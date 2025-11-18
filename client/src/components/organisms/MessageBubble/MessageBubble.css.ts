@@ -1,4 +1,4 @@
-import { style } from "@vanilla-extract/css";
+import { style, globalStyle } from "@vanilla-extract/css";
 
 const styles = {
   messageOther: style({
@@ -44,5 +44,111 @@ const styles = {
     textAlign: "right",
   }),
 };
+
+// Markdown要素のスタイリング
+globalStyle(`${styles.messageContent} p`, {
+  margin: "0.5rem 0",
+});
+
+globalStyle(`${styles.messageContent} p:first-child`, {
+  marginTop: 0,
+});
+
+globalStyle(`${styles.messageContent} p:last-child`, {
+  marginBottom: 0,
+});
+
+globalStyle(
+  `${styles.messageContent} h1, ${styles.messageContent} h2, ${styles.messageContent} h3, ${styles.messageContent} h4, ${styles.messageContent} h5, ${styles.messageContent} h6`,
+  {
+    marginTop: "1rem",
+    marginBottom: "0.5rem",
+    fontWeight: "bold",
+    color: "#d4af37",
+  }
+);
+
+globalStyle(`${styles.messageContent} h1`, {
+  fontSize: "1.5rem",
+});
+
+globalStyle(`${styles.messageContent} h2`, {
+  fontSize: "1.25rem",
+});
+
+globalStyle(`${styles.messageContent} h3`, {
+  fontSize: "1.1rem",
+});
+
+globalStyle(`${styles.messageContent} code`, {
+  backgroundColor: "rgba(0, 0, 0, 0.3)",
+  padding: "0.125rem 0.25rem",
+  borderRadius: "0.25rem",
+  fontSize: "0.85em",
+  fontFamily: "monospace",
+});
+
+globalStyle(`${styles.messageContent} pre`, {
+  backgroundColor: "rgba(0, 0, 0, 0.3)",
+  padding: "0.75rem",
+  borderRadius: "0.25rem",
+  overflow: "auto",
+  margin: "0.5rem 0",
+});
+
+globalStyle(`${styles.messageContent} pre code`, {
+  backgroundColor: "transparent",
+  padding: 0,
+});
+
+globalStyle(`${styles.messageContent} ul, ${styles.messageContent} ol`, {
+  paddingInlineStart: "1.5rem",
+  marginLeft: 0,
+  marginTop: "0.5rem",
+  marginBottom: "0.5rem",
+});
+
+globalStyle(`${styles.messageContent} li`, {
+  marginTop: "0.25rem",
+});
+
+globalStyle(`${styles.messageContent} blockquote`, {
+  borderLeft: "3px solid #d4af37",
+  paddingLeft: "1rem",
+  marginLeft: 0,
+  color: "#cccccc",
+});
+
+globalStyle(`${styles.messageContent} a`, {
+  color: "#d4af37",
+  textDecoration: "underline",
+});
+
+globalStyle(`${styles.messageContent} a:hover`, {
+  color: "#f0d060",
+});
+
+globalStyle(`${styles.messageContent} table`, {
+  borderCollapse: "collapse",
+  width: "100%",
+  margin: "0.5rem 0",
+});
+
+globalStyle(`${styles.messageContent} th, ${styles.messageContent} td`, {
+  border: "1px solid rgba(255, 255, 255, 0.2)",
+  padding: "0.5rem",
+  textAlign: "left",
+});
+
+globalStyle(`${styles.messageContent} th`, {
+  backgroundColor: "rgba(212, 175, 55, 0.2)",
+  fontWeight: "bold",
+});
+
+globalStyle(`${styles.messageContent} hr`, {
+  border: "none",
+  borderTop: "1px solid rgba(255, 255, 255, 0.2)",
+  margin: "1rem 0",
+});
 
 export default styles;

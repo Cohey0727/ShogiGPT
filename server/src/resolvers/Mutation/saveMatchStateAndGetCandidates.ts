@@ -40,7 +40,12 @@ export const saveMatchStateAndGetCandidates: MutationResolvers["saveMatchStateAn
       },
     });
 
-    console.log("✅ Match state saved:", matchState.id);
+    console.log(
+      "✅ Match state saved:",
+      matchState.matchId,
+      "index:",
+      matchState.index
+    );
 
     // 4. 次の候補手を取得（将棋エンジンを使用）
     const multipv = input.multipv ?? 3;
@@ -76,7 +81,6 @@ export const saveMatchStateAndGetCandidates: MutationResolvers["saveMatchStateAn
     // 5. 結果を返す
     return {
       matchState: {
-        id: matchState.id,
         matchId: matchState.matchId,
         index: matchState.index,
         moveNotation: matchState.moveNotation,

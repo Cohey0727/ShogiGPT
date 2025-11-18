@@ -66,7 +66,7 @@ export function boardToSfen(board: Board): string {
   const boardPart = rows.join("/");
 
   // 2. 手番部分
-  const turnPart = board.turn === Player.Sente ? "b" : "w";
+  const turnPart = board.turn === Player.Gote ? "b" : "w";
 
   // 3. 持ち駒部分
   const handPart = formatHand(board);

@@ -15,7 +15,7 @@ generates:
       avoidOptionals: false
       scalars:
         MatchStatus: "'ONGOING' | 'COMPLETED' | 'ABANDONED'"
-        MessageRole: "'USER' | 'ASSISTANT' | 'SYSTEM'"
+        MessageRole: "'USER' | 'ASSISTANT'"
         Player: "'SENTE' | 'GOTE'"
         PlayerType: "'HUMAN' | 'AI'"
         timestamp: string

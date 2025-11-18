@@ -1,62 +1,57 @@
 import type { MutationResolvers } from "../../generated/graphql/types";
 import { db } from "../../lib/db";
 import { analyzePositionAnalyzePost } from "../../generated/shogi-api";
-import { Player } from "../../generated/prisma";
 
 /**
- * 対局状態を保存し、非同期で盤面評価を行う
+ * 既に保存されたMatchStateに対して非同期で盤面評価を行う
  */
 export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
   async (_parent, { input }) => {
     console.log("📥 evaluateMatchState mutation called");
     console.log("  Match ID:", input.matchId);
     console.log("  Index:", input.index);
-    console.log("  Move:", input.moveNotation ?? "initial position");
-    console.log("  Player:", input.player);
-    console.log("  SFEN:", input.sfen);
 
-    // 1. 対局が存在するか確認
-    const match = await db.match.findUnique({
-      where: { id: input.matchId },
-    });
-
-    if (!match) {
-      throw new Error(`Match not found: ${input.matchId}`);
-    }
-
-    // 2. プレイヤー文字列をPrisma Playerに変換
-    const player =
-      input.player.toUpperCase() === "SENTE" ? Player.SENTE : Player.GOTE;
-
-    // 3. 対局状態を保存
-    const matchState = await db.matchState.create({
-      data: {
-        matchId: input.matchId,
-        index: input.index,
-        moveNotation: input.moveNotation ?? null,
-        player,
-        sfen: input.sfen,
-        thinkingTime: input.thinkingTime ?? null,
+    // 1. MatchStateを取得
+    const matchState = await db.matchState.findUnique({
+      where: {
+        matchId_index: {
+          matchId: input.matchId,
+          index: input.index,
+        },
+      },
+      include: {
+        match: true,
       },
     });
 
-    console.log("✅ Match state saved:", matchState.id);
+    if (!matchState) {
+      throw new Error(
+        `MatchState not found: ${input.matchId}, index: ${input.index}`
+      );
+    }
 
-    // 4. 思考中のチャットメッセージを作成（isPartial: true）
+    console.log("✅ Match state found");
+    console.log("  Match ID:", matchState.matchId);
+    console.log("  Index:", matchState.index);
+    console.log("  Move:", matchState.moveNotation ?? "initial position");
+    console.log("  Player:", matchState.player);
+    console.log("  SFEN:", matchState.sfen);
+
+    // 2. 思考中のチャットメッセージを作成（isPartial: true）
     const thinkingMessage = await db.chatMessage.create({
       data: {
-        matchId: input.matchId,
-        role: "SYSTEM",
-        content: "思考中...",
+        matchId: matchState.matchId,
+        role: "ASSISTANT",
+        contents: [{ type: "markdown", content: "思考中..." }],
         isPartial: true,
       },
     });
 
     console.log("💭 Thinking message created:", thinkingMessage.id);
 
-    // 5. 非同期で盤面評価を実行
+    // 3. 非同期で盤面評価を実行
     const multipv = input.multipv ?? 5;
-    const timeMs = input.timeMs ?? 10000;
+    const timeMs = input.thinkingTime ? input.thinkingTime * 1000 : 10000;
 
     (async () => {
       try {
@@ -66,7 +61,7 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
 
         const { data, error } = await analyzePositionAnalyzePost({
           body: {
-            sfen: input.sfen,
+            sfen: matchState.sfen,
             multipv,
             time_ms: timeMs,
             moves: null,
@@ -80,7 +75,12 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
           await db.chatMessage.update({
             where: { id: thinkingMessage.id },
             data: {
-              content: "評価中にエラーが発生しました。",
+              contents: [
+                {
+                  type: "markdown",
+                  content: "評価中にエラーが発生しました。",
+                },
+              ],
               isPartial: false,
             },
           });
@@ -109,7 +109,7 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
         await db.chatMessage.update({
           where: { id: thinkingMessage.id },
           data: {
-            content: resultText,
+            contents: [{ type: "markdown", content: resultText }],
             isPartial: false,
             metadata: JSON.stringify(metadata),
           },
@@ -122,31 +122,36 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
         await db.chatMessage.update({
           where: { id: thinkingMessage.id },
           data: {
-            content: "評価中に予期しないエラーが発生しました。",
+            contents: [
+              {
+                type: "markdown",
+                content: "評価中に予期しないエラーが発生しました。",
+              },
+            ],
             isPartial: false,
           },
         });
       }
     })();
 
-    // 6. 即座にレスポンスを返す
+    // 4. 即座にレスポンスを返す
     return {
       success: true,
-      matchState: {
-        id: matchState.id,
-        matchId: matchState.matchId,
-        index: matchState.index,
-        moveNotation: matchState.moveNotation,
-        player: matchState.player,
-        sfen: matchState.sfen,
-        thinkingTime: matchState.thinkingTime,
-        createdAt: matchState.createdAt.toISOString(),
-      },
+      matchStateId: `${matchState.matchId}:${matchState.index}`,
       thinkingMessage: {
         id: thinkingMessage.id,
         matchId: thinkingMessage.matchId,
         role: thinkingMessage.role,
-        content: thinkingMessage.content,
+        contents: thinkingMessage.contents as unknown as Array<
+          | { __typename?: "MarkdownContent"; type: string; content: string }
+          | {
+              __typename?: "BestMoveContent";
+              type: string;
+              move: string;
+              evaluation?: number;
+              depth?: number;
+            }
+        >,
         isPartial: thinkingMessage.isPartial,
         createdAt: thinkingMessage.createdAt.toISOString(),
       },
@@ -185,7 +190,9 @@ function formatEvaluationResult(data: {
             .join(" → ")
         : "";
       lines.push(
-        `${rank}. ${moveJp} (${scoreText})${pvText ? `\n   読み筋: ${pvText}` : ""}`
+        `${rank}. ${moveJp} (${scoreText})${
+          pvText ? `\n   読み筋: ${pvText}` : ""
+        }`
       );
     });
   }

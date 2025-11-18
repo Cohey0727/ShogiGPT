@@ -8,7 +8,7 @@ CREATE TYPE "Player" AS ENUM ('SENTE', 'GOTE');
 CREATE TYPE "PlayerType" AS ENUM ('HUMAN', 'AI');
 
 -- CreateEnum
-CREATE TYPE "MessageRole" AS ENUM ('USER', 'ASSISTANT', 'SYSTEM');
+CREATE TYPE "MessageRole" AS ENUM ('USER', 'ASSISTANT');
 
 -- CreateTable
 CREATE TABLE "matches" (

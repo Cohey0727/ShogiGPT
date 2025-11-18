@@ -66,15 +66,24 @@ export function MatchChat({ matchId }: MatchChatProps) {
   return (
     <div className={styles.container}>
       <div className={styles.messagesContainer} ref={messagesContainerRef}>
-        {messages.map((msg) => (
-          <MessageBubble
-            key={msg.id}
-            sender={msg.role === "USER" ? "あなた" : "アシスタント"}
-            message={msg.content}
-            timestamp={formatTimestamp(msg.createdAt)}
-            isCurrentUser={msg.role === "USER"}
-          />
-        ))}
+        {messages.map((msg) => {
+          // 一時的に、contentsから最初のmarkdownコンテンツを取得
+          const firstContent = msg.contents?.[0];
+          const messageText =
+            firstContent && typeof firstContent === "object" && "content" in firstContent
+              ? String(firstContent.content)
+              : JSON.stringify(msg.contents);
+
+          return (
+            <MessageBubble
+              key={msg.id}
+              sender={msg.role === "USER" ? "あなた" : "アシスタント"}
+              message={messageText}
+              timestamp={formatTimestamp(msg.createdAt)}
+              isCurrentUser={msg.role === "USER"}
+            />
+          );
+        })}
       </div>
       <form className={styles.inputContainer} onSubmit={handleSendMessage}>
         <input

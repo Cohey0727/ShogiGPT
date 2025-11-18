@@ -5,7 +5,9 @@ type Query {
 type Mutation {
   sendChatMessage(input: SendChatMessageInput!): SendChatMessageResult!
   createMatch(input: CreateMatchInput!): Match!
-  saveMatchStateAndGetCandidates(input: SaveMatchStateInput!): SaveMatchStateResult!
+  saveMatchStateAndGetCandidates(
+    input: SaveMatchStateInput!
+  ): SaveMatchStateResult!
   evaluateMatchState(input: EvaluateMatchStateInput!): EvaluateMatchStateResult!
 }
 
@@ -18,6 +20,29 @@ type Health {
 プレイヤータイプ（HUMAN または AI）
 """
 scalar PlayerType
+
+"""
+Markdownコンテンツ
+"""
+type MarkdownContent {
+  type: String!
+  content: String!
+}
+
+"""
+最善手コンテンツ
+"""
+type BestMoveContent {
+  type: String!
+  move: String!
+  evaluation: Float
+  depth: Int
+}
+
+"""
+メッセージコンテンツのUnion型
+"""
+union MessageContent = MarkdownContent | BestMoveContent
 
 """
 1つの候補手情報
@@ -94,9 +119,9 @@ type ChatMessage {
   """
   role: String!
   """
-  メッセージ内容
+  メッセージコンテンツ（Markdownや候補手などを含む配列）
   """
-  content: String!
+  contents: [MessageContent!]!
   """
   入力途中かどうか（AI応答待ち）
   """
@@ -228,10 +253,6 @@ type SaveMatchStateResult {
 """
 type MatchState {
   """
-  状態ID
-  """
-  id: String!
-  """
   対局ID
   """
   matchId: String!
@@ -270,21 +291,9 @@ input EvaluateMatchStateInput {
   """
   matchId: String!
   """
-  局面番号（何手目か）
+  局面番号
   """
   index: Int!
-  """
-  この局面に至った指し手（USI形式）
-  """
-  moveNotation: String
-  """
-  この盤面での手番プレイヤー（SENTE/GOTE）
-  """
-  player: String!
-  """
-  盤面（SFEN形式）
-  """
-  sfen: String!
   """
   消費時間（秒）
   """
@@ -293,10 +302,6 @@ input EvaluateMatchStateInput {
   候補手の数（MultiPV、デフォルト: 3）
   """
   multipv: Int
-  """
-  思考時間（ミリ秒、デフォルト: 1000）
-  """
-  timeMs: Int
 }
 
 """
@@ -308,12 +313,11 @@ type EvaluateMatchStateResult {
   """
   success: Boolean!
   """
-  保存された対局状態
+  評価対象のMatchStateのID
   """
-  matchState: MatchState!
+  matchStateId: String!
   """
   思考中を示すチャットメッセージ
   """
   thinkingMessage: ChatMessage!
 }
-

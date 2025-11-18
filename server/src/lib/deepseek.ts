@@ -2,7 +2,7 @@ const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
 
 interface DeepSeekMessage {
-  role: "system" | "user" | "assistant";
+  role: "user" | "assistant" | "system";
   content: string;
 }
 

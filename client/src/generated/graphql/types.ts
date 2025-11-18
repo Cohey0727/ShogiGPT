@@ -16,11 +16,21 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   MatchStatus: { input: 'ONGOING' | 'COMPLETED' | 'ABANDONED'; output: 'ONGOING' | 'COMPLETED' | 'ABANDONED'; }
-  MessageRole: { input: 'USER' | 'ASSISTANT' | 'SYSTEM'; output: 'USER' | 'ASSISTANT' | 'SYSTEM'; }
+  MessageRole: { input: 'USER' | 'ASSISTANT'; output: 'USER' | 'ASSISTANT'; }
   Player: { input: 'SENTE' | 'GOTE'; output: 'SENTE' | 'GOTE'; }
   /** プレイヤータイプ（HUMAN または AI） */
   PlayerType: { input: 'HUMAN' | 'AI'; output: 'HUMAN' | 'AI'; }
+  jsonb: { input: any; output: any; }
   timestamp: { input: string; output: string; }
+};
+
+/** 最善手コンテンツ */
+export type BestMoveContent = {
+  __typename?: 'BestMoveContent';
+  depth?: Maybe<Scalars['Int']['output']>;
+  evaluation?: Maybe<Scalars['Float']['output']>;
+  move: Scalars['String']['output'];
+  type: Scalars['String']['output'];
 };
 
 /** Boolean expression to compare columns of type "Boolean". All fields are combined with logical 'AND'. */
@@ -39,8 +49,8 @@ export type BooleanComparisonExp = {
 /** チャットメッセージ */
 export type ChatMessage = {
   __typename?: 'ChatMessage';
-  /** メッセージ内容 */
-  content: Scalars['String']['output'];
+  /** メッセージコンテンツ（Markdownや候補手などを含む配列） */
+  contents: Array<MessageContent>;
   /** 作成日時 */
   createdAt: Scalars['String']['output'];
   /** メッセージID */
@@ -56,7 +66,7 @@ export type ChatMessage = {
 /** columns and relationships of "chat_messages" */
 export type ChatMessages = {
   __typename?: 'ChatMessages';
-  content: Scalars['String']['output'];
+  contents: Scalars['jsonb']['output'];
   createdAt: Scalars['timestamp']['output'];
   id: Scalars['String']['output'];
   isPartial: Scalars['Boolean']['output'];
@@ -67,11 +77,22 @@ export type ChatMessages = {
   role: Scalars['MessageRole']['output'];
 };
 
+
+/** columns and relationships of "chat_messages" */
+export type ChatMessagesContentsArgs = {
+  path?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** order by aggregate values of table "chat_messages" */
 export type ChatMessagesAggregateOrderBy = {
   count?: InputMaybe<OrderBy>;
   max?: InputMaybe<ChatMessagesMaxOrderBy>;
   min?: InputMaybe<ChatMessagesMinOrderBy>;
+};
+
+/** append existing jsonb value of filtered columns with new jsonb value */
+export type ChatMessagesAppendInput = {
+  contents?: InputMaybe<Scalars['jsonb']['input']>;
 };
 
 /** input type for inserting array relation for remote table "chat_messages" */
@@ -86,7 +107,7 @@ export type ChatMessagesBoolExp = {
   _and?: InputMaybe<Array<ChatMessagesBoolExp>>;
   _not?: InputMaybe<ChatMessagesBoolExp>;
   _or?: InputMaybe<Array<ChatMessagesBoolExp>>;
-  content?: InputMaybe<StringComparisonExp>;
+  contents?: InputMaybe<JsonbComparisonExp>;
   createdAt?: InputMaybe<TimestampComparisonExp>;
   id?: InputMaybe<StringComparisonExp>;
   isPartial?: InputMaybe<BooleanComparisonExp>;
@@ -103,9 +124,27 @@ export const ChatMessagesConstraint = {
 } as const;
 
 export type ChatMessagesConstraint = typeof ChatMessagesConstraint[keyof typeof ChatMessagesConstraint];
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export type ChatMessagesDeleteAtPathInput = {
+  contents?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/**
+ * delete the array element with specified index (negative integers count from the
+ * end). throws an error if top level container is not an array
+ */
+export type ChatMessagesDeleteElemInput = {
+  contents?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export type ChatMessagesDeleteKeyInput = {
+  contents?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** input type for inserting data into table "chat_messages" */
 export type ChatMessagesInsertInput = {
-  content?: InputMaybe<Scalars['String']['input']>;
+  contents?: InputMaybe<Scalars['jsonb']['input']>;
   createdAt?: InputMaybe<Scalars['timestamp']['input']>;
   id?: InputMaybe<Scalars['String']['input']>;
   isPartial?: InputMaybe<Scalars['Boolean']['input']>;
@@ -117,7 +156,6 @@ export type ChatMessagesInsertInput = {
 
 /** order by max() on columns of table "chat_messages" */
 export type ChatMessagesMaxOrderBy = {
-  content?: InputMaybe<OrderBy>;
   createdAt?: InputMaybe<OrderBy>;
   id?: InputMaybe<OrderBy>;
   matchId?: InputMaybe<OrderBy>;
@@ -127,7 +165,6 @@ export type ChatMessagesMaxOrderBy = {
 
 /** order by min() on columns of table "chat_messages" */
 export type ChatMessagesMinOrderBy = {
-  content?: InputMaybe<OrderBy>;
   createdAt?: InputMaybe<OrderBy>;
   id?: InputMaybe<OrderBy>;
   matchId?: InputMaybe<OrderBy>;
@@ -153,7 +190,7 @@ export type ChatMessagesOnConflict = {
 
 /** Ordering options when selecting data from "chat_messages". */
 export type ChatMessagesOrderBy = {
-  content?: InputMaybe<OrderBy>;
+  contents?: InputMaybe<OrderBy>;
   createdAt?: InputMaybe<OrderBy>;
   id?: InputMaybe<OrderBy>;
   isPartial?: InputMaybe<OrderBy>;
@@ -168,10 +205,15 @@ export type ChatMessagesPkColumnsInput = {
   id: Scalars['String']['input'];
 };
 
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export type ChatMessagesPrependInput = {
+  contents?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
 /** select columns of table "chat_messages" */
 export const ChatMessagesSelectColumn = {
   /** column name */
-  Content: 'content',
+  Contents: 'contents',
   /** column name */
   CreatedAt: 'createdAt',
   /** column name */
@@ -189,7 +231,7 @@ export const ChatMessagesSelectColumn = {
 export type ChatMessagesSelectColumn = typeof ChatMessagesSelectColumn[keyof typeof ChatMessagesSelectColumn];
 /** input type for updating data in table "chat_messages" */
 export type ChatMessagesSetInput = {
-  content?: InputMaybe<Scalars['String']['input']>;
+  contents?: InputMaybe<Scalars['jsonb']['input']>;
   createdAt?: InputMaybe<Scalars['timestamp']['input']>;
   id?: InputMaybe<Scalars['String']['input']>;
   isPartial?: InputMaybe<Scalars['Boolean']['input']>;
@@ -208,7 +250,7 @@ export type ChatMessagesStreamCursorInput = {
 
 /** Initial value of the column from where the streaming should start */
 export type ChatMessagesStreamCursorValueInput = {
-  content?: InputMaybe<Scalars['String']['input']>;
+  contents?: InputMaybe<Scalars['jsonb']['input']>;
   createdAt?: InputMaybe<Scalars['timestamp']['input']>;
   id?: InputMaybe<Scalars['String']['input']>;
   isPartial?: InputMaybe<Scalars['Boolean']['input']>;
@@ -220,7 +262,7 @@ export type ChatMessagesStreamCursorValueInput = {
 /** update columns of table "chat_messages" */
 export const ChatMessagesUpdateColumn = {
   /** column name */
-  Content: 'content',
+  Contents: 'contents',
   /** column name */
   CreatedAt: 'createdAt',
   /** column name */
@@ -237,6 +279,19 @@ export const ChatMessagesUpdateColumn = {
 
 export type ChatMessagesUpdateColumn = typeof ChatMessagesUpdateColumn[keyof typeof ChatMessagesUpdateColumn];
 export type ChatMessagesUpdates = {
+  /** append existing jsonb value of filtered columns with new jsonb value */
+  _append?: InputMaybe<ChatMessagesAppendInput>;
+  /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+  _deleteAtPath?: InputMaybe<ChatMessagesDeleteAtPathInput>;
+  /**
+   * delete the array element with specified index (negative integers count from
+   * the end). throws an error if top level container is not an array
+   */
+  _deleteElem?: InputMaybe<ChatMessagesDeleteElemInput>;
+  /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+  _deleteKey?: InputMaybe<ChatMessagesDeleteKeyInput>;
+  /** prepend existing jsonb value of filtered columns with new jsonb value */
+  _prepend?: InputMaybe<ChatMessagesPrependInput>;
   /** sets the columns of the filtered rows to the given values */
   _set?: InputMaybe<ChatMessagesSetInput>;
   /** filter the rows which have to be updated */
@@ -268,29 +323,21 @@ export const CursorOrdering = {
 export type CursorOrdering = typeof CursorOrdering[keyof typeof CursorOrdering];
 /** 対局状態評価リクエスト */
 export type EvaluateMatchStateInput = {
-  /** 局面番号（何手目か） */
+  /** 局面番号 */
   index: Scalars['Int']['input'];
   /** 対局ID */
   matchId: Scalars['String']['input'];
-  /** この局面に至った指し手（USI形式） */
-  moveNotation?: InputMaybe<Scalars['String']['input']>;
   /** 候補手の数（MultiPV、デフォルト: 3） */
   multipv?: InputMaybe<Scalars['Int']['input']>;
-  /** この盤面での手番プレイヤー（SENTE/GOTE） */
-  player: Scalars['String']['input'];
-  /** 盤面（SFEN形式） */
-  sfen: Scalars['String']['input'];
   /** 消費時間（秒） */
   thinkingTime?: InputMaybe<Scalars['Int']['input']>;
-  /** 思考時間（ミリ秒、デフォルト: 1000） */
-  timeMs?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** 対局状態評価結果 */
 export type EvaluateMatchStateResult = {
   __typename?: 'EvaluateMatchStateResult';
-  /** 保存された対局状態 */
-  matchState: MatchState;
+  /** 評価対象のMatchStateのID */
+  matchStateId: Scalars['String']['output'];
   /** 成功したかどうか */
   success: Scalars['Boolean']['output'];
   /** 思考中を示すチャットメッセージ */
@@ -314,6 +361,41 @@ export type IntComparisonExp = {
   _lte?: InputMaybe<Scalars['Int']['input']>;
   _neq?: InputMaybe<Scalars['Int']['input']>;
   _nin?: InputMaybe<Array<Scalars['Int']['input']>>;
+};
+
+export type JsonbCastExp = {
+  String?: InputMaybe<StringComparisonExp>;
+};
+
+/** Boolean expression to compare columns of type "jsonb". All fields are combined with logical 'AND'. */
+export type JsonbComparisonExp = {
+  _cast?: InputMaybe<JsonbCastExp>;
+  /** is the column contained in the given json value */
+  _containedIn?: InputMaybe<Scalars['jsonb']['input']>;
+  /** does the column contain the given json value at the top level */
+  _contains?: InputMaybe<Scalars['jsonb']['input']>;
+  _eq?: InputMaybe<Scalars['jsonb']['input']>;
+  _gt?: InputMaybe<Scalars['jsonb']['input']>;
+  _gte?: InputMaybe<Scalars['jsonb']['input']>;
+  /** does the string exist as a top-level key in the column */
+  _hasKey?: InputMaybe<Scalars['String']['input']>;
+  /** do all of these strings exist as top-level keys in the column */
+  _hasKeysAll?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** do any of these strings exist as top-level keys in the column */
+  _hasKeysAny?: InputMaybe<Array<Scalars['String']['input']>>;
+  _in?: InputMaybe<Array<Scalars['jsonb']['input']>>;
+  _isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  _lt?: InputMaybe<Scalars['jsonb']['input']>;
+  _lte?: InputMaybe<Scalars['jsonb']['input']>;
+  _neq?: InputMaybe<Scalars['jsonb']['input']>;
+  _nin?: InputMaybe<Array<Scalars['jsonb']['input']>>;
+};
+
+/** Markdownコンテンツ */
+export type MarkdownContent = {
+  __typename?: 'MarkdownContent';
+  content: Scalars['String']['output'];
+  type: Scalars['String']['output'];
 };
 
 /** 対局情報 */
@@ -342,8 +424,6 @@ export type MatchState = {
   __typename?: 'MatchState';
   /** 作成日時 */
   createdAt: Scalars['String']['output'];
-  /** 状態ID */
-  id: Scalars['String']['output'];
   /** 局面番号 */
   index: Scalars['Int']['output'];
   /** 対局ID */
@@ -362,7 +442,6 @@ export type MatchState = {
 export type MatchStates = {
   __typename?: 'MatchStates';
   createdAt: Scalars['timestamp']['output'];
-  id: Scalars['String']['output'];
   index: Scalars['Int']['output'];
   /** An object relationship */
   match: Matches;
@@ -407,7 +486,6 @@ export type MatchStatesBoolExp = {
   _not?: InputMaybe<MatchStatesBoolExp>;
   _or?: InputMaybe<Array<MatchStatesBoolExp>>;
   createdAt?: InputMaybe<TimestampComparisonExp>;
-  id?: InputMaybe<StringComparisonExp>;
   index?: InputMaybe<IntComparisonExp>;
   match?: InputMaybe<MatchesBoolExp>;
   matchId?: InputMaybe<StringComparisonExp>;
@@ -419,7 +497,7 @@ export type MatchStatesBoolExp = {
 
 /** unique or primary key constraints on table "match_states" */
 export const MatchStatesConstraint = {
-  /** unique or primary key constraint on columns "id" */
+  /** unique or primary key constraint on columns "index", "matchId" */
   MatchStatesPkey: 'match_states_pkey'
 } as const;
 
@@ -433,7 +511,6 @@ export type MatchStatesIncInput = {
 /** input type for inserting data into table "match_states" */
 export type MatchStatesInsertInput = {
   createdAt?: InputMaybe<Scalars['timestamp']['input']>;
-  id?: InputMaybe<Scalars['String']['input']>;
   index?: InputMaybe<Scalars['Int']['input']>;
   match?: InputMaybe<MatchesObjRelInsertInput>;
   matchId?: InputMaybe<Scalars['String']['input']>;
@@ -446,7 +523,6 @@ export type MatchStatesInsertInput = {
 /** order by max() on columns of table "match_states" */
 export type MatchStatesMaxOrderBy = {
   createdAt?: InputMaybe<OrderBy>;
-  id?: InputMaybe<OrderBy>;
   index?: InputMaybe<OrderBy>;
   matchId?: InputMaybe<OrderBy>;
   moveNotation?: InputMaybe<OrderBy>;
@@ -458,7 +534,6 @@ export type MatchStatesMaxOrderBy = {
 /** order by min() on columns of table "match_states" */
 export type MatchStatesMinOrderBy = {
   createdAt?: InputMaybe<OrderBy>;
-  id?: InputMaybe<OrderBy>;
   index?: InputMaybe<OrderBy>;
   matchId?: InputMaybe<OrderBy>;
   moveNotation?: InputMaybe<OrderBy>;
@@ -486,7 +561,6 @@ export type MatchStatesOnConflict = {
 /** Ordering options when selecting data from "match_states". */
 export type MatchStatesOrderBy = {
   createdAt?: InputMaybe<OrderBy>;
-  id?: InputMaybe<OrderBy>;
   index?: InputMaybe<OrderBy>;
   match?: InputMaybe<MatchesOrderBy>;
   matchId?: InputMaybe<OrderBy>;
@@ -498,15 +572,14 @@ export type MatchStatesOrderBy = {
 
 /** primary key columns input for table: match_states */
 export type MatchStatesPkColumnsInput = {
-  id: Scalars['String']['input'];
+  index: Scalars['Int']['input'];
+  matchId: Scalars['String']['input'];
 };
 
 /** select columns of table "match_states" */
 export const MatchStatesSelectColumn = {
   /** column name */
   CreatedAt: 'createdAt',
-  /** column name */
-  Id: 'id',
   /** column name */
   Index: 'index',
   /** column name */
@@ -525,7 +598,6 @@ export type MatchStatesSelectColumn = typeof MatchStatesSelectColumn[keyof typeo
 /** input type for updating data in table "match_states" */
 export type MatchStatesSetInput = {
   createdAt?: InputMaybe<Scalars['timestamp']['input']>;
-  id?: InputMaybe<Scalars['String']['input']>;
   index?: InputMaybe<Scalars['Int']['input']>;
   matchId?: InputMaybe<Scalars['String']['input']>;
   moveNotation?: InputMaybe<Scalars['String']['input']>;
@@ -563,7 +635,6 @@ export type MatchStatesStreamCursorInput = {
 /** Initial value of the column from where the streaming should start */
 export type MatchStatesStreamCursorValueInput = {
   createdAt?: InputMaybe<Scalars['timestamp']['input']>;
-  id?: InputMaybe<Scalars['String']['input']>;
   index?: InputMaybe<Scalars['Int']['input']>;
   matchId?: InputMaybe<Scalars['String']['input']>;
   moveNotation?: InputMaybe<Scalars['String']['input']>;
@@ -582,8 +653,6 @@ export type MatchStatesSumOrderBy = {
 export const MatchStatesUpdateColumn = {
   /** column name */
   CreatedAt: 'createdAt',
-  /** column name */
-  Id: 'id',
   /** column name */
   Index: 'index',
   /** column name */
@@ -836,6 +905,9 @@ export type MatchesUpdates = {
   /** filter the rows which have to be updated */
   where: MatchesBoolExp;
 };
+
+/** メッセージコンテンツのUnion型 */
+export type MessageContent = BestMoveContent | MarkdownContent;
 
 /** Boolean expression to compare columns of type "MessageRole". All fields are combined with logical 'AND'. */
 export type MessageRoleComparisonExp = {
@@ -1113,7 +1185,8 @@ export type Mutation_RootDeleteMatchStatesArgs = {
 
 /** mutation root */
 export type Mutation_RootDeleteMatchStatesByPkArgs = {
-  id: Scalars['String']['input'];
+  index: Scalars['Int']['input'];
+  matchId: Scalars['String']['input'];
 };
 
 
@@ -1191,6 +1264,11 @@ export type Mutation_RootSendChatMessageArgs = {
 
 /** mutation root */
 export type Mutation_RootUpdateChatMessagesArgs = {
+  _append?: InputMaybe<ChatMessagesAppendInput>;
+  _deleteAtPath?: InputMaybe<ChatMessagesDeleteAtPathInput>;
+  _deleteElem?: InputMaybe<ChatMessagesDeleteElemInput>;
+  _deleteKey?: InputMaybe<ChatMessagesDeleteKeyInput>;
+  _prepend?: InputMaybe<ChatMessagesPrependInput>;
   _set?: InputMaybe<ChatMessagesSetInput>;
   where: ChatMessagesBoolExp;
 };
@@ -1198,6 +1276,11 @@ export type Mutation_RootUpdateChatMessagesArgs = {
 
 /** mutation root */
 export type Mutation_RootUpdateChatMessagesByPkArgs = {
+  _append?: InputMaybe<ChatMessagesAppendInput>;
+  _deleteAtPath?: InputMaybe<ChatMessagesDeleteAtPathInput>;
+  _deleteElem?: InputMaybe<ChatMessagesDeleteElemInput>;
+  _deleteKey?: InputMaybe<ChatMessagesDeleteKeyInput>;
+  _prepend?: InputMaybe<ChatMessagesPrependInput>;
   _set?: InputMaybe<ChatMessagesSetInput>;
   pkColumns: ChatMessagesPkColumnsInput;
 };
@@ -1292,7 +1375,8 @@ export type Query_RootMatchStatesArgs = {
 
 
 export type Query_RootMatchStatesByPkArgs = {
-  id: Scalars['String']['input'];
+  index: Scalars['Int']['input'];
+  matchId: Scalars['String']['input'];
 };
 
 
@@ -1363,7 +1447,8 @@ export type Subscription_RootMatchStatesArgs = {
 
 
 export type Subscription_RootMatchStatesByPkArgs = {
-  id: Scalars['String']['input'];
+  index: Scalars['Int']['input'];
+  matchId: Scalars['String']['input'];
 };
 
 
@@ -1402,28 +1487,28 @@ export type HealthQuery = { __typename?: 'query_root', health: { __typename?: 'H
 export type GetMatchesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMatchesQuery = { __typename?: 'query_root', matches: Array<{ __typename?: 'Matches', id: string, createdAt: string, updatedAt: string, status: 'ONGOING' | 'COMPLETED' | 'ABANDONED', playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI', matchStates: Array<{ __typename?: 'MatchStates', id: string, createdAt: string, matchId: string, index: number, moveNotation?: string | null | undefined, player: 'SENTE' | 'GOTE', sfen: string, thinkingTime?: number | null | undefined }>, chatMessages: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, matchId: string, role: 'USER' | 'ASSISTANT' | 'SYSTEM', content: string, metadata?: string | null | undefined }> }> };
+export type GetMatchesQuery = { __typename?: 'query_root', matches: Array<{ __typename?: 'Matches', id: string, createdAt: string, updatedAt: string, status: 'ONGOING' | 'COMPLETED' | 'ABANDONED', playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI', matchStates: Array<{ __typename?: 'MatchStates', createdAt: string, matchId: string, index: number, moveNotation?: string | null | undefined, player: 'SENTE' | 'GOTE', sfen: string, thinkingTime?: number | null | undefined }>, chatMessages: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, matchId: string, role: 'USER' | 'ASSISTANT', contents: any, metadata?: string | null | undefined }> }> };
 
 export type GetMatchQueryVariables = Exact<{
   matchId: Scalars['String']['input'];
 }>;
 
 
-export type GetMatchQuery = { __typename?: 'query_root', matchesByPk?: { __typename?: 'Matches', id: string, createdAt: string, updatedAt: string, status: 'ONGOING' | 'COMPLETED' | 'ABANDONED', playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI', matchStates: Array<{ __typename?: 'MatchStates', id: string, createdAt: string, matchId: string, index: number, moveNotation?: string | null | undefined, player: 'SENTE' | 'GOTE', sfen: string, thinkingTime?: number | null | undefined }> } | null | undefined };
+export type GetMatchQuery = { __typename?: 'query_root', matchesByPk?: { __typename?: 'Matches', id: string, createdAt: string, updatedAt: string, status: 'ONGOING' | 'COMPLETED' | 'ABANDONED', playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI', matchStates: Array<{ __typename?: 'MatchStates', createdAt: string, matchId: string, index: number, moveNotation?: string | null | undefined, player: 'SENTE' | 'GOTE', sfen: string, thinkingTime?: number | null | undefined }> } | null | undefined };
 
 export type GetChatMessagesQueryVariables = Exact<{
   matchId: Scalars['String']['input'];
 }>;
 
 
-export type GetChatMessagesQuery = { __typename?: 'query_root', chatMessages: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, matchId: string, role: 'USER' | 'ASSISTANT' | 'SYSTEM', content: string, metadata?: string | null | undefined }> };
+export type GetChatMessagesQuery = { __typename?: 'query_root', chatMessages: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, matchId: string, role: 'USER' | 'ASSISTANT', contents: any, metadata?: string | null | undefined }> };
 
 export type SubscribeChatMessagesSubscriptionVariables = Exact<{
   matchId: Scalars['String']['input'];
 }>;
 
 
-export type SubscribeChatMessagesSubscription = { __typename?: 'subscription_root', chatMessages: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, matchId: string, role: 'USER' | 'ASSISTANT' | 'SYSTEM', content: string, metadata?: string | null | undefined, isPartial: boolean }> };
+export type SubscribeChatMessagesSubscription = { __typename?: 'subscription_root', chatMessages: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, matchId: string, role: 'USER' | 'ASSISTANT', contents: any, metadata?: string | null | undefined, isPartial: boolean }> };
 
 export type CreateMatchMutationVariables = Exact<{
   id?: InputMaybe<Scalars['String']['input']>;
@@ -1442,21 +1527,42 @@ export type SendChatMessageMutationVariables = Exact<{
 }>;
 
 
-export type SendChatMessageMutation = { __typename?: 'mutation_root', sendChatMessage: { __typename?: 'SendChatMessageResult', userMessage: { __typename?: 'ChatMessage', id: string, matchId: string, role: string, content: string, createdAt: string }, assistantMessage: { __typename?: 'ChatMessage', id: string, matchId: string, role: string, content: string, createdAt: string } } };
+export type SendChatMessageMutation = { __typename?: 'mutation_root', sendChatMessage: { __typename?: 'SendChatMessageResult', userMessage: { __typename?: 'ChatMessage', id: string, matchId: string, role: string, createdAt: string, contents: Array<
+        | { __typename?: 'BestMoveContent', type: string, move: string, evaluation?: number | null | undefined, depth?: number | null | undefined }
+        | { __typename?: 'MarkdownContent', type: string, content: string }
+      > }, assistantMessage: { __typename?: 'ChatMessage', id: string, matchId: string, role: string, createdAt: string, contents: Array<
+        | { __typename?: 'BestMoveContent', type: string, move: string, evaluation?: number | null | undefined, depth?: number | null | undefined }
+        | { __typename?: 'MarkdownContent', type: string, content: string }
+      > } } };
 
 export type SaveMatchStateAndGetCandidatesMutationVariables = Exact<{
   input: SaveMatchStateInput;
 }>;
 
 
-export type SaveMatchStateAndGetCandidatesMutation = { __typename?: 'mutation_root', saveMatchStateAndGetCandidates: { __typename?: 'SaveMatchStateResult', matchState: { __typename?: 'MatchState', id: string, matchId: string, index: number, moveNotation?: string | null | undefined, player: string, sfen: string, thinkingTime?: number | null | undefined, createdAt: string }, candidates: Array<{ __typename?: 'MoveVariation', move: string, scoreCp?: number | null | undefined, scoreMate?: number | null | undefined, depth: number, nodes?: number | null | undefined, pv?: Array<string> | null | undefined }> } };
+export type SaveMatchStateAndGetCandidatesMutation = { __typename?: 'mutation_root', saveMatchStateAndGetCandidates: { __typename?: 'SaveMatchStateResult', matchState: { __typename?: 'MatchState', matchId: string, index: number, moveNotation?: string | null | undefined, player: string, sfen: string, thinkingTime?: number | null | undefined, createdAt: string }, candidates: Array<{ __typename?: 'MoveVariation', move: string, scoreCp?: number | null | undefined, scoreMate?: number | null | undefined, depth: number, nodes?: number | null | undefined, pv?: Array<string> | null | undefined }> } };
+
+export type InsertMatchStateMutationVariables = Exact<{
+  matchId: Scalars['String']['input'];
+  index: Scalars['Int']['input'];
+  moveNotation?: InputMaybe<Scalars['String']['input']>;
+  player: Scalars['Player']['input'];
+  sfen: Scalars['String']['input'];
+  thinkingTime?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type InsertMatchStateMutation = { __typename?: 'mutation_root', insertMatchStatesOne?: { __typename?: 'MatchStates', matchId: string, index: number, moveNotation?: string | null | undefined, player: 'SENTE' | 'GOTE', sfen: string, thinkingTime?: number | null | undefined, createdAt: string } | null | undefined };
 
 export type EvaluateMatchStateMutationVariables = Exact<{
   input: EvaluateMatchStateInput;
 }>;
 
 
-export type EvaluateMatchStateMutation = { __typename?: 'mutation_root', evaluateMatchState: { __typename?: 'EvaluateMatchStateResult', success: boolean, matchState: { __typename?: 'MatchState', id: string, matchId: string, index: number, moveNotation?: string | null | undefined, player: string, sfen: string, thinkingTime?: number | null | undefined, createdAt: string }, thinkingMessage: { __typename?: 'ChatMessage', id: string, matchId: string, role: string, content: string, isPartial: boolean, createdAt: string } } };
+export type EvaluateMatchStateMutation = { __typename?: 'mutation_root', evaluateMatchState: { __typename?: 'EvaluateMatchStateResult', success: boolean, matchStateId: string, thinkingMessage: { __typename?: 'ChatMessage', id: string, matchId: string, role: string, isPartial: boolean, createdAt: string, contents: Array<
+        | { __typename?: 'BestMoveContent', type: string, move: string, evaluation?: number | null | undefined, depth?: number | null | undefined }
+        | { __typename?: 'MarkdownContent', type: string, content: string }
+      > } } };
 
 
 export const HealthDocument = gql`
@@ -1483,7 +1589,6 @@ export const GetMatchesDocument = gql`
     senteType
     goteType
     matchStates(orderBy: {index: ASC}) {
-      id
       createdAt
       matchId
       index
@@ -1497,7 +1602,7 @@ export const GetMatchesDocument = gql`
       createdAt
       matchId
       role
-      content
+      contents
       metadata
     }
   }
@@ -1519,7 +1624,6 @@ export const GetMatchDocument = gql`
     senteType
     goteType
     matchStates(orderBy: {index: ASC}) {
-      id
       createdAt
       matchId
       index
@@ -1542,7 +1646,7 @@ export const GetChatMessagesDocument = gql`
     createdAt
     matchId
     role
-    content
+    contents
     metadata
   }
 }
@@ -1558,7 +1662,7 @@ export const SubscribeChatMessagesDocument = gql`
     createdAt
     matchId
     role
-    content
+    contents
     metadata
     isPartial
   }
@@ -1595,14 +1699,36 @@ export const SendChatMessageDocument = gql`
       id
       matchId
       role
-      content
+      contents {
+        ... on MarkdownContent {
+          type
+          content
+        }
+        ... on BestMoveContent {
+          type
+          move
+          evaluation
+          depth
+        }
+      }
       createdAt
     }
     assistantMessage {
       id
       matchId
       role
-      content
+      contents {
+        ... on MarkdownContent {
+          type
+          content
+        }
+        ... on BestMoveContent {
+          type
+          move
+          evaluation
+          depth
+        }
+      }
       createdAt
     }
   }
@@ -1616,7 +1742,6 @@ export const SaveMatchStateAndGetCandidatesDocument = gql`
     mutation SaveMatchStateAndGetCandidates($input: SaveMatchStateInput!) {
   saveMatchStateAndGetCandidates(input: $input) {
     matchState {
-      id
       matchId
       index
       moveNotation
@@ -1640,25 +1765,46 @@ export const SaveMatchStateAndGetCandidatesDocument = gql`
 export function useSaveMatchStateAndGetCandidatesMutation() {
   return Urql.useMutation<SaveMatchStateAndGetCandidatesMutation, SaveMatchStateAndGetCandidatesMutationVariables>(SaveMatchStateAndGetCandidatesDocument);
 };
+export const InsertMatchStateDocument = gql`
+    mutation InsertMatchState($matchId: String!, $index: Int!, $moveNotation: String, $player: Player!, $sfen: String!, $thinkingTime: Int) {
+  insertMatchStatesOne(
+    object: {matchId: $matchId, index: $index, moveNotation: $moveNotation, player: $player, sfen: $sfen, thinkingTime: $thinkingTime}
+  ) {
+    matchId
+    index
+    moveNotation
+    player
+    sfen
+    thinkingTime
+    createdAt
+  }
+}
+    `;
+
+export function useInsertMatchStateMutation() {
+  return Urql.useMutation<InsertMatchStateMutation, InsertMatchStateMutationVariables>(InsertMatchStateDocument);
+};
 export const EvaluateMatchStateDocument = gql`
     mutation EvaluateMatchState($input: EvaluateMatchStateInput!) {
   evaluateMatchState(input: $input) {
     success
-    matchState {
-      id
-      matchId
-      index
-      moveNotation
-      player
-      sfen
-      thinkingTime
-      createdAt
-    }
+    matchStateId
     thinkingMessage {
       id
       matchId
       role
-      content
+      contents {
+        ... on MarkdownContent {
+          type
+          content
+        }
+        ... on BestMoveContent {
+          type
+          move
+          evaluation
+          depth
+        }
+      }
       isPartial
       createdAt
     }

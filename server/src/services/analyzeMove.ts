@@ -66,7 +66,7 @@ export function analyzeMove(
 
     // 持ち駒から削除されているか確認
     const playerCapturedDiff =
-      currentPlayer === "sente" ? capturedDiff.sente : capturedDiff.gote;
+      currentPlayer === "SENTE" ? capturedDiff.sente : capturedDiff.gote;
 
     if (!playerCapturedDiff.removed.includes(diff.after.type)) {
       return null;
@@ -124,7 +124,7 @@ export function analyzeMove(
 
     // 持ち駒に追加されているか確認
     const playerCapturedDiff =
-      currentPlayer === "sente" ? capturedDiff.sente : capturedDiff.gote;
+      currentPlayer === "SENTE" ? capturedDiff.sente : capturedDiff.gote;
 
     // 取った駒が成り駒の場合、元の駒に戻して持ち駒に追加される
     const capturedType =

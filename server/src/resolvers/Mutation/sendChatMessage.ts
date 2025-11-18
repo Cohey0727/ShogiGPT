@@ -13,7 +13,7 @@ export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
     data: {
       matchId,
       role: "USER",
-      content,
+      contents: [{ type: "markdown", content }],
       isPartial: false,
     },
   });
@@ -23,7 +23,7 @@ export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
     data: {
       matchId,
       role: "ASSISTANT",
-      content: "考え中...",
+      contents: [{ type: "markdown", content: "考え中..." }],
       isPartial: true,
     },
   });
@@ -44,10 +44,20 @@ export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
       // DeepSeek APIで応答を生成
       const conversationHistory = history
         .filter((msg) => msg.id !== userMessage.id)
-        .map((msg) => ({
-          role: msg.role.toLowerCase() as "user" | "assistant" | "system",
-          content: msg.content,
-        }));
+        .map((msg) => {
+          const contents = msg.contents as Array<{
+            type: string;
+            content: string;
+          }>;
+          const textContent = contents
+            .filter((c) => c.type === "markdown")
+            .map((c) => c.content)
+            .join("\n");
+          return {
+            role: msg.role.toLowerCase() as "user" | "assistant",
+            content: textContent,
+          };
+        });
 
       const aiResponseContent = await generateChatResponse(
         content,
@@ -58,7 +68,7 @@ export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
       await db.chatMessage.update({
         where: { id: assistantMessage.id },
         data: {
-          content: aiResponseContent,
+          contents: [{ type: "markdown", content: aiResponseContent }],
           isPartial: false,
         },
       });
@@ -68,7 +78,13 @@ export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
       await db.chatMessage.update({
         where: { id: assistantMessage.id },
         data: {
-          content: "申し訳ございません。AIの応答生成中にエラーが発生しました。",
+          contents: [
+            {
+              type: "markdown",
+              content:
+                "申し訳ございません。AIの応答生成中にエラーが発生しました。",
+            },
+          ],
           isPartial: false,
         },
       });
@@ -81,7 +97,16 @@ export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
       id: userMessage.id,
       matchId: userMessage.matchId,
       role: userMessage.role,
-      content: userMessage.content,
+      contents: userMessage.contents as unknown as Array<
+        | { __typename?: "MarkdownContent"; type: string; content: string }
+        | {
+            __typename?: "BestMoveContent";
+            type: string;
+            move: string;
+            evaluation?: number;
+            depth?: number;
+          }
+      >,
       isPartial: userMessage.isPartial,
       createdAt: userMessage.createdAt.toISOString(),
     },
@@ -89,7 +114,16 @@ export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
       id: assistantMessage.id,
       matchId: assistantMessage.matchId,
       role: assistantMessage.role,
-      content: assistantMessage.content,
+      contents: assistantMessage.contents as unknown as Array<
+        | { __typename?: "MarkdownContent"; type: string; content: string }
+        | {
+            __typename?: "BestMoveContent";
+            type: string;
+            move: string;
+            evaluation?: number;
+            depth?: number;
+          }
+      >,
       isPartial: assistantMessage.isPartial,
       createdAt: assistantMessage.createdAt.toISOString(),
     },

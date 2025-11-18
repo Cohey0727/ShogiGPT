@@ -16,7 +16,6 @@ query GetMatches {
     senteType
     goteType
     matchStates(orderBy: { index: ASC }) {
-      id
       createdAt
       matchId
       index
@@ -30,7 +29,7 @@ query GetMatches {
       createdAt
       matchId
       role
-      content
+      contents
       metadata
     }
   }
@@ -47,7 +46,6 @@ query GetMatch($matchId: String!) {
     senteType
     goteType
     matchStates(orderBy: { index: ASC }) {
-      id
       createdAt
       matchId
       index
@@ -68,7 +66,7 @@ query GetChatMessages($matchId: String!) {
     createdAt
     matchId
     role
-    content
+    contents
     metadata
   }
 }
@@ -82,7 +80,7 @@ subscription SubscribeChatMessages($matchId: String!) {
     createdAt
     matchId
     role
-    content
+    contents
     metadata
     isPartial
   }
@@ -121,14 +119,36 @@ mutation SendChatMessage($matchId: String!, $content: String!) {
       id
       matchId
       role
-      content
+      contents {
+        ... on MarkdownContent {
+          type
+          content
+        }
+        ... on BestMoveContent {
+          type
+          move
+          evaluation
+          depth
+        }
+      }
       createdAt
     }
     assistantMessage {
       id
       matchId
       role
-      content
+      contents {
+        ... on MarkdownContent {
+          type
+          content
+        }
+        ... on BestMoveContent {
+          type
+          move
+          evaluation
+          depth
+        }
+      }
       createdAt
     }
   }
@@ -137,7 +157,6 @@ mutation SendChatMessage($matchId: String!, $content: String!) {
 mutation SaveMatchStateAndGetCandidates($input: SaveMatchStateInput!) {
   saveMatchStateAndGetCandidates(input: $input) {
     matchState {
-      id
       matchId
       index
       moveNotation
@@ -157,24 +176,54 @@ mutation SaveMatchStateAndGetCandidates($input: SaveMatchStateInput!) {
   }
 }
 
+mutation InsertMatchState(
+  $matchId: String!
+  $index: Int!
+  $moveNotation: String
+  $player: Player!
+  $sfen: String!
+  $thinkingTime: Int
+) {
+  insertMatchStatesOne(
+    object: {
+      matchId: $matchId
+      index: $index
+      moveNotation: $moveNotation
+      player: $player
+      sfen: $sfen
+      thinkingTime: $thinkingTime
+    }
+  ) {
+    matchId
+    index
+    moveNotation
+    player
+    sfen
+    thinkingTime
+    createdAt
+  }
+}
+
 mutation EvaluateMatchState($input: EvaluateMatchStateInput!) {
   evaluateMatchState(input: $input) {
     success
-    matchState {
-      id
-      matchId
-      index
-      moveNotation
-      player
-      sfen
-      thinkingTime
-      createdAt
-    }
+    matchStateId
     thinkingMessage {
       id
       matchId
       role
-      content
+      contents {
+        ... on MarkdownContent {
+          type
+          content
+        }
+        ... on BestMoveContent {
+          type
+          move
+          evaluation
+          depth
+        }
+      }
       isPartial
       createdAt
     }

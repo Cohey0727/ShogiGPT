@@ -11,11 +11,11 @@ insert_permissions:
       check: {}
       columns:
         - role
-        - content
+        - isPartial
+        - contents
         - id
         - matchId
         - metadata
-        - isPartial
         - createdAt
     comment: ""
 select_permissions:
@@ -23,11 +23,11 @@ select_permissions:
     permission:
       columns:
         - role
-        - content
+        - isPartial
+        - contents
         - id
         - matchId
         - metadata
-        - isPartial
         - createdAt
       filter: {}
     comment: ""
@@ -36,11 +36,11 @@ update_permissions:
     permission:
       columns:
         - role
-        - content
+        - isPartial
+        - contents
         - id
         - matchId
         - metadata
-        - isPartial
         - createdAt
       filter: {}
       check: {}

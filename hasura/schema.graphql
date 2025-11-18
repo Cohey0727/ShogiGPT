@@ -13,6 +13,14 @@ directive @cached(
   refresh: Boolean! = false
 ) on QUERY
 
+"""最善手コンテンツ"""
+type BestMoveContent {
+  depth: Int
+  evaluation: Float
+  move: String!
+  type: String!
+}
+
 """
 Boolean expression to compare columns of type "Boolean". All fields are combined with logical 'AND'.
 """
@@ -30,8 +38,8 @@ input BooleanComparisonExp {
 
 """チャットメッセージ"""
 type ChatMessage {
-  """メッセージ内容"""
-  content: String!
+  """メッセージコンテンツ（Markdownや候補手などを含む配列）"""
+  contents: [MessageContent!]!
 
   """作成日時"""
   createdAt: String!
@@ -53,7 +61,10 @@ type ChatMessage {
 columns and relationships of "chat_messages"
 """
 type ChatMessages {
-  content: String!
+  contents(
+    """JSON select path"""
+    path: String
+  ): jsonb!
   createdAt: timestamp!
   id: String!
   isPartial: Boolean!
@@ -74,6 +85,11 @@ input ChatMessagesAggregateOrderBy {
   min: ChatMessagesMinOrderBy
 }
 
+"""append existing jsonb value of filtered columns with new jsonb value"""
+input ChatMessagesAppendInput {
+  contents: jsonb
+}
+
 """
 input type for inserting array relation for remote table "chat_messages"
 """
@@ -91,7 +107,7 @@ input ChatMessagesBoolExp {
   _and: [ChatMessagesBoolExp!]
   _not: ChatMessagesBoolExp
   _or: [ChatMessagesBoolExp!]
-  content: StringComparisonExp
+  contents: JsonbComparisonExp
   createdAt: TimestampComparisonExp
   id: StringComparisonExp
   isPartial: BooleanComparisonExp
@@ -112,10 +128,32 @@ enum ChatMessagesConstraint {
 }
 
 """
+delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+"""
+input ChatMessagesDeleteAtPathInput {
+  contents: [String!]
+}
+
+"""
+delete the array element with specified index (negative integers count from the
+end). throws an error if top level container is not an array
+"""
+input ChatMessagesDeleteElemInput {
+  contents: Int
+}
+
+"""
+delete key/value pair or string element. key/value pairs are matched based on their key value
+"""
+input ChatMessagesDeleteKeyInput {
+  contents: String
+}
+
+"""
 input type for inserting data into table "chat_messages"
 """
 input ChatMessagesInsertInput {
-  content: String
+  contents: jsonb
   createdAt: timestamp
   id: String
   isPartial: Boolean
@@ -129,7 +167,6 @@ input ChatMessagesInsertInput {
 order by max() on columns of table "chat_messages"
 """
 input ChatMessagesMaxOrderBy {
-  content: OrderBy
   createdAt: OrderBy
   id: OrderBy
   matchId: OrderBy
@@ -141,7 +178,6 @@ input ChatMessagesMaxOrderBy {
 order by min() on columns of table "chat_messages"
 """
 input ChatMessagesMinOrderBy {
-  content: OrderBy
   createdAt: OrderBy
   id: OrderBy
   matchId: OrderBy
@@ -171,7 +207,7 @@ input ChatMessagesOnConflict {
 
 """Ordering options when selecting data from "chat_messages"."""
 input ChatMessagesOrderBy {
-  content: OrderBy
+  contents: OrderBy
   createdAt: OrderBy
   id: OrderBy
   isPartial: OrderBy
@@ -186,12 +222,17 @@ input ChatMessagesPkColumnsInput {
   id: String!
 }
 
+"""prepend existing jsonb value of filtered columns with new jsonb value"""
+input ChatMessagesPrependInput {
+  contents: jsonb
+}
+
 """
 select columns of table "chat_messages"
 """
 enum ChatMessagesSelectColumn {
   """column name"""
-  content
+  contents
 
   """column name"""
   createdAt
@@ -216,7 +257,7 @@ enum ChatMessagesSelectColumn {
 input type for updating data in table "chat_messages"
 """
 input ChatMessagesSetInput {
-  content: String
+  contents: jsonb
   createdAt: timestamp
   id: String
   isPartial: Boolean
@@ -238,7 +279,7 @@ input ChatMessagesStreamCursorInput {
 
 """Initial value of the column from where the streaming should start"""
 input ChatMessagesStreamCursorValueInput {
-  content: String
+  contents: jsonb
   createdAt: timestamp
   id: String
   isPartial: Boolean
@@ -252,7 +293,7 @@ update columns of table "chat_messages"
 """
 enum ChatMessagesUpdateColumn {
   """column name"""
-  content
+  contents
 
   """column name"""
   createdAt
@@ -274,6 +315,28 @@ enum ChatMessagesUpdateColumn {
 }
 
 input ChatMessagesUpdates {
+  """append existing jsonb value of filtered columns with new jsonb value"""
+  _append: ChatMessagesAppendInput
+
+  """
+  delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+  """
+  _deleteAtPath: ChatMessagesDeleteAtPathInput
+
+  """
+  delete the array element with specified index (negative integers count from
+  the end). throws an error if top level container is not an array
+  """
+  _deleteElem: ChatMessagesDeleteElemInput
+
+  """
+  delete key/value pair or string element. key/value pairs are matched based on their key value
+  """
+  _deleteKey: ChatMessagesDeleteKeyInput
+
+  """prepend existing jsonb value of filtered columns with new jsonb value"""
+  _prepend: ChatMessagesPrependInput
+
   """sets the columns of the filtered rows to the given values"""
   _set: ChatMessagesSetInput
 
@@ -310,35 +373,23 @@ enum CursorOrdering {
 
 """対局状態評価リクエスト"""
 input EvaluateMatchStateInput {
-  """局面番号（何手目か）"""
+  """局面番号"""
   index: Int!
 
   """対局ID"""
   matchId: String!
 
-  """この局面に至った指し手（USI形式）"""
-  moveNotation: String
-
   """候補手の数（MultiPV、デフォルト: 3）"""
   multipv: Int
 
-  """この盤面での手番プレイヤー（SENTE/GOTE）"""
-  player: String!
-
-  """盤面（SFEN形式）"""
-  sfen: String!
-
   """消費時間（秒）"""
   thinkingTime: Int
-
-  """思考時間（ミリ秒、デフォルト: 1000）"""
-  timeMs: Int
 }
 
 """対局状態評価結果"""
 type EvaluateMatchStateResult {
-  """保存された対局状態"""
-  matchState: MatchState!
+  """評価対象のMatchStateのID"""
+  matchStateId: String!
 
   """成功したかどうか"""
   success: Boolean!
@@ -365,6 +416,49 @@ input IntComparisonExp {
   _lte: Int
   _neq: Int
   _nin: [Int!]
+}
+
+scalar jsonb
+
+input JsonbCastExp {
+  String: StringComparisonExp
+}
+
+"""
+Boolean expression to compare columns of type "jsonb". All fields are combined with logical 'AND'.
+"""
+input JsonbComparisonExp {
+  _cast: JsonbCastExp
+
+  """is the column contained in the given json value"""
+  _containedIn: jsonb
+
+  """does the column contain the given json value at the top level"""
+  _contains: jsonb
+  _eq: jsonb
+  _gt: jsonb
+  _gte: jsonb
+
+  """does the string exist as a top-level key in the column"""
+  _hasKey: String
+
+  """do all of these strings exist as top-level keys in the column"""
+  _hasKeysAll: [String!]
+
+  """do any of these strings exist as top-level keys in the column"""
+  _hasKeysAny: [String!]
+  _in: [jsonb!]
+  _isNull: Boolean
+  _lt: jsonb
+  _lte: jsonb
+  _neq: jsonb
+  _nin: [jsonb!]
+}
+
+"""Markdownコンテンツ"""
+type MarkdownContent {
+  content: String!
+  type: String!
 }
 
 """対局情報"""
@@ -645,9 +739,6 @@ type MatchState {
   """作成日時"""
   createdAt: String!
 
-  """状態ID"""
-  id: String!
-
   """局面番号"""
   index: Int!
 
@@ -672,7 +763,6 @@ columns and relationships of "match_states"
 """
 type MatchStates {
   createdAt: timestamp!
-  id: String!
   index: Int!
 
   """An object relationship"""
@@ -727,7 +817,6 @@ input MatchStatesBoolExp {
   _not: MatchStatesBoolExp
   _or: [MatchStatesBoolExp!]
   createdAt: TimestampComparisonExp
-  id: StringComparisonExp
   index: IntComparisonExp
   match: MatchesBoolExp
   matchId: StringComparisonExp
@@ -742,7 +831,7 @@ unique or primary key constraints on table "match_states"
 """
 enum MatchStatesConstraint {
   """
-  unique or primary key constraint on columns "id"
+  unique or primary key constraint on columns "index", "matchId"
   """
   match_states_pkey
 }
@@ -760,7 +849,6 @@ input type for inserting data into table "match_states"
 """
 input MatchStatesInsertInput {
   createdAt: timestamp
-  id: String
   index: Int
   match: MatchesObjRelInsertInput
   matchId: String
@@ -775,7 +863,6 @@ order by max() on columns of table "match_states"
 """
 input MatchStatesMaxOrderBy {
   createdAt: OrderBy
-  id: OrderBy
   index: OrderBy
   matchId: OrderBy
   moveNotation: OrderBy
@@ -789,7 +876,6 @@ order by min() on columns of table "match_states"
 """
 input MatchStatesMinOrderBy {
   createdAt: OrderBy
-  id: OrderBy
   index: OrderBy
   matchId: OrderBy
   moveNotation: OrderBy
@@ -821,7 +907,6 @@ input MatchStatesOnConflict {
 """Ordering options when selecting data from "match_states"."""
 input MatchStatesOrderBy {
   createdAt: OrderBy
-  id: OrderBy
   index: OrderBy
   match: MatchesOrderBy
   matchId: OrderBy
@@ -833,7 +918,8 @@ input MatchStatesOrderBy {
 
 """primary key columns input for table: match_states"""
 input MatchStatesPkColumnsInput {
-  id: String!
+  index: Int!
+  matchId: String!
 }
 
 """
@@ -842,9 +928,6 @@ select columns of table "match_states"
 enum MatchStatesSelectColumn {
   """column name"""
   createdAt
-
-  """column name"""
-  id
 
   """column name"""
   index
@@ -870,7 +953,6 @@ input type for updating data in table "match_states"
 """
 input MatchStatesSetInput {
   createdAt: timestamp
-  id: String
   index: Int
   matchId: String
   moveNotation: String
@@ -917,7 +999,6 @@ input MatchStatesStreamCursorInput {
 """Initial value of the column from where the streaming should start"""
 input MatchStatesStreamCursorValueInput {
   createdAt: timestamp
-  id: String
   index: Int
   matchId: String
   moveNotation: String
@@ -940,9 +1021,6 @@ update columns of table "match_states"
 enum MatchStatesUpdateColumn {
   """column name"""
   createdAt
-
-  """column name"""
-  id
 
   """column name"""
   index
@@ -1015,6 +1093,9 @@ input MatchStatusComparisonExp {
   _nin: [MatchStatus!]
 }
 
+"""メッセージコンテンツのUnion型"""
+union MessageContent = BestMoveContent | MarkdownContent
+
 scalar MessageRole
 
 """
@@ -1081,7 +1162,7 @@ type mutation_root {
   """
   delete single row from the table: "match_states"
   """
-  deleteMatchStatesByPk(id: String!): MatchStates
+  deleteMatchStatesByPk(index: Int!, matchId: String!): MatchStates
 
   """
   delete data from the table: "matches"
@@ -1169,6 +1250,28 @@ type mutation_root {
   update data of the table: "chat_messages"
   """
   updateChatMessages(
+    """append existing jsonb value of filtered columns with new jsonb value"""
+    _append: ChatMessagesAppendInput
+
+    """
+    delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+    """
+    _deleteAtPath: ChatMessagesDeleteAtPathInput
+
+    """
+    delete the array element with specified index (negative integers count from
+    the end). throws an error if top level container is not an array
+    """
+    _deleteElem: ChatMessagesDeleteElemInput
+
+    """
+    delete key/value pair or string element. key/value pairs are matched based on their key value
+    """
+    _deleteKey: ChatMessagesDeleteKeyInput
+
+    """prepend existing jsonb value of filtered columns with new jsonb value"""
+    _prepend: ChatMessagesPrependInput
+
     """sets the columns of the filtered rows to the given values"""
     _set: ChatMessagesSetInput
 
@@ -1180,6 +1283,28 @@ type mutation_root {
   update single row of the table: "chat_messages"
   """
   updateChatMessagesByPk(
+    """append existing jsonb value of filtered columns with new jsonb value"""
+    _append: ChatMessagesAppendInput
+
+    """
+    delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+    """
+    _deleteAtPath: ChatMessagesDeleteAtPathInput
+
+    """
+    delete the array element with specified index (negative integers count from
+    the end). throws an error if top level container is not an array
+    """
+    _deleteElem: ChatMessagesDeleteElemInput
+
+    """
+    delete key/value pair or string element. key/value pairs are matched based on their key value
+    """
+    _deleteKey: ChatMessagesDeleteKeyInput
+
+    """prepend existing jsonb value of filtered columns with new jsonb value"""
+    _prepend: ChatMessagesPrependInput
+
     """sets the columns of the filtered rows to the given values"""
     _set: ChatMessagesSetInput
     pkColumns: ChatMessagesPkColumnsInput!
@@ -1353,7 +1478,7 @@ type query_root {
   ): [MatchStates!]!
 
   """fetch data from the table: "match_states" using primary key columns"""
-  matchStatesByPk(id: String!): MatchStates
+  matchStatesByPk(index: Int!, matchId: String!): MatchStates
 
   """
   fetch data from the table: "matches"
@@ -1541,7 +1666,7 @@ type subscription_root {
   ): [MatchStates!]!
 
   """fetch data from the table: "match_states" using primary key columns"""
-  matchStatesByPk(id: String!): MatchStates
+  matchStatesByPk(index: Int!, matchId: String!): MatchStates
 
   """
   fetch data from the table in a streaming manner: "match_states"

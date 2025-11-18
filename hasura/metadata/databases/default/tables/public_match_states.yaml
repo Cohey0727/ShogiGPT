@@ -13,7 +13,6 @@ insert_permissions:
         - player
         - index
         - thinkingTime
-        - id
         - matchId
         - moveNotation
         - sfen
@@ -26,7 +25,6 @@ select_permissions:
         - player
         - index
         - thinkingTime
-        - id
         - matchId
         - moveNotation
         - sfen
@@ -40,7 +38,6 @@ update_permissions:
         - player
         - index
         - thinkingTime
-        - id
         - matchId
         - moveNotation
         - sfen

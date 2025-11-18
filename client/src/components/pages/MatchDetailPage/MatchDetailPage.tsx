@@ -3,17 +3,16 @@ import { useState, useCallback, useMemo } from "react";
 import { ShogiBoard, MatchChat, PieceStand } from "../../organisms";
 import {
   useGetMatchQuery,
+  useInsertMatchStateMutation,
   useEvaluateMatchStateMutation,
 } from "../../../generated/graphql/types";
 import styles from "./MatchDetailPage.css";
 import { createInitialBoard } from "../../../utils/shogi";
 import type { Board } from "../../../shared/consts";
-import { Player } from "../../../shared/consts";
 import { sfenToBoard, boardToSfen } from "../../../shared/services";
 
 interface BoardState {
   board: Board;
-  currentTurn: "SENTE" | "GOTE";
   moveIndex: number;
 }
 
@@ -27,6 +26,7 @@ export function MatchDetailPage() {
   });
   const match = matchData?.matchesByPk;
 
+  const [, insertMatchState] = useInsertMatchStateMutation();
   const [, evaluateMatchState] = useEvaluateMatchStateMutation();
 
   if (!match) {
@@ -48,28 +48,36 @@ export function MatchDetailPage() {
     // 最新のmatchStateのSFENから盤面を作成
     const lastState = matchStates[matchStates.length - 1];
     const board = sfenToBoard(lastState.sfen);
-    const currentTurn = board.turn === Player.Sente ? "SENTE" : "GOTE";
 
-    return {
-      board,
-      currentTurn: currentTurn as "SENTE" | "GOTE",
-      moveIndex: matchStates.length,
-    };
+    return { board, moveIndex: matchStates.length };
   }, [match.matchStates]);
 
   const [boardState, setBoardState] = useState<BoardState>(initialBoardState);
 
   const handleBoardChange = useCallback(
     async (newBoard: Board) => {
-      const { currentTurn, moveIndex } = boardState;
+      const { moveIndex } = boardState;
       const nextTurn: "SENTE" | "GOTE" =
-        currentTurn === "SENTE" ? "GOTE" : "SENTE";
+        boardState.board.turn === "SENTE" ? "GOTE" : "SENTE";
       const nextMoveIndex = moveIndex + 1;
+      const updatedBoard = { ...newBoard, turn: nextTurn };
 
       setBoardState({
-        board: newBoard,
-        currentTurn: nextTurn,
+        board: updatedBoard,
         moveIndex: nextMoveIndex,
+      });
+
+      // 盤面をSFEN形式に変換
+      const newSfen = boardToSfen(updatedBoard);
+
+      // MatchStateを保存（AIでも人間でも常に保存）
+      const result = await insertMatchState({
+        matchId,
+        index: nextMoveIndex,
+        moveNotation: null,
+        player: nextTurn,
+        sfen: newSfen,
+        thinkingTime: null,
       });
 
       // 次の手番がAIかどうかを判定
@@ -78,24 +86,20 @@ export function MatchDetailPage() {
           ? match.senteType === "AI"
           : match.goteType === "AI";
 
-      if (isAiTurn) {
-        // 盤面をSFEN形式に変換
-        const sfen = boardToSfen(newBoard);
-
-        // AIの盤面評価を実行（デフォルト値はサーバー側で設定される）
+      if (isAiTurn && result.data?.insertMatchStatesOne) {
+        // 保存したMatchStateのmatchIdとindexを使ってAI評価を実行
         await evaluateMatchState({
           input: {
-            matchId,
-            index: nextMoveIndex,
-            moveNotation: null,
-            player: nextTurn,
-            sfen,
+            matchId: result.data.insertMatchStatesOne.matchId,
+            index: result.data.insertMatchStatesOne.index,
           },
         });
       }
     },
-    [boardState, match, matchId, evaluateMatchState]
+    [boardState, match, matchId, insertMatchState, evaluateMatchState]
   );
+
+  console.log({ boardState });
 
   return (
     <div className={styles.container}>
@@ -113,7 +117,7 @@ export function MatchDetailPage() {
           </div>
           <ShogiBoard
             board={boardState.board}
-            currentPlayer={boardState.currentTurn}
+            currentPlayer={boardState.board.turn}
             onBoardChange={handleBoardChange}
           />
           <div className={styles.sentePieceStand}>

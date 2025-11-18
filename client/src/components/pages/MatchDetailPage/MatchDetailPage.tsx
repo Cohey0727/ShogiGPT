@@ -9,7 +9,7 @@ import {
 import styles from "./MatchDetailPage.css";
 import { createInitialBoard } from "../../../utils/shogi";
 import type { Board } from "../../../shared/consts";
-import { sfenToBoard, boardToSfen } from "../../../shared/services";
+import { sfenToBoard, boardToSfen, applyUsiMove } from "../../../shared/services";
 
 interface BoardState {
   board: Board;
@@ -85,14 +85,42 @@ export function MatchDetailPage() {
           ? match.senteType === "AI"
           : match.goteType === "AI";
 
-      if (isAiTurn && result.data?.insertMatchStatesOne) {
+      const newMatchState = result.data?.insertMatchStatesOne;
+      if (isAiTurn && newMatchState) {
         // 保存したMatchStateのmatchIdとindexを使ってAI評価を実行
-        await evaluateMatchState({
-          input: {
-            matchId: result.data.insertMatchStatesOne.matchId,
-            index: result.data.insertMatchStatesOne.index,
-          },
+        const evaluationResponse = await evaluateMatchState({
+          input: { matchId: newMatchState.matchId, index: newMatchState.index },
         });
+        const evaluation = evaluationResponse.data?.evaluateMatchState;
+        console.log("AI Evaluation:", evaluation);
+
+        // AIの最善手を盤面に反映
+        if (evaluation?.bestmove) {
+          try {
+            const newBoardWithAiMove = applyUsiMove(updatedBoard, evaluation.bestmove);
+            const nextNextTurn: "SENTE" | "GOTE" =
+              nextTurn === "SENTE" ? "GOTE" : "SENTE";
+            const aiMoveIndex = nextMoveIndex + 1;
+
+            setBoardState({
+              board: newBoardWithAiMove,
+              moveIndex: aiMoveIndex,
+            });
+
+            // AIの指し手もMatchStateに保存
+            const aiSfen = boardToSfen(newBoardWithAiMove);
+            await insertMatchState({
+              matchId,
+              index: aiMoveIndex,
+              moveNotation: evaluation.bestmove,
+              player: nextNextTurn,
+              sfen: aiSfen,
+              thinkingTime: evaluation.timeMs,
+            });
+          } catch (error) {
+            console.error("Failed to apply AI move:", error);
+          }
+        }
       }
     },
     [boardState, match, matchId, insertMatchState, evaluateMatchState]

@@ -396,14 +396,18 @@ input EvaluateMatchStateInput {
 
 """対局状態評価結果"""
 type EvaluateMatchStateResult {
-  """評価対象のMatchStateのID"""
-  matchStateId: String!
+  """最善手（USI形式）"""
+  bestmove: String!
 
-  """成功したかどうか"""
-  success: Boolean!
+  """エンジン名"""
+  engineName: String!
 
-  """思考中を示すチャットメッセージ"""
-  thinkingMessage: ChatMessage!
+  """思考時間（ミリ秒）"""
+  timeMs: Int!
+  type: String!
+
+  """候補手リスト（MultiPV）"""
+  variations: [MoveVariation!]!
 }
 
 type Health {

@@ -341,12 +341,15 @@ export type EvaluateMatchStateInput = {
 /** 対局状態評価結果 */
 export type EvaluateMatchStateResult = {
   __typename?: 'EvaluateMatchStateResult';
-  /** 評価対象のMatchStateのID */
-  matchStateId: Scalars['String']['output'];
-  /** 成功したかどうか */
-  success: Scalars['Boolean']['output'];
-  /** 思考中を示すチャットメッセージ */
-  thinkingMessage: ChatMessage;
+  /** 最善手（USI形式） */
+  bestmove: Scalars['String']['output'];
+  /** エンジン名 */
+  engineName: Scalars['String']['output'];
+  /** 思考時間（ミリ秒） */
+  timeMs: Scalars['Int']['output'];
+  type: Scalars['String']['output'];
+  /** 候補手リスト（MultiPV） */
+  variations: Array<MoveVariation>;
 };
 
 export type Health = {
@@ -1564,10 +1567,7 @@ export type EvaluateMatchStateMutationVariables = Exact<{
 }>;
 
 
-export type EvaluateMatchStateMutation = { __typename?: 'mutation_root', evaluateMatchState: { __typename?: 'EvaluateMatchStateResult', success: boolean, matchStateId: string, thinkingMessage: { __typename?: 'ChatMessage', id: string, matchId: string, role: string, isPartial: boolean, createdAt: string, contents: Array<
-        | { __typename?: 'BestMoveContent', type: string, bestmove: string, timeMs: number, engineName: string, variations: Array<{ __typename?: 'MoveVariation', move: string, scoreCp?: number | null | undefined, scoreMate?: number | null | undefined, depth: number, nodes?: number | null | undefined, pv?: Array<string> | null | undefined }> }
-        | { __typename?: 'MarkdownContent', type: string, content: string }
-      > } } };
+export type EvaluateMatchStateMutation = { __typename?: 'mutation_root', evaluateMatchState: { __typename?: 'EvaluateMatchStateResult', type: string, bestmove: string, timeMs: number, engineName: string, variations: Array<{ __typename?: 'MoveVariation', move: string, scoreCp?: number | null | undefined, scoreMate?: number | null | undefined, depth: number, nodes?: number | null | undefined, pv?: Array<string> | null | undefined }> } };
 
 
 export const HealthDocument = gql`
@@ -1808,35 +1808,18 @@ export function useInsertMatchStateMutation() {
 export const EvaluateMatchStateDocument = gql`
     mutation EvaluateMatchState($input: EvaluateMatchStateInput!) {
   evaluateMatchState(input: $input) {
-    success
-    matchStateId
-    thinkingMessage {
-      id
-      matchId
-      role
-      contents {
-        ... on MarkdownContent {
-          type
-          content
-        }
-        ... on BestMoveContent {
-          type
-          bestmove
-          variations {
-            move
-            scoreCp
-            scoreMate
-            depth
-            nodes
-            pv
-          }
-          timeMs
-          engineName
-        }
-      }
-      isPartial
-      createdAt
+    type
+    bestmove
+    variations {
+      move
+      scoreCp
+      scoreMate
+      depth
+      nodes
+      pv
     }
+    timeMs
+    engineName
   }
 }
     `;

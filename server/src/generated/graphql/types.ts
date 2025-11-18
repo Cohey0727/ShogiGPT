@@ -79,12 +79,15 @@ export type EvaluateMatchStateInput = {
 /** 対局状態評価結果 */
 export type EvaluateMatchStateResult = {
   __typename?: 'EvaluateMatchStateResult';
-  /** 評価対象のMatchStateのID */
-  matchStateId: Scalars['String']['output'];
-  /** 成功したかどうか */
-  success: Scalars['Boolean']['output'];
-  /** 思考中を示すチャットメッセージ */
-  thinkingMessage: ChatMessage;
+  /** 最善手（USI形式） */
+  bestmove: Scalars['String']['output'];
+  /** エンジン名 */
+  engineName: Scalars['String']['output'];
+  /** 思考時間（ミリ秒） */
+  timeMs: Scalars['Int']['output'];
+  type: Scalars['String']['output'];
+  /** 候補手リスト（MultiPV） */
+  variations: Array<MoveVariation>;
 };
 
 export type Health = {
@@ -325,7 +328,7 @@ export type ResolversTypes = ResolversObject<{
   ChatMessage: ResolverTypeWrapper<Omit<ChatMessage, 'contents'> & { contents: Array<ResolversTypes['MessageContent']> }>;
   CreateMatchInput: CreateMatchInput;
   EvaluateMatchStateInput: EvaluateMatchStateInput;
-  EvaluateMatchStateResult: ResolverTypeWrapper<Omit<EvaluateMatchStateResult, 'thinkingMessage'> & { thinkingMessage: ResolversTypes['ChatMessage'] }>;
+  EvaluateMatchStateResult: ResolverTypeWrapper<EvaluateMatchStateResult>;
   Health: ResolverTypeWrapper<Health>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   MarkdownContent: ResolverTypeWrapper<MarkdownContent>;
@@ -350,7 +353,7 @@ export type ResolversParentTypes = ResolversObject<{
   ChatMessage: Omit<ChatMessage, 'contents'> & { contents: Array<ResolversParentTypes['MessageContent']> };
   CreateMatchInput: CreateMatchInput;
   EvaluateMatchStateInput: EvaluateMatchStateInput;
-  EvaluateMatchStateResult: Omit<EvaluateMatchStateResult, 'thinkingMessage'> & { thinkingMessage: ResolversParentTypes['ChatMessage'] };
+  EvaluateMatchStateResult: EvaluateMatchStateResult;
   Health: Health;
   Int: Scalars['Int']['output'];
   MarkdownContent: MarkdownContent;
@@ -387,9 +390,11 @@ export type ChatMessageResolvers<ContextType = any, ParentType extends Resolvers
 }>;
 
 export type EvaluateMatchStateResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['EvaluateMatchStateResult'] = ResolversParentTypes['EvaluateMatchStateResult']> = ResolversObject<{
-  matchStateId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  thinkingMessage?: Resolver<ResolversTypes['ChatMessage'], ParentType, ContextType>;
+  bestmove?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  engineName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  timeMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  variations?: Resolver<Array<ResolversTypes['MoveVariation']>, ParentType, ContextType>;
 }>;
 
 export type HealthResolvers<ContextType = any, ParentType extends ResolversParentTypes['Health'] = ResolversParentTypes['Health']> = ResolversObject<{

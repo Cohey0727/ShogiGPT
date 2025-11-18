@@ -1,10 +1,17 @@
 import { useState, useRef, useEffect, useMemo } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { MessageBubble } from "../MessageBubble";
 import { Button } from "../../atoms/Button";
+import { BestMoveDisplay } from "../../molecules/BestMoveDisplay";
 import {
   useSubscribeChatMessagesSubscription,
   useSendChatMessageMutation,
 } from "../../../generated/graphql/types";
+import {
+  MarkdownContentSchema,
+  BestMoveContentSchema,
+} from "../../../schemas/chatMessage";
 import styles from "./MatchChat.css";
 
 interface MatchChatProps {
@@ -31,12 +38,16 @@ export function MatchChat({ matchId }: MatchChatProps) {
 
   const [, sendChatMessage] = useSendChatMessageMutation();
 
-  const messages = useMemo(() => data?.chatMessages || [], [data?.chatMessages]);
+  const messages = useMemo(
+    () => data?.chatMessages || [],
+    [data?.chatMessages]
+  );
 
   // 新着メッセージがある場合は自動スクロール
   useEffect(() => {
     if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+      messagesContainerRef.current.scrollTop =
+        messagesContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -67,21 +78,48 @@ export function MatchChat({ matchId }: MatchChatProps) {
     <div className={styles.container}>
       <div className={styles.messagesContainer} ref={messagesContainerRef}>
         {messages.map((msg) => {
-          // 一時的に、contentsから最初のmarkdownコンテンツを取得
-          const firstContent = msg.contents?.[0];
-          const messageText =
-            firstContent && typeof firstContent === "object" && "content" in firstContent
-              ? String(firstContent.content)
-              : JSON.stringify(msg.contents);
+          const sender = msg.role === "USER" ? "あなた" : "ShogiGPT";
+          const isCurrentUser = msg.role === "USER";
+          const timestamp = formatTimestamp(msg.createdAt);
 
+          // contents を1つの MessageBubble にレンダリング
           return (
             <MessageBubble
               key={msg.id}
-              sender={msg.role === "USER" ? "あなた" : "アシスタント"}
-              message={messageText}
-              timestamp={formatTimestamp(msg.createdAt)}
-              isCurrentUser={msg.role === "USER"}
-            />
+              sender={sender}
+              timestamp={timestamp}
+              isCurrentUser={isCurrentUser}
+            >
+              {msg.contents?.map((content: unknown, idx: number) => {
+                if (!content || typeof content !== "object") {
+                  return null;
+                }
+
+                // Markdown コンテンツ
+                const markdownResult = MarkdownContentSchema.safeParse(content);
+                if (markdownResult.success) {
+                  return (
+                    <div key={`${msg.id}-${idx}`}>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {markdownResult.data.content}
+                      </ReactMarkdown>
+                    </div>
+                  );
+                }
+
+                // BestMove コンテンツ
+                const bestMoveResult = BestMoveContentSchema.safeParse(content);
+                if (bestMoveResult.success) {
+                  return (
+                    <div key={`${msg.id}-${idx}`}>
+                      <BestMoveDisplay content={bestMoveResult.data} />
+                    </div>
+                  );
+                }
+
+                return null;
+              })}
+            </MessageBubble>
           );
         })}
       </div>
@@ -93,9 +131,7 @@ export function MatchChat({ matchId }: MatchChatProps) {
           placeholder="メッセージを入力..."
           className={styles.input}
         />
-        <Button type="submit">
-          送信
-        </Button>
+        <Button type="submit">送信</Button>
       </form>
     </div>
   );

@@ -222,34 +222,17 @@ mutation InsertMatchState(
 
 mutation EvaluateMatchState($input: EvaluateMatchStateInput!) {
   evaluateMatchState(input: $input) {
-    success
-    matchStateId
-    thinkingMessage {
-      id
-      matchId
-      role
-      contents {
-        ... on MarkdownContent {
-          type
-          content
-        }
-        ... on BestMoveContent {
-          type
-          bestmove
-          variations {
-            move
-            scoreCp
-            scoreMate
-            depth
-            nodes
-            pv
-          }
-          timeMs
-          engineName
-        }
-      }
-      isPartial
-      createdAt
+    type
+    bestmove
+    variations {
+      move
+      scoreCp
+      scoreMate
+      depth
+      nodes
+      pv
     }
+    timeMs
+    engineName
   }
 }

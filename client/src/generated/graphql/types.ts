@@ -17,7 +17,6 @@ export type Scalars = {
   Float: { input: number; output: number; }
   MatchStatus: { input: 'ONGOING' | 'COMPLETED' | 'ABANDONED'; output: 'ONGOING' | 'COMPLETED' | 'ABANDONED'; }
   MessageRole: { input: 'USER' | 'ASSISTANT'; output: 'USER' | 'ASSISTANT'; }
-  Player: { input: 'SENTE' | 'GOTE'; output: 'SENTE' | 'GOTE'; }
   /** プレイヤータイプ（HUMAN または AI） */
   PlayerType: { input: 'HUMAN' | 'AI'; output: 'HUMAN' | 'AI'; }
   jsonb: { input: any; output: any; }
@@ -442,8 +441,6 @@ export type MatchState = {
   matchId: Scalars['String']['output'];
   /** 指し手（USI形式） */
   moveNotation?: Maybe<Scalars['String']['output']>;
-  /** 手番プレイヤー */
-  player: Scalars['String']['output'];
   /** 盤面（SFEN形式） */
   sfen: Scalars['String']['output'];
   /** 消費時間（秒） */
@@ -459,7 +456,6 @@ export type MatchStates = {
   match: Matches;
   matchId: Scalars['String']['output'];
   moveNotation?: Maybe<Scalars['String']['output']>;
-  player: Scalars['Player']['output'];
   sfen: Scalars['String']['output'];
   thinkingTime?: Maybe<Scalars['Int']['output']>;
 };
@@ -502,7 +498,6 @@ export type MatchStatesBoolExp = {
   match?: InputMaybe<MatchesBoolExp>;
   matchId?: InputMaybe<StringComparisonExp>;
   moveNotation?: InputMaybe<StringComparisonExp>;
-  player?: InputMaybe<PlayerComparisonExp>;
   sfen?: InputMaybe<StringComparisonExp>;
   thinkingTime?: InputMaybe<IntComparisonExp>;
 };
@@ -527,7 +522,6 @@ export type MatchStatesInsertInput = {
   match?: InputMaybe<MatchesObjRelInsertInput>;
   matchId?: InputMaybe<Scalars['String']['input']>;
   moveNotation?: InputMaybe<Scalars['String']['input']>;
-  player?: InputMaybe<Scalars['Player']['input']>;
   sfen?: InputMaybe<Scalars['String']['input']>;
   thinkingTime?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -538,7 +532,6 @@ export type MatchStatesMaxOrderBy = {
   index?: InputMaybe<OrderBy>;
   matchId?: InputMaybe<OrderBy>;
   moveNotation?: InputMaybe<OrderBy>;
-  player?: InputMaybe<OrderBy>;
   sfen?: InputMaybe<OrderBy>;
   thinkingTime?: InputMaybe<OrderBy>;
 };
@@ -549,7 +542,6 @@ export type MatchStatesMinOrderBy = {
   index?: InputMaybe<OrderBy>;
   matchId?: InputMaybe<OrderBy>;
   moveNotation?: InputMaybe<OrderBy>;
-  player?: InputMaybe<OrderBy>;
   sfen?: InputMaybe<OrderBy>;
   thinkingTime?: InputMaybe<OrderBy>;
 };
@@ -577,7 +569,6 @@ export type MatchStatesOrderBy = {
   match?: InputMaybe<MatchesOrderBy>;
   matchId?: InputMaybe<OrderBy>;
   moveNotation?: InputMaybe<OrderBy>;
-  player?: InputMaybe<OrderBy>;
   sfen?: InputMaybe<OrderBy>;
   thinkingTime?: InputMaybe<OrderBy>;
 };
@@ -599,8 +590,6 @@ export const MatchStatesSelectColumn = {
   /** column name */
   MoveNotation: 'moveNotation',
   /** column name */
-  Player: 'player',
-  /** column name */
   Sfen: 'sfen',
   /** column name */
   ThinkingTime: 'thinkingTime'
@@ -613,7 +602,6 @@ export type MatchStatesSetInput = {
   index?: InputMaybe<Scalars['Int']['input']>;
   matchId?: InputMaybe<Scalars['String']['input']>;
   moveNotation?: InputMaybe<Scalars['String']['input']>;
-  player?: InputMaybe<Scalars['Player']['input']>;
   sfen?: InputMaybe<Scalars['String']['input']>;
   thinkingTime?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -650,7 +638,6 @@ export type MatchStatesStreamCursorValueInput = {
   index?: InputMaybe<Scalars['Int']['input']>;
   matchId?: InputMaybe<Scalars['String']['input']>;
   moveNotation?: InputMaybe<Scalars['String']['input']>;
-  player?: InputMaybe<Scalars['Player']['input']>;
   sfen?: InputMaybe<Scalars['String']['input']>;
   thinkingTime?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -671,8 +658,6 @@ export const MatchStatesUpdateColumn = {
   MatchId: 'matchId',
   /** column name */
   MoveNotation: 'moveNotation',
-  /** column name */
-  Player: 'player',
   /** column name */
   Sfen: 'sfen',
   /** column name */
@@ -996,19 +981,6 @@ export const OrderBy = {
 } as const;
 
 export type OrderBy = typeof OrderBy[keyof typeof OrderBy];
-/** Boolean expression to compare columns of type "Player". All fields are combined with logical 'AND'. */
-export type PlayerComparisonExp = {
-  _eq?: InputMaybe<Scalars['Player']['input']>;
-  _gt?: InputMaybe<Scalars['Player']['input']>;
-  _gte?: InputMaybe<Scalars['Player']['input']>;
-  _in?: InputMaybe<Array<Scalars['Player']['input']>>;
-  _isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  _lt?: InputMaybe<Scalars['Player']['input']>;
-  _lte?: InputMaybe<Scalars['Player']['input']>;
-  _neq?: InputMaybe<Scalars['Player']['input']>;
-  _nin?: InputMaybe<Array<Scalars['Player']['input']>>;
-};
-
 /** Boolean expression to compare columns of type "PlayerType". All fields are combined with logical 'AND'. */
 export type PlayerTypeComparisonExp = {
   _eq?: InputMaybe<Scalars['PlayerType']['input']>;
@@ -1037,8 +1009,6 @@ export type SaveMatchStateInput = {
   moveNotation?: InputMaybe<Scalars['String']['input']>;
   /** 候補手の数（MultiPV、デフォルト: 3） */
   multipv?: InputMaybe<Scalars['Int']['input']>;
-  /** この盤面での手番プレイヤー（SENTE/GOTE） */
-  player: Scalars['String']['input'];
   /** 盤面（SFEN形式） */
   sfen: Scalars['String']['input'];
   /** 消費時間（秒） */
@@ -1499,14 +1469,14 @@ export type HealthQuery = { __typename?: 'query_root', health: { __typename?: 'H
 export type GetMatchesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMatchesQuery = { __typename?: 'query_root', matches: Array<{ __typename?: 'Matches', id: string, createdAt: string, updatedAt: string, status: 'ONGOING' | 'COMPLETED' | 'ABANDONED', playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI', matchStates: Array<{ __typename?: 'MatchStates', createdAt: string, matchId: string, index: number, moveNotation?: string | null | undefined, player: 'SENTE' | 'GOTE', sfen: string, thinkingTime?: number | null | undefined }>, chatMessages: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, matchId: string, role: 'USER' | 'ASSISTANT', contents: any, metadata?: string | null | undefined }> }> };
+export type GetMatchesQuery = { __typename?: 'query_root', matches: Array<{ __typename?: 'Matches', id: string, createdAt: string, updatedAt: string, status: 'ONGOING' | 'COMPLETED' | 'ABANDONED', playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI', matchStates: Array<{ __typename?: 'MatchStates', createdAt: string, matchId: string, index: number, moveNotation?: string | null | undefined, sfen: string, thinkingTime?: number | null | undefined }>, chatMessages: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, matchId: string, role: 'USER' | 'ASSISTANT', contents: any, metadata?: string | null | undefined }> }> };
 
 export type GetMatchQueryVariables = Exact<{
   matchId: Scalars['String']['input'];
 }>;
 
 
-export type GetMatchQuery = { __typename?: 'query_root', matchesByPk?: { __typename?: 'Matches', id: string, createdAt: string, updatedAt: string, status: 'ONGOING' | 'COMPLETED' | 'ABANDONED', playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI', matchStates: Array<{ __typename?: 'MatchStates', createdAt: string, matchId: string, index: number, moveNotation?: string | null | undefined, player: 'SENTE' | 'GOTE', sfen: string, thinkingTime?: number | null | undefined }> } | null | undefined };
+export type GetMatchQuery = { __typename?: 'query_root', matchesByPk?: { __typename?: 'Matches', id: string, createdAt: string, updatedAt: string, status: 'ONGOING' | 'COMPLETED' | 'ABANDONED', playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI', matchStates: Array<{ __typename?: 'MatchStates', createdAt: string, matchId: string, index: number, moveNotation?: string | null | undefined, sfen: string, thinkingTime?: number | null | undefined }> } | null | undefined };
 
 export type GetChatMessagesQueryVariables = Exact<{
   matchId: Scalars['String']['input'];
@@ -1552,19 +1522,18 @@ export type SaveMatchStateAndGetCandidatesMutationVariables = Exact<{
 }>;
 
 
-export type SaveMatchStateAndGetCandidatesMutation = { __typename?: 'mutation_root', saveMatchStateAndGetCandidates: { __typename?: 'SaveMatchStateResult', matchState: { __typename?: 'MatchState', matchId: string, index: number, moveNotation?: string | null | undefined, player: string, sfen: string, thinkingTime?: number | null | undefined, createdAt: string }, candidates: Array<{ __typename?: 'MoveVariation', move: string, scoreCp?: number | null | undefined, scoreMate?: number | null | undefined, depth: number, nodes?: number | null | undefined, pv?: Array<string> | null | undefined }> } };
+export type SaveMatchStateAndGetCandidatesMutation = { __typename?: 'mutation_root', saveMatchStateAndGetCandidates: { __typename?: 'SaveMatchStateResult', matchState: { __typename?: 'MatchState', matchId: string, index: number, moveNotation?: string | null | undefined, sfen: string, thinkingTime?: number | null | undefined, createdAt: string }, candidates: Array<{ __typename?: 'MoveVariation', move: string, scoreCp?: number | null | undefined, scoreMate?: number | null | undefined, depth: number, nodes?: number | null | undefined, pv?: Array<string> | null | undefined }> } };
 
 export type InsertMatchStateMutationVariables = Exact<{
   matchId: Scalars['String']['input'];
   index: Scalars['Int']['input'];
   moveNotation?: InputMaybe<Scalars['String']['input']>;
-  player: Scalars['Player']['input'];
   sfen: Scalars['String']['input'];
   thinkingTime?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type InsertMatchStateMutation = { __typename?: 'mutation_root', insertMatchStatesOne?: { __typename?: 'MatchStates', matchId: string, index: number, moveNotation?: string | null | undefined, player: 'SENTE' | 'GOTE', sfen: string, thinkingTime?: number | null | undefined, createdAt: string } | null | undefined };
+export type InsertMatchStateMutation = { __typename?: 'mutation_root', insertMatchStatesOne?: { __typename?: 'MatchStates', matchId: string, index: number, moveNotation?: string | null | undefined, sfen: string, thinkingTime?: number | null | undefined, createdAt: string } | null | undefined };
 
 export type EvaluateMatchStateMutationVariables = Exact<{
   input: EvaluateMatchStateInput;
@@ -1602,7 +1571,6 @@ export const GetMatchesDocument = gql`
       matchId
       index
       moveNotation
-      player
       sfen
       thinkingTime
     }
@@ -1637,7 +1605,6 @@ export const GetMatchDocument = gql`
       matchId
       index
       moveNotation
-      player
       sfen
       thinkingTime
     }
@@ -1770,7 +1737,6 @@ export const SaveMatchStateAndGetCandidatesDocument = gql`
       matchId
       index
       moveNotation
-      player
       sfen
       thinkingTime
       createdAt
@@ -1791,14 +1757,13 @@ export function useSaveMatchStateAndGetCandidatesMutation() {
   return Urql.useMutation<SaveMatchStateAndGetCandidatesMutation, SaveMatchStateAndGetCandidatesMutationVariables>(SaveMatchStateAndGetCandidatesDocument);
 };
 export const InsertMatchStateDocument = gql`
-    mutation InsertMatchState($matchId: String!, $index: Int!, $moveNotation: String, $player: Player!, $sfen: String!, $thinkingTime: Int) {
+    mutation InsertMatchState($matchId: String!, $index: Int!, $moveNotation: String, $sfen: String!, $thinkingTime: Int) {
   insertMatchStatesOne(
-    object: {matchId: $matchId, index: $index, moveNotation: $moveNotation, player: $player, sfen: $sfen, thinkingTime: $thinkingTime}
+    object: {matchId: $matchId, index: $index, moveNotation: $moveNotation, sfen: $sfen, thinkingTime: $thinkingTime}
   ) {
     matchId
     index
     moveNotation
-    player
     sfen
     thinkingTime
     createdAt

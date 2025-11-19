@@ -56,8 +56,8 @@ export function formatMoveToJapanese(usiMove: string, board?: Board): string {
 
     if (isPromotion) {
       return pieceName
-        ? `${fromJp}${pieceName}-${toJp}成`
-        : `${fromJp}-${toJp}成`;
+        ? `${toJp}${pieceName}成(${fromJp})`
+        : `${toJp}成${fromJp}`;
     }
     return pieceName ? `${toJp}${pieceName}(${fromJp})` : `${toJp}(${fromJp})`;
   }

@@ -766,9 +766,6 @@ type MatchState {
   """指し手（USI形式）"""
   moveNotation: String
 
-  """手番プレイヤー"""
-  player: String!
-
   """盤面（SFEN形式）"""
   sfen: String!
 
@@ -787,7 +784,6 @@ type MatchStates {
   match: Matches!
   matchId: String!
   moveNotation: String
-  player: Player!
   sfen: String!
   thinkingTime: Int
 }
@@ -839,7 +835,6 @@ input MatchStatesBoolExp {
   match: MatchesBoolExp
   matchId: StringComparisonExp
   moveNotation: StringComparisonExp
-  player: PlayerComparisonExp
   sfen: StringComparisonExp
   thinkingTime: IntComparisonExp
 }
@@ -871,7 +866,6 @@ input MatchStatesInsertInput {
   match: MatchesObjRelInsertInput
   matchId: String
   moveNotation: String
-  player: Player
   sfen: String
   thinkingTime: Int
 }
@@ -884,7 +878,6 @@ input MatchStatesMaxOrderBy {
   index: OrderBy
   matchId: OrderBy
   moveNotation: OrderBy
-  player: OrderBy
   sfen: OrderBy
   thinkingTime: OrderBy
 }
@@ -897,7 +890,6 @@ input MatchStatesMinOrderBy {
   index: OrderBy
   matchId: OrderBy
   moveNotation: OrderBy
-  player: OrderBy
   sfen: OrderBy
   thinkingTime: OrderBy
 }
@@ -929,7 +921,6 @@ input MatchStatesOrderBy {
   match: MatchesOrderBy
   matchId: OrderBy
   moveNotation: OrderBy
-  player: OrderBy
   sfen: OrderBy
   thinkingTime: OrderBy
 }
@@ -957,9 +948,6 @@ enum MatchStatesSelectColumn {
   moveNotation
 
   """column name"""
-  player
-
-  """column name"""
   sfen
 
   """column name"""
@@ -974,7 +962,6 @@ input MatchStatesSetInput {
   index: Int
   matchId: String
   moveNotation: String
-  player: Player
   sfen: String
   thinkingTime: Int
 }
@@ -1020,7 +1007,6 @@ input MatchStatesStreamCursorValueInput {
   index: Int
   matchId: String
   moveNotation: String
-  player: Player
   sfen: String
   thinkingTime: Int
 }
@@ -1048,9 +1034,6 @@ enum MatchStatesUpdateColumn {
 
   """column name"""
   moveNotation
-
-  """column name"""
-  player
 
   """column name"""
   sfen
@@ -1420,23 +1403,6 @@ enum OrderBy {
   DESC_NULLS_LAST
 }
 
-scalar Player
-
-"""
-Boolean expression to compare columns of type "Player". All fields are combined with logical 'AND'.
-"""
-input PlayerComparisonExp {
-  _eq: Player
-  _gt: Player
-  _gte: Player
-  _in: [Player!]
-  _isNull: Boolean
-  _lt: Player
-  _lte: Player
-  _neq: Player
-  _nin: [Player!]
-}
-
 scalar PlayerType
 
 """
@@ -1535,9 +1501,6 @@ input SaveMatchStateInput {
 
   """候補手の数（MultiPV、デフォルト: 3）"""
   multipv: Int
-
-  """この盤面での手番プレイヤー（SENTE/GOTE）"""
-  player: String!
 
   """盤面（SFEN形式）"""
   sfen: String!

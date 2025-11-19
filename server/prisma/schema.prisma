@@ -79,12 +79,6 @@ enum MatchStatus {
   ABANDONED
 }
 
-/// プレイヤー
-enum Player {
-  SENTE
-  GOTE
-}
-
 /// プレイヤータイプ
 enum PlayerType {
   HUMAN

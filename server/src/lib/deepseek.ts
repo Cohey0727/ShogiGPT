@@ -163,10 +163,7 @@ export async function generateBestMoveCommentary(params: {
         currentBoard = applyUsiMove(currentBoard, usiMove);
         pvLines.push(moveDescription);
       });
-
-      strategyHint = `\n\n【読み筋の流れ】（奇数手=自分、偶数手=相手）\n${pvLines.join(
-        "\n"
-      )}`;
+      strategyHint = `${pvLines.join("\n")}`;
     } catch (error) {
       console.error("Failed to parse PV:", error);
       // エラー時は読み筋なしで続行
@@ -188,13 +185,17 @@ export async function generateBestMoveCommentary(params: {
 
 現在の状況: ${situation}（評価値: ${topScore > 0 ? "+" : ""}${topScore}）
 
-最善手は「${bestmoveJp}」です。${strategyHint}
+最善手は「${bestmoveJp}」です。
 
-**注意事項**:
-- []内のタグを解説に活用すること、[]は消してください。
+【読み筋の流れ】
+${strategyHint}
+
+**厳守事項**:
+- []内のタグを解説に活用して説明に組み込んでください。
 - ()カッコ内は、元々いた駒の位置です。基本的に消してください。
-- 上記の読み筋に基づいて、正確に解説すること
-- 読み筋に含まれていない手を言及しないこと
+- 上記の読み筋とタグの連携を重視してください。
+- **絶対厳守**: 読み筋に含まれていない手を一切言及しないこと（想定される手、考えられる手なども一切言及禁止）
+- **絶対厳守**: タグに含まれていない用語は絶対に使わないこと（例: 「角道を開ける」というタグがない場合は「角道を開ける」という言葉を使わない）
 - 自分の手と相手の手を正確に区別すること
 - 読み筋の展開を見据えて、この手の狙いを説明
 - 相手の応手とそれに対する自分の対応を言及
@@ -218,7 +219,7 @@ export async function generateBestMoveCommentary(params: {
   const requestBody: DeepSeekRequest = {
     model: "deepseek-chat",
     messages,
-    temperature: 0.3, // 低めにして正確性を重視
+    temperature: 0.0, // ランダム性を完全に排除し、決定論的な出力にする
     max_tokens: 400,
   };
 

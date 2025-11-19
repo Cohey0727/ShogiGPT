@@ -10,7 +10,6 @@ insert_permissions:
     permission:
       check: {}
       columns:
-        - player
         - index
         - thinkingTime
         - matchId
@@ -22,7 +21,6 @@ select_permissions:
   - role: anonymous
     permission:
       columns:
-        - player
         - index
         - thinkingTime
         - matchId
@@ -35,7 +33,6 @@ update_permissions:
   - role: anonymous
     permission:
       columns:
-        - player
         - index
         - thinkingTime
         - matchId

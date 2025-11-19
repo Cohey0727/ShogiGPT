@@ -47,8 +47,6 @@ function isBishopLineOpen(
   return !foundPiece;
 }
 
-
-
 /**
  * 指定された位置が相手の駒に攻撃されているかチェック
  */
@@ -102,7 +100,10 @@ function canPieceAttackPosition(
 
     case PieceType.Lance: {
       if (colDiff !== 0) return false;
-      if ((player === "SENTE" && rowDiff <= 0) || (player === "GOTE" && rowDiff >= 0))
+      if (
+        (player === "SENTE" && rowDiff <= 0) ||
+        (player === "GOTE" && rowDiff >= 0)
+      )
         return false;
       // 間に駒がないかチェック
       const lanceStep = rowDiff > 0 ? 1 : -1;
@@ -113,10 +114,7 @@ function canPieceAttackPosition(
     }
 
     case PieceType.Knight:
-      return (
-        Math.abs(colDiff) === 1 &&
-        rowDiff === 2 * direction
-      );
+      return Math.abs(colDiff) === 1 && rowDiff === 2 * direction;
 
     case PieceType.Silver:
       return (
@@ -233,9 +231,14 @@ function isCheckmate(board: Board, player: Player): boolean {
 
   // 玉が移動できる8方向をチェック
   const directions = [
-    [-1, -1], [-1, 0], [-1, 1],
-    [0, -1],           [0, 1],
-    [1, -1],  [1, 0],  [1, 1],
+    [-1, -1],
+    [-1, 0],
+    [-1, 1],
+    [0, -1],
+    [0, 1],
+    [1, -1],
+    [1, 0],
+    [1, 1],
   ];
 
   for (const [dRow, dCol] of directions) {
@@ -441,7 +444,6 @@ function analyzeBishopLine(
  */
 function analyzeRookLine(
   board: Board,
-  boardAfter: Board,
   moveInfo: ReturnType<typeof parseUsiMove>,
   currentPlayer: Player,
   opponentPlayer: Player,
@@ -570,7 +572,7 @@ function analyzeRookLine(
         // 進路から外れた場合
         if (wasOnRookLine && !isStillOnRookLine) {
           results.push(
-            isSelfMove ? "相手の飛車道を開けさせる" : "飛車道を開ける"
+            isSelfMove ? "相手の飛車道を開けさせられる" : "飛車道を開ける"
           );
           break;
         }
@@ -709,7 +711,6 @@ export function analyzeMoveTags(
     features.push(
       ...analyzeRookLine(
         board,
-        boardAfter,
         moveInfo,
         currentPlayer,
         opponentPlayer,

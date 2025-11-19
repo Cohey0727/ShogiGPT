@@ -98,7 +98,6 @@ export function MatchDetailPage() {
         matchId,
         index: nextMoveIndex,
         moveNotation: null,
-        player: nextTurn,
         sfen: newSfen,
         thinkingTime: null,
       });
@@ -138,8 +137,6 @@ export function MatchDetailPage() {
                 updatedBoard,
                 evaluation.bestmove
               );
-              const nextNextTurn: "SENTE" | "GOTE" =
-                nextTurn === "SENTE" ? "GOTE" : "SENTE";
               const aiMoveIndex = nextMoveIndex + 1;
 
               setBoardState({
@@ -154,7 +151,6 @@ export function MatchDetailPage() {
                 matchId,
                 index: aiMoveIndex,
                 moveNotation: evaluation.bestmove,
-                player: nextNextTurn,
                 sfen: aiSfen,
                 thinkingTime: evaluation.timeMs,
               });

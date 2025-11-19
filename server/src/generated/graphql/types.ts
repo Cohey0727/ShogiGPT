@@ -139,8 +139,6 @@ export type MatchState = {
   matchId: Scalars['String']['output'];
   /** 指し手（USI形式） */
   moveNotation?: Maybe<Scalars['String']['output']>;
-  /** 手番プレイヤー */
-  player: Scalars['String']['output'];
   /** 盤面（SFEN形式） */
   sfen: Scalars['String']['output'];
   /** 消費時間（秒） */
@@ -210,8 +208,6 @@ export type SaveMatchStateInput = {
   moveNotation?: InputMaybe<Scalars['String']['input']>;
   /** 候補手の数（MultiPV、デフォルト: 3） */
   multipv?: InputMaybe<Scalars['Int']['input']>;
-  /** この盤面での手番プレイヤー（SENTE/GOTE） */
-  player: Scalars['String']['input'];
   /** 盤面（SFEN形式） */
   sfen: Scalars['String']['input'];
   /** 消費時間（秒） */
@@ -430,7 +426,6 @@ export type MatchStateResolvers<ContextType = any, ParentType extends ResolversP
   index?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   matchId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   moveNotation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  player?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sfen?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   thinkingTime?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
 }>;

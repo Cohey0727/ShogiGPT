@@ -8,6 +8,8 @@ const styles = {
   }),
 
   button: style({
+    flex: 1,
+    minWidth: "4rem",
     padding: "0.5rem 1rem",
     fontSize: "0.875rem",
     fontWeight: "500",

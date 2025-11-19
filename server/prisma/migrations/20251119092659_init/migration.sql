@@ -26,16 +26,14 @@ CREATE TABLE "matches" (
 
 -- CreateTable
 CREATE TABLE "match_states" (
-    "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "matchId" TEXT NOT NULL,
     "index" INTEGER NOT NULL,
     "moveNotation" TEXT,
-    "player" "Player" NOT NULL,
     "sfen" TEXT NOT NULL,
     "thinkingTime" INTEGER,
 
-    CONSTRAINT "match_states_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "match_states_pkey" PRIMARY KEY ("matchId","index")
 );
 
 -- CreateTable
@@ -44,7 +42,7 @@ CREATE TABLE "chat_messages" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "matchId" TEXT NOT NULL,
     "role" "MessageRole" NOT NULL,
-    "content" TEXT NOT NULL,
+    "contents" JSONB NOT NULL,
     "isPartial" BOOLEAN NOT NULL DEFAULT false,
     "metadata" TEXT,
 
@@ -56,12 +54,6 @@ CREATE INDEX "matches_createdAt_idx" ON "matches"("createdAt");
 
 -- CreateIndex
 CREATE INDEX "matches_status_idx" ON "matches"("status");
-
--- CreateIndex
-CREATE INDEX "match_states_matchId_idx" ON "match_states"("matchId");
-
--- CreateIndex
-CREATE INDEX "match_states_matchId_index_idx" ON "match_states"("matchId", "index");
 
 -- CreateIndex
 CREATE INDEX "chat_messages_matchId_idx" ON "chat_messages"("matchId");

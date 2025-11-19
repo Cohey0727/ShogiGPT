@@ -172,27 +172,36 @@ export async function generateBestMoveCommentary(params: {
 
   // 評価値から局面の状況を判断
   const topScore = variations[0]?.scoreCp ?? 0;
+
+  // 評価値を100点満点に正規化（±2000点を±100点に対応）
+  const normalizedScore = Math.min(
+    100,
+    Math.max(-100, Math.round(topScore / 20))
+  );
+
   let situation = "";
-  if (Math.abs(topScore) < 100) {
+  if (Math.abs(normalizedScore) < 5) {
     situation = "互角の局面";
-  } else if (topScore > 0) {
-    situation = topScore > 500 ? "先手優勢" : "先手がやや有利";
+  } else if (normalizedScore > 0) {
+    situation = normalizedScore > 25 ? "先手優勢" : "先手がやや有利";
   } else {
-    situation = topScore < -500 ? "後手優勢" : "後手がやや有利";
+    situation = normalizedScore < -25 ? "後手優勢" : "後手がやや有利";
   }
 
-  const prompt = `あなたは将棋の対局者です。今この局面で次の一手を考えています。
+  const prompt = `# あなたは将棋の対局者です。今この局面で次の一手を考えています。
 
-現在の状況: ${situation}（評価値: ${topScore > 0 ? "+" : ""}${topScore}）
+## 現在の状況: ${situation}（評価値: ${
+    normalizedScore > 0 ? "+" : ""
+  }${normalizedScore}点/100点満点、100点=めちゃくちゃ有利）
 
-最善手は「${bestmoveJp}」です。
+## 最善手は「${bestmoveJp}」です。
 
-【読み筋の流れ】
+## 【読み筋の流れ】
 ${strategyHint}
 
-**厳守事項**:
-- []内のタグを解説に活用して説明に組み込んでください。
-- ()カッコ内は、元々いた駒の位置です。基本的に消してください。
+## **厳守事項**:
+- []内のタグを解説に活用して説明に組み込んでください。[]自体は表示しないでください。
+- ()カッコ内は、元々いた駒の位置です。
 - 上記の読み筋とタグの連携を重視してください。
 - **絶対厳守**: 読み筋に含まれていない手を一切言及しないこと（想定される手、考えられる手なども一切言及禁止）
 - **絶対厳守**: タグに含まれていない用語は絶対に使わないこと（例: 「角道を開ける」というタグがない場合は「角道を開ける」という言葉を使わない）
@@ -200,6 +209,7 @@ ${strategyHint}
 - 読み筋の展開を見据えて、この手の狙いを説明
 - 相手の応手とそれに対する自分の対応を言及
 - 主観的な表現（「〜と思います」「〜を狙います」「〜を取ります」）を使う
+- 歩を進める場合は、「歩を突く」といいます
 - 200文字程度、簡潔に`;
 
   const messages: DeepSeekMessage[] = [

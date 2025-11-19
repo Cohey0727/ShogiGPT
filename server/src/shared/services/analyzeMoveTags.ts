@@ -22,29 +22,27 @@ function findPiece(
 }
 
 /**
- * 角道が開いているかチェック（斜め方向に障害物がないか）
+ * あるpositionから指定のdirectionに向かって開いている範囲の長さを取得
  */
-function isBishopLineOpen(
+function getLineOpenRange(
   board: Board,
-  fromRow: number,
-  fromCol: number,
-  dirRow: number,
-  dirCol: number
-): boolean {
-  let row = fromRow + dirRow;
-  let col = fromCol + dirCol;
-  let foundPiece = false;
+  position: { row: number; col: number },
+  direction: { row: number; col: number }
+) {
+  let row = position.row + direction.row;
+  let col = position.col + direction.col;
+  let length = 0;
 
   while (row >= 0 && row < 9 && col >= 0 && col < 9) {
     if (board.cells[row][col]) {
-      foundPiece = true;
       break;
     }
-    row += dirRow;
-    col += dirCol;
+    row += direction.row;
+    col += direction.col;
+    length++;
   }
 
-  return !foundPiece;
+  return length;
 }
 
 /**
@@ -363,26 +361,20 @@ function analyzeBishopLine(
       ];
 
       for (const { dirRow, dirCol } of directions) {
-        const wasOpen = isBishopLineOpen(
-          board,
-          myBishopPos.row,
-          myBishopPos.col,
-          dirRow,
-          dirCol
-        );
-        const isOpen = isBishopLineOpen(
-          boardAfter,
-          myBishopPos.row,
-          myBishopPos.col,
-          dirRow,
-          dirCol
-        );
+        const rangeBefore = getLineOpenRange(board, myBishopPos, {
+          row: dirRow,
+          col: dirCol,
+        });
+        const rangeAfter = getLineOpenRange(boardAfter, myBishopPos, {
+          row: dirRow,
+          col: dirCol,
+        });
 
-        if (!wasOpen && isOpen) {
+        if (rangeBefore < 2 && rangeAfter >= 2) {
           results.push(isSelfMove ? "角道を開ける" : "角道を開けてくる");
           break;
         }
-        if (wasOpen && !isOpen) {
+        if (rangeBefore >= 2 && rangeAfter < 2) {
           results.push(isSelfMove ? "角道を閉じさせられる" : "角道を閉じる");
           break;
         }
@@ -402,33 +394,28 @@ function analyzeBishopLine(
 
     if (!isMovingBishop) {
       const directions = [
-        { dirRow: -1, dirCol: -1 },
-        { dirRow: -1, dirCol: 1 },
-        { dirRow: 1, dirCol: -1 },
-        { dirRow: 1, dirCol: 1 },
+        { row: -1, col: -1 },
+        { row: -1, col: 1 },
+        { row: 1, col: -1 },
+        { row: 1, col: 1 },
       ];
 
-      for (const { dirRow, dirCol } of directions) {
-        const wasOpen = isBishopLineOpen(
+      for (const direction of directions) {
+        const rangeBefore = getLineOpenRange(
           board,
-          opponentBishopPos.row,
-          opponentBishopPos.col,
-          dirRow,
-          dirCol
+          opponentBishopPos,
+          direction
         );
-        const isOpen = isBishopLineOpen(
+        const rangeAfter = getLineOpenRange(
           boardAfter,
-          opponentBishopPos.row,
-          opponentBishopPos.col,
-          dirRow,
-          dirCol
+          opponentBishopPos,
+          direction
         );
-
-        if (!wasOpen && isOpen && !isSelfMove) {
+        if (rangeBefore < 2 && rangeAfter >= 2 && !isSelfMove) {
           results.push("角道を開ける");
           break;
         }
-        if (wasOpen && !isOpen) {
+        if (rangeBefore >= 2 && rangeAfter < 2) {
           results.push(isSelfMove ? "相手の角道を閉じる" : "角道を閉じさせる");
           break;
         }
@@ -470,34 +457,20 @@ function analyzeRookLine(
       // 飛車以外の駒を動かした場合
       const forwardDir = currentPlayer === "SENTE" ? 1 : -1;
       const directions = [
-        { dirRow: -1, dirCol: 0 },
-        { dirRow: 1, dirCol: 0 },
-        { dirRow: 0, dirCol: -1 },
-        { dirRow: 0, dirCol: 1 },
+        { row: -1, col: 0 },
+        { row: 1, col: 0 },
+        { row: 0, col: -1 },
+        { row: 0, col: 1 },
       ];
 
-      for (const { dirRow, dirCol } of directions) {
+      for (const direction of directions) {
         // 移動前の駒が飛車の進路上にあったかチェック
-        const wasOnRookLine = isOnLine(
-          myRookPos.row,
-          myRookPos.col,
-          moveInfo.from.row,
-          moveInfo.from.col,
-          dirRow,
-          dirCol
-        );
+        const wasOnRookLine = isOnLine(myRookPos, direction, moveInfo.from);
 
         if (!wasOnRookLine) continue;
 
         // 移動後の位置が飛車の進路上にあるかチェック
-        const isStillOnRookLine = isOnLine(
-          myRookPos.row,
-          myRookPos.col,
-          moveInfo.to.row,
-          moveInfo.to.col,
-          dirRow,
-          dirCol
-        );
+        const isStillOnRookLine = isOnLine(myRookPos, direction, moveInfo.to);
 
         // 飛車の進路上のまま前に進んだ場合（飛車先を伸ばす）
         if (wasOnRookLine && isStillOnRookLine) {
@@ -549,24 +522,18 @@ function analyzeRookLine(
       for (const { dirRow, dirCol } of directions) {
         // 移動前の駒が相手飛車の進路上にあったかチェック
         const wasOnRookLine = isOnLine(
-          opponentRookPos.row,
-          opponentRookPos.col,
-          moveInfo.from.row,
-          moveInfo.from.col,
-          dirRow,
-          dirCol
+          opponentRookPos,
+          { row: dirRow, col: dirCol },
+          moveInfo.from
         );
 
         if (!wasOnRookLine) continue;
 
         // 移動後の位置が相手飛車の進路上にあるかチェック
         const isStillOnRookLine = isOnLine(
-          opponentRookPos.row,
-          opponentRookPos.col,
-          moveInfo.to.row,
-          moveInfo.to.col,
-          dirRow,
-          dirCol
+          opponentRookPos,
+          { row: dirRow, col: dirCol },
+          moveInfo.to
         );
 
         // 進路から外れた場合
@@ -595,22 +562,23 @@ function analyzeRookLine(
  * 指定位置が直線上にあるかチェック
  */
 function isOnLine(
-  fromRow: number,
-  fromCol: number,
-  targetRow: number,
-  targetCol: number,
-  dirRow: number,
-  dirCol: number
+  position: { row: number; col: number },
+  direction: { row: number; col: number },
+  end?: { row: number; col: number }
 ): boolean {
-  let row = fromRow + dirRow;
-  let col = fromCol + dirCol;
+  if (!end) {
+    return true;
+  }
+
+  let row = position.row + direction.row;
+  let col = position.col + direction.col;
 
   while (row >= 0 && row < 9 && col >= 0 && col < 9) {
-    if (row === targetRow && col === targetCol) {
+    if (row === end.row && col === end.col) {
       return true;
     }
-    row += dirRow;
-    col += dirCol;
+    row += direction.row;
+    col += direction.col;
   }
 
   return false;

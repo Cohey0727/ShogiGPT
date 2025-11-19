@@ -80,15 +80,28 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
 
       // ベストムーブの評価値を取得してMatchStateに保存
       const bestVariation = data.variations[0];
+      let currentEvaluation: number | null = null;
       if (bestVariation) {
-        const evaluation = bestVariation.score_cp ?? null;
+        currentEvaluation = bestVariation.score_cp ?? null;
         await db.matchState.update({
           where: {
             matchId_index: { matchId: input.matchId, index: input.index },
           },
-          data: { evaluation },
+          data: { evaluation: currentEvaluation },
         });
-        console.log("💾 Saved evaluation to MatchState:", evaluation);
+        console.log("💾 Saved evaluation to MatchState:", currentEvaluation);
+      }
+
+      // 直前の局面の評価値を取得
+      let previousEvaluation: number | null = null;
+      if (input.index > 0) {
+        const previousState = await db.matchState.findUnique({
+          where: {
+            matchId_index: { matchId: input.matchId, index: input.index - 1 },
+          },
+        });
+        previousEvaluation = previousState?.evaluation ?? null;
+        console.log("📊 Previous evaluation:", previousEvaluation);
       }
 
       // 4. DEEPSEEKで人間らしい解説を生成
@@ -108,6 +121,8 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
           })),
           engineName: data.engine_name,
           timeMs: data.time_ms,
+          previousEvaluation,
+          currentEvaluation,
         });
         console.log("✅ Commentary generated successfully");
       } catch (error) {

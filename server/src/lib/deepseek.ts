@@ -114,6 +114,8 @@ export async function generateBestMoveCommentary(params: {
   variations: MoveVariation[];
   engineName: string;
   timeMs: number;
+  previousEvaluation?: number | null;
+  currentEvaluation?: number | null;
 }): Promise<string> {
   if (!DEEPSEEK_API_KEY) {
     throw new Error("DEEPSEEK_API_KEY is not set");
@@ -188,9 +190,46 @@ export async function generateBestMoveCommentary(params: {
     situation = normalizedScore < 25 ? "後手優勢" : "後手がやや有利";
   }
 
+  // 評価値の変化を分析
+  let evaluationChange = "";
+  if (
+    params.previousEvaluation !== undefined &&
+    params.previousEvaluation !== null &&
+    params.currentEvaluation !== undefined &&
+    params.currentEvaluation !== null
+  ) {
+    const diff = params.currentEvaluation - params.previousEvaluation;
+    const absDiff = Math.abs(diff);
+
+    if (absDiff < 50) {
+      evaluationChange = "ほぼ変化なし";
+    } else if (diff > 0) {
+      // 先手に有利な変化
+      if (absDiff > 300) {
+        evaluationChange = "先手が大きく有利になりました";
+      } else if (absDiff > 150) {
+        evaluationChange = "先手が有利になりました";
+      } else {
+        evaluationChange = "先手がやや有利になりました";
+      }
+    } else {
+      // 後手に有利な変化
+      if (absDiff > 300) {
+        evaluationChange = "後手が大きく有利になりました";
+      } else if (absDiff > 150) {
+        evaluationChange = "後手が有利になりました";
+      } else {
+        evaluationChange = "後手がやや有利になりました";
+      }
+    }
+    evaluationChange = `\n前の局面と比較して: ${evaluationChange}（評価値変化: ${
+      diff > 0 ? "+" : ""
+    }${diff}）`;
+  }
+
   const prompt = `# あなたは将棋の対局者です。今この局面で次の一手を考えています。
 
-## 現在の状況: ${situation}（評価値: ${normalizedScore}点/100点満点、50点=互角、100点=先手めちゃくちゃ有利、0点=後手めちゃくちゃ有利）
+## 現在の状況: ${situation}（評価値: ${normalizedScore}点/100点満点、50点=互角、100点=先手めちゃくちゃ有利、0点=後手めちゃくちゃ有利）${evaluationChange}
 
 ## 最善手は「${bestmoveJp}」です。
 
@@ -201,6 +240,7 @@ ${strategyHint}
 - []内のタグを解説に活用して説明に組み込んでください。[]自体は表示しないでください。
 - ()カッコ内は、元々いた駒の位置です。
 - 上記の読み筋とタグの連携を重視してください。
+- 評価値の大きな変化がある場合は、その戦況変化を踏まえて解説してください
 - **絶対厳守**: 読み筋に含まれていない手を一切言及しないこと（想定される手、考えられる手なども一切言及禁止）
 - **絶対厳守**: タグに含まれていない用語は絶対に使わないこと（例: 「角道を開ける」というタグがない場合は「角道を開ける」という言葉を使わない）
 - 自分の手と相手の手を正確に区別すること
@@ -210,11 +250,12 @@ ${strategyHint}
 - 歩を進める場合は、「歩を突く」といいます、桂を進める場合は「桂を跳ねる」といいます
 - 300文字以内、簡潔に`;
 
+  const systemPrompt = `あなたは将棋の対局者です。対局中に自分の考えを語る時は、一人称で主観的に話します。「〜と思います」「〜したいです」「〜が気になります」など、対局者の心情や判断を自然に表現してください。 適当な解説ではなく、userの読み筋を適切に反映した、具体的で正確な解説を行ってください。`;
+
   const messages: DeepSeekMessage[] = [
     {
       role: "system",
-      content:
-        "あなたは将棋の対局者です。対局中に自分の考えを語る時は、一人称で主観的に話します。「〜と思います」「〜したいです」「〜が気になります」など、対局者の心情や判断を自然に表現してください。",
+      content: systemPrompt,
     },
     {
       role: "user",

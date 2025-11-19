@@ -95,9 +95,14 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
       // 直前の局面の評価値を取得
       let previousEvaluation: number | null = null;
       if (input.index > 0) {
-        const previousState = await db.matchState.findUnique({
+        const previousState = await db.matchState.findFirst({
           where: {
-            matchId_index: { matchId: input.matchId, index: input.index - 1 },
+            matchId: input.matchId,
+            index: { lt: input.index },
+            evaluation: { not: null },
+          },
+          orderBy: {
+            index: 'desc',
           },
         });
         previousEvaluation = previousState?.evaluation ?? null;

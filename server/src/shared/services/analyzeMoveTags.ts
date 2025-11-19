@@ -520,8 +520,6 @@ function analyzeRookLine(
         direction
       );
 
-      console.log({ position, isMovingRook, direction, isOnLine, wasOnLine });
-
       if (!wasOnLine && !isOnLine) {
         // 飛車道上に関係のない移動の場合はスキップ
         continue;

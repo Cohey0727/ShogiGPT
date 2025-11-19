@@ -146,7 +146,7 @@ export async function generateBestMoveCommentary(params: {
       const pvLines: string[] = [];
 
       // すべての読み筋を処理（indexが偶数=自分、奇数=相手）
-      topVariation.pv.forEach((usiMove, index) => {
+      [topVariation.pv[0]].forEach((usiMove, index) => {
         const moveLabel = formatMoveToJapanese(usiMove, currentBoard);
         const player = index % 2 === 0 ? "自分" : "相手";
         const isSelfMove = index % 2 === 0; // 偶数=自分、奇数=相手

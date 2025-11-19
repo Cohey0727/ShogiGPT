@@ -173,26 +173,24 @@ export async function generateBestMoveCommentary(params: {
   // 評価値から局面の状況を判断
   const topScore = variations[0]?.scoreCp ?? 0;
 
-  // 評価値を100点満点に正規化（±2000点を±100点に対応）
+  // 評価値を100点満点に正規化（50点が互角、0点=後手めちゃくちゃ有利、100点=先手めちゃくちゃ有利）
   const normalizedScore = Math.min(
     100,
-    Math.max(-100, Math.round(topScore / 20))
+    Math.max(0, Math.round(topScore / 20) + 50)
   );
 
   let situation = "";
-  if (Math.abs(normalizedScore) < 5) {
+  if (normalizedScore >= 45 && normalizedScore <= 55) {
     situation = "互角の局面";
-  } else if (normalizedScore > 0) {
-    situation = normalizedScore > 25 ? "先手優勢" : "先手がやや有利";
+  } else if (normalizedScore > 55) {
+    situation = normalizedScore > 75 ? "先手優勢" : "先手がやや有利";
   } else {
-    situation = normalizedScore < -25 ? "後手優勢" : "後手がやや有利";
+    situation = normalizedScore < 25 ? "後手優勢" : "後手がやや有利";
   }
 
   const prompt = `# あなたは将棋の対局者です。今この局面で次の一手を考えています。
 
-## 現在の状況: ${situation}（評価値: ${
-    normalizedScore > 0 ? "+" : ""
-  }${normalizedScore}点/100点満点、100点=めちゃくちゃ有利）
+## 現在の状況: ${situation}（評価値: ${normalizedScore}点/100点満点、50点=互角、100点=先手めちゃくちゃ有利、0点=後手めちゃくちゃ有利）
 
 ## 最善手は「${bestmoveJp}」です。
 
@@ -209,8 +207,8 @@ ${strategyHint}
 - 読み筋の展開を見据えて、この手の狙いを説明
 - 相手の応手とそれに対する自分の対応を言及
 - 主観的な表現（「〜と思います」「〜を狙います」「〜を取ります」）を使う
-- 歩を進める場合は、「歩を突く」といいます
-- 200文字程度、簡潔に`;
+- 歩を進める場合は、「歩を突く」といいます、桂を進める場合は「桂を跳ねる」といいます
+- 300文字以内、簡潔に`;
 
   const messages: DeepSeekMessage[] = [
     {

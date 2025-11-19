@@ -2,9 +2,6 @@
 CREATE TYPE "MatchStatus" AS ENUM ('ONGOING', 'COMPLETED', 'ABANDONED');
 
 -- CreateEnum
-CREATE TYPE "Player" AS ENUM ('SENTE', 'GOTE');
-
--- CreateEnum
 CREATE TYPE "PlayerType" AS ENUM ('HUMAN', 'AI');
 
 -- CreateEnum
@@ -32,6 +29,7 @@ CREATE TABLE "match_states" (
     "moveNotation" TEXT,
     "sfen" TEXT NOT NULL,
     "thinkingTime" INTEGER,
+    "evaluation" INTEGER,
 
     CONSTRAINT "match_states_pkey" PRIMARY KEY ("matchId","index")
 );

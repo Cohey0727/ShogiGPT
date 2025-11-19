@@ -78,6 +78,19 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
       console.log("  Best move:", data.bestmove);
       console.log("  Candidates:", data.variations.length);
 
+      // ベストムーブの評価値を取得してMatchStateに保存
+      const bestVariation = data.variations[0];
+      if (bestVariation) {
+        const evaluation = bestVariation.score_cp ?? null;
+        await db.matchState.update({
+          where: {
+            matchId_index: { matchId: input.matchId, index: input.index },
+          },
+          data: { evaluation },
+        });
+        console.log("💾 Saved evaluation to MatchState:", evaluation);
+      }
+
       // 4. DEEPSEEKで人間らしい解説を生成
       console.log("💬 Generating commentary with DEEPSEEK...");
       let commentary = "";

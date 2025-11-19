@@ -2,7 +2,7 @@ import { style } from "@vanilla-extract/css";
 
 const styles = {
   container: style({
-    height: "100vh",
+    height: "100%",
     width: "100%",
     overflow: "hidden",
     background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
@@ -11,7 +11,7 @@ const styles = {
   content: style({
     display: "flex",
     flexDirection: "row",
-    height: "100vh",
+    height: "100%",
     width: "100%",
     "@media": {
       "(max-width: 1024px)": {
@@ -39,8 +39,6 @@ const styles = {
   boardSection: style({
     flex: 1,
     padding: "1rem",
-    display: "flex",
-    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     gap: "1rem",
@@ -52,6 +50,13 @@ const styles = {
 
   sentePieceStand: style({
     alignSelf: "flex-end",
+  }),
+
+  boardContainer: style({
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem",
+    alignItems: "center",
   }),
 };
 

@@ -1,29 +1,117 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
 import { Player, pieceProperties } from "../../../shared/consts";
-import type { Board, BoardIndex, Position } from "../../../shared/consts";
-import { getPossibleMoves } from "../../../services";
+import type { Board, BoardIndex, Position, PieceType } from "../../../shared/consts";
+import { getPossibleMoves, canPromote, getDropPositions } from "../../../services";
+import { useModal } from "../../molecules/hooks";
+import { PromotionModal } from "../../molecules";
 import styles from "./ShogiBoard.css";
 
 interface ShogiBoardProps {
   board: Board;
   currentPlayer: Player;
   onBoardChange: (board: Board) => void;
+  selectedHandPiece?: PieceType | null;
+  onHandPieceDeselect?: () => void;
 }
 
-export function ShogiBoard({ board, currentPlayer, onBoardChange }: ShogiBoardProps) {
+export function ShogiBoard({
+  board,
+  currentPlayer,
+  onBoardChange,
+  selectedHandPiece,
+  onHandPieceDeselect,
+}: ShogiBoardProps) {
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(
     null
   );
+  const [isPromotionModalOpen, promotionModalController] = useModal<boolean>();
+  const [promotionState, setPromotionState] = useState<{
+    pieceType: PieceType;
+    player: Player;
+  } | null>(null);
 
-  // 移動可能なマスを計算
+  // ESCキーで駒の選択を解除
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (selectedPosition) {
+          setSelectedPosition(null);
+        }
+        if (selectedHandPiece && onHandPieceDeselect) {
+          onHandPieceDeselect();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedPosition, selectedHandPiece, onHandPieceDeselect]);
+
+  // 移動可能なマスを計算（盤上の駒を選択している場合）
   const possibleMoves = useMemo(() => {
+    if (selectedHandPiece) {
+      // 持ち駒を選択している場合は、打てる位置を返す
+      return getDropPositions(board, selectedHandPiece, currentPlayer);
+    }
     if (!selectedPosition) return [];
     return getPossibleMoves(board, selectedPosition);
-  }, [board, selectedPosition]);
+  }, [board, selectedPosition, selectedHandPiece, currentPlayer]);
 
   const handleCellClick = useCallback(
-    (row: BoardIndex, col: BoardIndex) => {
+    async (row: BoardIndex, col: BoardIndex) => {
+      // 持ち駒を選択している場合
+      if (selectedHandPiece) {
+        const isPossibleDrop = possibleMoves.some(
+          (move) => move.row === row && move.col === col
+        );
+
+        if (isPossibleDrop) {
+          // 持ち駒を打つ
+          const newCells = board.cells.map((r) => r.slice());
+          newCells[row][col] = {
+            type: selectedHandPiece,
+            player: currentPlayer,
+          };
+
+          // 持ち駒から削除
+          const newCapturedBySente = [...board.capturedBySente];
+          const newCapturedByGote = [...board.capturedByGote];
+
+          if (currentPlayer === Player.Sente) {
+            const index = newCapturedBySente.indexOf(selectedHandPiece);
+            if (index > -1) {
+              newCapturedBySente.splice(index, 1);
+            }
+          } else {
+            const index = newCapturedByGote.indexOf(selectedHandPiece);
+            if (index > -1) {
+              newCapturedByGote.splice(index, 1);
+            }
+          }
+
+          onBoardChange({
+            ...board,
+            cells: newCells,
+            capturedBySente: newCapturedBySente,
+            capturedByGote: newCapturedByGote,
+          });
+
+          // 持ち駒の選択を解除
+          if (onHandPieceDeselect) {
+            onHandPieceDeselect();
+          }
+        } else {
+          // 打てない位置をクリック -> 持ち駒の選択を解除
+          if (onHandPieceDeselect) {
+            onHandPieceDeselect();
+          }
+        }
+        return;
+      }
+
       if (selectedPosition) {
         // 駒を掴んでいる状態
         if (selectedPosition.row === row && selectedPosition.col === col) {
@@ -41,9 +129,40 @@ export function ShogiBoard({ board, currentPlayer, onBoardChange }: ShogiBoardPr
             const piece = newCells[selectedPosition.row][selectedPosition.col];
             const capturedPiece = newCells[row][col];
 
+            if (!piece) return;
+
+            // 成れるかチェック
+            const shouldPromote = canPromote(
+              piece,
+              selectedPosition,
+              { row, col }
+            );
+
+            let finalPiece = piece;
+
+            // 成れる場合はモーダルを表示
+            if (shouldPromote) {
+              setPromotionState({
+                pieceType: piece.type,
+                player: piece.player,
+              });
+
+              const promote = await promotionModalController.open();
+
+              if (promote) {
+                // 成る
+                const promotedType = pieceProperties[piece.type].promoted;
+                if (promotedType) {
+                  finalPiece = { ...piece, type: promotedType };
+                }
+              }
+
+              setPromotionState(null);
+            }
+
             // 駒を移動
             newCells[selectedPosition.row][selectedPosition.col] = null;
-            newCells[row][col] = piece;
+            newCells[row][col] = finalPiece;
 
             // 持ち駒の更新
             const newCapturedBySente = [...board.capturedBySente];
@@ -56,7 +175,7 @@ export function ShogiBoard({ board, currentPlayer, onBoardChange }: ShogiBoardPr
                 pieceProperties[capturedPiece.type].unpromoted ||
                 capturedPiece.type;
 
-              if (piece?.player === Player.Sente) {
+              if (piece.player === Player.Sente) {
                 // 先手が取った
                 newCapturedBySente.push(capturedType);
               } else {
@@ -82,48 +201,71 @@ export function ShogiBoard({ board, currentPlayer, onBoardChange }: ShogiBoardPr
         if (piece && piece.player === currentPlayer) {
           // 自分の駒があるマスをクリック -> 選択
           setSelectedPosition({ row, col });
+          // 盤上の駒を選択したら、持ち駒の選択を解除
+          if (selectedHandPiece && onHandPieceDeselect) {
+            onHandPieceDeselect();
+          }
         }
       }
     },
-    [board, selectedPosition, possibleMoves, onBoardChange, currentPlayer]
+    [
+      board,
+      selectedPosition,
+      possibleMoves,
+      onBoardChange,
+      currentPlayer,
+      promotionModalController,
+      selectedHandPiece,
+      onHandPieceDeselect,
+    ]
   );
 
   return (
-    <div className={styles.board}>
-      {board.cells.map((row, rowIndex) =>
-        row.map((cell, colIndex) => {
-          const isSelected =
-            selectedPosition?.row === rowIndex &&
-            selectedPosition?.col === colIndex;
+    <>
+      <div className={styles.board}>
+        {board.cells.map((row, rowIndex) =>
+          row.map((cell, colIndex) => {
+            const isSelected =
+              selectedPosition?.row === rowIndex &&
+              selectedPosition?.col === colIndex;
 
-          const isPossibleMove = possibleMoves.some(
-            (move) => move.row === rowIndex && move.col === colIndex
-          );
+            const isPossibleMove = possibleMoves.some(
+              (move) => move.row === rowIndex && move.col === colIndex
+            );
 
-          return (
-            <div
-              key={`${rowIndex}-${colIndex}`}
-              className={clsx(styles.cell, {
-                [styles.selected]: isSelected,
-                [styles.possibleMove]: isPossibleMove,
-              })}
-              onClick={() =>
-                handleCellClick(rowIndex as BoardIndex, colIndex as BoardIndex)
-              }
-            >
-              {cell && (
-                <img
-                  src={pieceProperties[cell.type].image}
-                  alt={pieceProperties[cell.type].name}
-                  className={clsx(styles.piece, {
-                    [styles.gote]: cell.player === Player.Gote,
-                  })}
-                />
-              )}
-            </div>
-          );
-        })
+            return (
+              <div
+                key={`${rowIndex}-${colIndex}`}
+                className={clsx(styles.cell, {
+                  [styles.selected]: isSelected,
+                  [styles.possibleMove]: isPossibleMove,
+                })}
+                onClick={() =>
+                  handleCellClick(rowIndex as BoardIndex, colIndex as BoardIndex)
+                }
+              >
+                {cell && (
+                  <img
+                    src={pieceProperties[cell.type].image}
+                    alt={pieceProperties[cell.type].name}
+                    className={clsx(styles.piece, {
+                      [styles.gote]: cell.player === Player.Gote,
+                    })}
+                  />
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+      {isPromotionModalOpen && promotionState && (
+        <PromotionModal
+          pieceType={promotionState.pieceType}
+          player={promotionState.player}
+          onSelectNormal={() => promotionModalController.close(false)}
+          onSelectPromoted={() => promotionModalController.close(true)}
+        />
       )}
-    </div>
+    </>
   );
 }

@@ -98,12 +98,11 @@ const styles = {
     flex: 1,
     display: "flex",
     flexDirection: "column",
-    height: "calc(100vh - 60px)",
     overflowX: "hidden",
     overflowY: "auto",
     "@media": {
       "(min-width: 769px)": {
-        height: "100vh",
+        height: "100%",
       },
     },
   }),

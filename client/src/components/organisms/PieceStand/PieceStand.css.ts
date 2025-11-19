@@ -57,6 +57,11 @@ const styles = {
     backgroundColor: "rgba(212, 165, 116, 0.2)",
   }),
 
+  itemContainerSelected: style({
+    backgroundColor: "rgba(255, 152, 0, 0.5)",
+    boxShadow: "inset 0 0 0 2px #ff9800",
+  }),
+
   capturedPieceImage: style({
     width: "2rem",
     height: "2rem",

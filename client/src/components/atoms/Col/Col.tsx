@@ -24,7 +24,7 @@ export interface ColProps extends HTMLAttributes<HTMLDivElement> {
 export function Col({
   align = "stretch",
   justify = "start",
-  gap = "md",
+  gap = "none",
   className,
   ref,
   ...props

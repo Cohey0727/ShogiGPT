@@ -2,7 +2,7 @@ import { style } from "@vanilla-extract/css";
 
 const styles = {
   container: style({
-    minHeight: "100vh",
+    minHeight: "100%",
     background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
     padding: "2rem",
   }),

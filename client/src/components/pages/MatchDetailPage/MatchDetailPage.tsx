@@ -1,15 +1,21 @@
 import { useParams } from "wouter";
 import { useState, useCallback, useMemo } from "react";
 import { ShogiBoard, MatchChat, PieceStand } from "../../organisms";
+import { StatusBar } from "../../molecules";
 import {
   useGetMatchQuery,
   useInsertMatchStateMutation,
   useEvaluateMatchStateMutation,
 } from "../../../generated/graphql/types";
 import styles from "./MatchDetailPage.css";
-import { createInitialBoard } from "../../../utils/shogi";
-import type { Board } from "../../../shared/consts";
-import { sfenToBoard, boardToSfen, applyUsiMove } from "../../../shared/services";
+import type { Board, PieceType } from "../../../shared/consts";
+import {
+  sfenToBoard,
+  boardToSfen,
+  applyUsiMove,
+  createInitialBoard,
+} from "../../../shared/services";
+import { Col, Row } from "../../atoms";
 
 interface BoardState {
   board: Board;
@@ -53,6 +59,9 @@ export function MatchDetailPage() {
   }, [match.matchStates]);
 
   const [boardState, setBoardState] = useState<BoardState>(initialBoardState);
+  const [selectedHandPiece, setSelectedHandPiece] = useState<PieceType | null>(
+    null
+  );
 
   const handleBoardChange = useCallback(
     async (newBoard: Board) => {
@@ -97,7 +106,10 @@ export function MatchDetailPage() {
         // AIの最善手を盤面に反映
         if (evaluation?.bestmove) {
           try {
-            const newBoardWithAiMove = applyUsiMove(updatedBoard, evaluation.bestmove);
+            const newBoardWithAiMove = applyUsiMove(
+              updatedBoard,
+              evaluation.bestmove
+            );
             const nextNextTurn: "SENTE" | "GOTE" =
               nextTurn === "SENTE" ? "GOTE" : "SENTE";
             const aiMoveIndex = nextMoveIndex + 1;
@@ -135,25 +147,52 @@ export function MatchDetailPage() {
           <MatchChat matchId={matchId} />
         </div>
 
-        <div className={styles.boardSection}>
-          <div className={styles.gotePieceStand}>
-            <PieceStand
-              player="GOTE"
-              pieces={boardState.board.capturedByGote}
-            />
-          </div>
-          <ShogiBoard
-            board={boardState.board}
-            currentPlayer={boardState.board.turn}
-            onBoardChange={handleBoardChange}
+        <Col>
+          <StatusBar
+            currentTurn={boardState.board.turn}
+            moveNumber={boardState.moveIndex}
+            isAiThinking={false}
           />
-          <div className={styles.sentePieceStand}>
-            <PieceStand
-              player="SENTE"
-              pieces={boardState.board.capturedBySente}
-            />
-          </div>
-        </div>
+          <Row className={styles.boardSection}>
+            <div className={styles.gotePieceStand}>
+              <PieceStand
+                player="GOTE"
+                pieces={boardState.board.capturedByGote}
+                selectedPieceType={
+                  boardState.board.turn === "GOTE" ? selectedHandPiece : null
+                }
+                onPieceSelect={(pieceType) => {
+                  if (boardState.board.turn === "GOTE") {
+                    setSelectedHandPiece(pieceType);
+                  }
+                }}
+              />
+            </div>
+            <div className={styles.boardContainer}>
+              <ShogiBoard
+                board={boardState.board}
+                currentPlayer={boardState.board.turn}
+                onBoardChange={handleBoardChange}
+                selectedHandPiece={selectedHandPiece}
+                onHandPieceDeselect={() => setSelectedHandPiece(null)}
+              />
+            </div>
+            <div className={styles.sentePieceStand}>
+              <PieceStand
+                player="SENTE"
+                pieces={boardState.board.capturedBySente}
+                selectedPieceType={
+                  boardState.board.turn === "SENTE" ? selectedHandPiece : null
+                }
+                onPieceSelect={(pieceType) => {
+                  if (boardState.board.turn === "SENTE") {
+                    setSelectedHandPiece(pieceType);
+                  }
+                }}
+              />
+            </div>
+          </Row>
+        </Col>
       </div>
     </div>
   );

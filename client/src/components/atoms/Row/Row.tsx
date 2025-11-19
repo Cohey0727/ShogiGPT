@@ -29,7 +29,7 @@ export interface RowProps extends HTMLAttributes<HTMLDivElement> {
 export function Row({
   align = "start",
   justify = "start",
-  gap = "md",
+  gap = "none",
   wrap = false,
   className,
   ref,

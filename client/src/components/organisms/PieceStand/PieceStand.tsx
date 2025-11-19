@@ -5,6 +5,8 @@ import styles from "./PieceStand.css";
 interface PieceStandProps {
   player: Player;
   pieces: PieceType[];
+  selectedPieceType?: PieceType | null;
+  onPieceSelect?: (pieceType: PieceType) => void;
 }
 
 // 持ち駒として表示する駒の種類（価値の高い順）
@@ -18,7 +20,12 @@ const PIECE_ORDER: PieceType[] = [
   PieceType.Pawn,
 ];
 
-export function PieceStand({ player, pieces }: PieceStandProps) {
+export function PieceStand({
+  player,
+  pieces,
+  selectedPieceType,
+  onPieceSelect
+}: PieceStandProps) {
   const isGote = player === Player.Gote;
 
   // PieceType[] から { [key in PieceType]?: number } への変換
@@ -39,13 +46,20 @@ export function PieceStand({ player, pieces }: PieceStandProps) {
           const count = pieceCounts[pieceType] || 0;
           const piece = pieceProperties[pieceType];
           const captured = count > 0;
+          const isSelected = selectedPieceType === pieceType;
 
           return (
             <div
               key={pieceType}
               className={clsx(styles.itemContainer, {
                 [styles.itemContainerBg]: captured,
+                [styles.itemContainerSelected]: isSelected,
               })}
+              onClick={() => {
+                if (captured && onPieceSelect) {
+                  onPieceSelect(pieceType);
+                }
+              }}
             >
               {captured ? (
                 <>

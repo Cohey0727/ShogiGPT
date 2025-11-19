@@ -42,6 +42,8 @@ const styles = {
     justifyContent: "center",
     alignItems: "center",
     gap: "1rem",
+    height: "100%",
+    overflow: "hidden",
   }),
 
   gotePieceStand: style({
@@ -57,6 +59,7 @@ const styles = {
     flexDirection: "column",
     gap: "0.5rem",
     alignItems: "center",
+    height: "100%",
   }),
 };
 

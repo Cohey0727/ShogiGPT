@@ -153,7 +153,7 @@ export function MatchDetailPage() {
             moveNumber={boardState.moveIndex}
             isAiThinking={false}
           />
-          <Row className={styles.boardSection}>
+          <Row className={styles.boardSection} align="center" justify="center">
             <div className={styles.gotePieceStand}>
               <PieceStand
                 player="GOTE"

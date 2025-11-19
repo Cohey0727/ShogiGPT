@@ -26,6 +26,8 @@ export type BestMoveContent = {
   bestmove: Scalars['String']['output'];
   /** エンジン名 */
   engineName: Scalars['String']['output'];
+  /** SFEN形式の盤面情報 */
+  sfen: Scalars['String']['output'];
   /** 思考時間（ミリ秒） */
   timeMs: Scalars['Int']['output'];
   type: Scalars['String']['output'];
@@ -83,6 +85,8 @@ export type EvaluateMatchStateResult = {
   bestmove: Scalars['String']['output'];
   /** エンジン名 */
   engineName: Scalars['String']['output'];
+  /** SFEN形式の盤面情報 */
+  sfen: Scalars['String']['output'];
   /** 思考時間（ミリ秒） */
   timeMs: Scalars['Int']['output'];
   type: Scalars['String']['output'];
@@ -374,6 +378,7 @@ export type ResolversParentTypes = ResolversObject<{
 export type BestMoveContentResolvers<ContextType = any, ParentType extends ResolversParentTypes['BestMoveContent'] = ResolversParentTypes['BestMoveContent']> = ResolversObject<{
   bestmove?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   engineName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sfen?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   timeMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   variations?: Resolver<Array<ResolversTypes['MoveVariation']>, ParentType, ContextType>;
@@ -392,6 +397,7 @@ export type ChatMessageResolvers<ContextType = any, ParentType extends Resolvers
 export type EvaluateMatchStateResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['EvaluateMatchStateResult'] = ResolversParentTypes['EvaluateMatchStateResult']> = ResolversObject<{
   bestmove?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   engineName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sfen?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   timeMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   variations?: Resolver<Array<ResolversTypes['MoveVariation']>, ParentType, ContextType>;

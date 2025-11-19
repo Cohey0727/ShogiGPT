@@ -13,6 +13,8 @@ interface ShogiBoardProps {
   onBoardChange: (board: Board) => void;
   selectedHandPiece?: PieceType | null;
   onHandPieceDeselect?: () => void;
+  disabled?: boolean;
+  diffCells?: Position[];
 }
 
 export function ShogiBoard({
@@ -21,6 +23,8 @@ export function ShogiBoard({
   onBoardChange,
   selectedHandPiece,
   onHandPieceDeselect,
+  disabled = false,
+  diffCells = [],
 }: ShogiBoardProps) {
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(
     null
@@ -62,6 +66,9 @@ export function ShogiBoard({
 
   const handleCellClick = useCallback(
     async (row: BoardIndex, col: BoardIndex) => {
+      // 盤面が無効化されている場合は何もしない
+      if (disabled) return;
+
       // 持ち駒を選択している場合
       if (selectedHandPiece) {
         const isPossibleDrop = possibleMoves.some(
@@ -217,12 +224,13 @@ export function ShogiBoard({
       promotionModalController,
       selectedHandPiece,
       onHandPieceDeselect,
+      disabled,
     ]
   );
 
   return (
     <>
-      <div className={styles.board}>
+      <div className={clsx(styles.board, { [styles.disabled]: disabled })}>
         {board.cells.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
             const isSelected =
@@ -233,12 +241,17 @@ export function ShogiBoard({
               (move) => move.row === rowIndex && move.col === colIndex
             );
 
+            const isDiff = diffCells.some(
+              (diff) => diff.row === rowIndex && diff.col === colIndex
+            );
+
             return (
               <div
                 key={`${rowIndex}-${colIndex}`}
                 className={clsx(styles.cell, {
                   [styles.selected]: isSelected,
                   [styles.possibleMove]: isPossibleMove,
+                  [styles.diff]: isDiff,
                 })}
                 onClick={() =>
                   handleCellClick(rowIndex as BoardIndex, colIndex as BoardIndex)
@@ -261,7 +274,6 @@ export function ShogiBoard({
       {isPromotionModalOpen && promotionState && (
         <PromotionModal
           pieceType={promotionState.pieceType}
-          player={promotionState.player}
           onSelectNormal={() => promotionModalController.close(false)}
           onSelectPromoted={() => promotionModalController.close(true)}
         />

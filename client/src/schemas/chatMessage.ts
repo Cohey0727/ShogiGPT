@@ -45,6 +45,7 @@ export const BestMoveContentSchema = z.object({
   variations: z.array(MoveInfoSchema),
   timeMs: z.number(),
   engineName: z.string(),
+  sfen: z.string().describe("SFEN形式の盤面情報"),
 });
 
 export type BestMoveContent = z.infer<typeof BestMoveContentSchema>;

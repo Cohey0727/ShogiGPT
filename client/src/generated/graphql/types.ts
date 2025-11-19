@@ -31,6 +31,8 @@ export type BestMoveContent = {
   bestmove: Scalars['String']['output'];
   /** エンジン名 */
   engineName: Scalars['String']['output'];
+  /** SFEN形式の盤面情報 */
+  sfen: Scalars['String']['output'];
   /** 思考時間（ミリ秒） */
   timeMs: Scalars['Int']['output'];
   type: Scalars['String']['output'];
@@ -345,6 +347,8 @@ export type EvaluateMatchStateResult = {
   bestmove: Scalars['String']['output'];
   /** エンジン名 */
   engineName: Scalars['String']['output'];
+  /** SFEN形式の盤面情報 */
+  sfen: Scalars['String']['output'];
   /** 思考時間（ミリ秒） */
   timeMs: Scalars['Int']['output'];
   type: Scalars['String']['output'];

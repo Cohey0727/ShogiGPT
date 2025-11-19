@@ -48,6 +48,10 @@ const styles = {
     },
   }),
 
+  diff: style({
+    backgroundColor: "#d9b971",
+  }),
+
   piece: style({
     userSelect: "none",
     width: "80%",
@@ -57,6 +61,12 @@ const styles = {
 
   gote: style({
     transform: "rotate(180deg)",
+  }),
+
+  disabled: style({
+    opacity: 0.6,
+    pointerEvents: "none",
+    cursor: "not-allowed",
   }),
 };
 

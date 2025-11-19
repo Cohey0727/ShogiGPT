@@ -13,13 +13,15 @@ export function StatusBar({
   isAiThinking = false,
   thinkingTimeMs,
 }: StatusBarProps) {
-  const thinkingTimeSec = thinkingTimeMs ? (thinkingTimeMs / 1000).toFixed(1) : null;
+  const thinkingTimeSec = thinkingTimeMs
+    ? (thinkingTimeMs / 1000).toFixed(1)
+    : null;
 
   return (
     <div className={styles.container}>
       <span>{currentTurn === "SENTE" ? "☗先手" : "☖後手"}の番</span>
       <span className={styles.divider}>|</span>
-      <span>{moveNumber}手目</span>
+      <span>{moveNumber + 1}手目</span>
       {isAiThinking && (
         <>
           <span className={styles.divider}>|</span>

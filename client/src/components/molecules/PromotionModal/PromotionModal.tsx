@@ -1,11 +1,9 @@
-import { pieceProperties, Player, type PieceType } from "../../../shared/consts";
+import { pieceProperties, type PieceType } from "../../../shared/consts";
 import * as styles from "./PromotionModal.css";
 
 interface PromotionModalProps {
   /** 成る前の駒タイプ */
   pieceType: PieceType;
-  /** プレイヤー */
-  player: Player;
   /** 通常の駒を選択した時のコールバック */
   onSelectNormal: () => void;
   /** 成駒を選択した時のコールバック */
@@ -14,7 +12,6 @@ interface PromotionModalProps {
 
 export function PromotionModal({
   pieceType,
-  player,
   onSelectNormal,
   onSelectPromoted,
 }: PromotionModalProps) {

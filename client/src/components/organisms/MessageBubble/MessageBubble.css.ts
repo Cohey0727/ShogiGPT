@@ -1,4 +1,15 @@
-import { style, globalStyle } from "@vanilla-extract/css";
+import { style, globalStyle, keyframes } from "@vanilla-extract/css";
+
+const wave = keyframes({
+  "0%, 60%, 100%": {
+    transform: "translateY(0)",
+    opacity: 0.6,
+  },
+  "30%": {
+    transform: "translateY(-0.4rem)",
+    opacity: 1,
+  },
+});
 
 const styles = {
   messageOther: style({
@@ -40,8 +51,33 @@ const styles = {
   messageTime: style({
     fontSize: "0.7rem",
     color: "#808080",
-    marginTop: "0.25rem",
     textAlign: "right",
+  }),
+
+  loadingDots: style({
+    display: "inline-flex",
+    gap: "0.25rem",
+    alignItems: "center",
+  }),
+
+  dot: style({
+    width: "0.375rem",
+    height: "0.375rem",
+    borderRadius: "50%",
+    backgroundColor: "#d4af37",
+    animation: `${wave} 1.4s ease-in-out infinite`,
+  }),
+
+  dot1: style({
+    animationDelay: "0s",
+  }),
+
+  dot2: style({
+    animationDelay: "0.2s",
+  }),
+
+  dot3: style({
+    animationDelay: "0.4s",
   }),
 };
 
@@ -57,16 +93,6 @@ globalStyle(`${styles.messageContent} p:first-child`, {
 globalStyle(`${styles.messageContent} p:last-child`, {
   marginBottom: 0,
 });
-
-globalStyle(
-  `${styles.messageContent} h1, ${styles.messageContent} h2, ${styles.messageContent} h3, ${styles.messageContent} h4, ${styles.messageContent} h5, ${styles.messageContent} h6`,
-  {
-    marginTop: "1rem",
-    marginBottom: "0.5rem",
-    fontWeight: "bold",
-    color: "#d4af37",
-  }
-);
 
 globalStyle(`${styles.messageContent} h1`, {
   fontSize: "1.5rem",

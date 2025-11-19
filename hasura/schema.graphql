@@ -21,6 +21,9 @@ type BestMoveContent {
   """エンジン名"""
   engineName: String!
 
+  """SFEN形式の盤面情報"""
+  sfen: String!
+
   """思考時間（ミリ秒）"""
   timeMs: Int!
   type: String!
@@ -401,6 +404,9 @@ type EvaluateMatchStateResult {
 
   """エンジン名"""
   engineName: String!
+
+  """SFEN形式の盤面情報"""
+  sfen: String!
 
   """思考時間（ミリ秒）"""
   timeMs: Int!

@@ -9,6 +9,17 @@ export interface MessageBubbleProps {
   children?: ReactNode;
   timestamp: string;
   isCurrentUser?: boolean;
+  isPartial?: boolean;
+}
+
+function LoadingDots() {
+  return (
+    <div className={styles.loadingDots}>
+      <span className={`${styles.dot} ${styles.dot1}`} />
+      <span className={`${styles.dot} ${styles.dot2}`} />
+      <span className={`${styles.dot} ${styles.dot3}`} />
+    </div>
+  );
 }
 
 export function MessageBubble({
@@ -17,6 +28,7 @@ export function MessageBubble({
   children,
   timestamp,
   isCurrentUser = false,
+  isPartial = false,
 }: MessageBubbleProps) {
   return (
     <div className={isCurrentUser ? styles.messageOwn : styles.messageOther}>
@@ -27,6 +39,7 @@ export function MessageBubble({
         ) : (
           children
         )}
+        {isPartial && <LoadingDots />}
       </div>
       <div className={styles.messageTime}>{timestamp}</div>
     </div>

@@ -5,6 +5,7 @@ import type {
 import { db } from "../../lib/db";
 import { analyzePositionAnalyzePost } from "../../generated/shogi-api";
 import { MessageContentsSchema } from "../../shared/schemas/chatMessage";
+import { generateBestMoveCommentary } from "../../lib/deepseek";
 
 /**
  * 既に保存されたMatchStateに対して非同期で盤面評価を行う
@@ -77,8 +78,36 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
       console.log("  Best move:", data.bestmove);
       console.log("  Candidates:", data.variations.length);
 
-      // 4. チャットメッセージを更新
+      // 4. DEEPSEEKで人間らしい解説を生成
+      console.log("💬 Generating commentary with DEEPSEEK...");
+      let commentary = "";
+      try {
+        commentary = await generateBestMoveCommentary({
+          sfen: matchState.sfen,
+          bestmove: data.bestmove,
+          variations: data.variations.map((v) => ({
+            move: v.move,
+            scoreCp: v.score_cp,
+            scoreMate: v.score_mate,
+            depth: v.depth,
+            nodes: v.nodes,
+            pv: v.pv,
+          })),
+          engineName: data.engine_name,
+          timeMs: data.time_ms,
+        });
+        console.log("✅ Commentary generated successfully");
+      } catch (error) {
+        console.error("⚠️ Failed to generate commentary:", error);
+        commentary = "## 局面の評価\n\nこの局面の解析が完了しました。";
+      }
+
+      // 5. チャットメッセージを更新（markdownとbestmoveの両方を含める）
       const contents = MessageContentsSchema.parse([
+        {
+          type: "markdown",
+          content: commentary,
+        },
         {
           type: "bestmove",
           bestmove: data.bestmove,
@@ -92,6 +121,7 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
           })),
           timeMs: data.time_ms,
           engineName: data.engine_name,
+          sfen: matchState.sfen,
         },
       ]);
 
@@ -102,7 +132,7 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
 
       console.log("✅ Thinking message updated with evaluation result");
 
-      // 5. BestMoveContent形式で返す
+      // 6. BestMoveContent形式で返す
       return {
         type: "bestmove",
         bestmove: data.bestmove,
@@ -116,6 +146,7 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
         })),
         timeMs: data.time_ms,
         engineName: data.engine_name,
+        sfen: matchState.sfen,
       } satisfies EvaluateMatchStateResult;
     } catch (error) {
       console.error("❌ Unexpected error during evaluation:", error);

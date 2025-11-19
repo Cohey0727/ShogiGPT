@@ -113,6 +113,7 @@ export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
             }>;
             timeMs: number;
             engineName: string;
+            sfen: string;
           }
       >,
       isPartial: userMessage.isPartial,
@@ -138,6 +139,7 @@ export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
             }>;
             timeMs: number;
             engineName: string;
+            sfen: string;
           }
       >,
       isPartial: assistantMessage.isPartial,

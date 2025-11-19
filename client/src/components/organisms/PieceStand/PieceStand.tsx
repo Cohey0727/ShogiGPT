@@ -7,6 +7,7 @@ interface PieceStandProps {
   pieces: PieceType[];
   selectedPieceType?: PieceType | null;
   onPieceSelect?: (pieceType: PieceType) => void;
+  disabled?: boolean;
 }
 
 // 持ち駒として表示する駒の種類（価値の高い順）
@@ -24,7 +25,8 @@ export function PieceStand({
   player,
   pieces,
   selectedPieceType,
-  onPieceSelect
+  onPieceSelect,
+  disabled = false,
 }: PieceStandProps) {
   const isGote = player === Player.Gote;
 
@@ -56,10 +58,11 @@ export function PieceStand({
                 [styles.itemContainerSelected]: isSelected,
               })}
               onClick={() => {
-                if (captured && onPieceSelect) {
+                if (captured && onPieceSelect && !disabled) {
                   onPieceSelect(pieceType);
                 }
               }}
+              style={disabled ? { cursor: "not-allowed", opacity: 0.6 } : {}}
             >
               {captured ? (
                 <>

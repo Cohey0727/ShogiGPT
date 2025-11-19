@@ -50,6 +50,10 @@ type BestMoveContent {
   エンジン名
   """
   engineName: String!
+  """
+  SFEN形式の盤面情報
+  """
+  sfen: String!
 }
 
 """
@@ -338,4 +342,8 @@ type EvaluateMatchStateResult {
   エンジン名
   """
   engineName: String!
+  """
+  SFEN形式の盤面情報
+  """
+  sfen: String!
 }

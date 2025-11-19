@@ -1,4 +1,10 @@
-export { boardToSfen } from "./boardToSfen";
-export { sfenToBoard } from "./sfenToBoard";
-export { applyUsiMove } from "./applyUsiMove";
-export { createInitialBoard } from "./createInitialBoard";
+export { analyzeMoveTags, analyzeMateTags } from "./analyzeMoveTags";
+export * from "./applyUsiMove";
+export * from "./boardToSfen";
+export * from "./calculateDiffCells";
+export * from "./convertPositionToJapanese";
+export * from "./countPieces";
+export * from "./createInitialBoard";
+export * from "./formatMoveToJapanese";
+export * from "./getPieceNameJapanese";
+export * from "./sfenToBoard";

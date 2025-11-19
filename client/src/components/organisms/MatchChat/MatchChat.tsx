@@ -89,6 +89,7 @@ export function MatchChat({ matchId }: MatchChatProps) {
               sender={sender}
               timestamp={timestamp}
               isCurrentUser={isCurrentUser}
+              isPartial={msg.isPartial}
             >
               {msg.contents?.map((content: unknown, idx: number) => {
                 if (!content || typeof content !== "object") {

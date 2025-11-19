@@ -1,7 +1,6 @@
 import type { MutationResolvers } from "../../generated/graphql/types";
 import { db } from "../../lib/db";
 import { analyzePositionAnalyzePost } from "../../generated/shogi-api";
-import { Player } from "../../generated/prisma";
 
 /**
  * 対局状態を保存し、次の候補手を取得する
@@ -12,7 +11,6 @@ export const saveMatchStateAndGetCandidates: MutationResolvers["saveMatchStateAn
     console.log("  Match ID:", input.matchId);
     console.log("  Index:", input.index);
     console.log("  Move:", input.moveNotation ?? "initial position");
-    console.log("  Player:", input.player);
     console.log("  SFEN:", input.sfen);
 
     // 1. 対局が存在するか確認
@@ -24,17 +22,12 @@ export const saveMatchStateAndGetCandidates: MutationResolvers["saveMatchStateAn
       throw new Error(`Match not found: ${input.matchId}`);
     }
 
-    // 2. プレイヤー文字列をPrisma Playerに変換
-    const player =
-      input.player.toUpperCase() === "SENTE" ? Player.SENTE : Player.GOTE;
-
-    // 3. 対局状態を保存
+    // 2. 対局状態を保存
     const matchState = await db.matchState.create({
       data: {
         matchId: input.matchId,
         index: input.index,
         moveNotation: input.moveNotation ?? null,
-        player,
         sfen: input.sfen,
         thinkingTime: input.thinkingTime ?? null,
       },
@@ -47,7 +40,7 @@ export const saveMatchStateAndGetCandidates: MutationResolvers["saveMatchStateAn
       matchState.index
     );
 
-    // 4. 次の候補手を取得（将棋エンジンを使用）
+    // 3. 次の候補手を取得（将棋エンジンを使用）
     const multipv = input.multipv ?? 3;
     const timeMs = input.timeMs ?? 1000;
 
@@ -78,13 +71,12 @@ export const saveMatchStateAndGetCandidates: MutationResolvers["saveMatchStateAn
     console.log("  Best move:", data.bestmove);
     console.log("  Candidates:", data.variations.length);
 
-    // 5. 結果を返す
+    // 4. 結果を返す
     return {
       matchState: {
         matchId: matchState.matchId,
         index: matchState.index,
         moveNotation: matchState.moveNotation,
-        player: matchState.player,
         sfen: matchState.sfen,
         thinkingTime: matchState.thinkingTime,
         createdAt: matchState.createdAt.toISOString(),

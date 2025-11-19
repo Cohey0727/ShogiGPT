@@ -230,10 +230,6 @@ input SaveMatchStateInput {
   """
   moveNotation: String
   """
-  この盤面での手番プレイヤー（SENTE/GOTE）
-  """
-  player: String!
-  """
   盤面（SFEN形式）
   """
   sfen: String!
@@ -281,10 +277,6 @@ type MatchState {
   指し手（USI形式）
   """
   moveNotation: String
-  """
-  手番プレイヤー
-  """
-  player: String!
   """
   盤面（SFEN形式）
   """

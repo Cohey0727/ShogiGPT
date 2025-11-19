@@ -3,6 +3,7 @@ import { style } from "@vanilla-extract/css";
 export const container = style({
   display: "flex",
   alignItems: "center",
+  justifyContent: "space-between",
   gap: "8px",
   padding: "4px 12px",
   backgroundColor: "#f5f5f5",

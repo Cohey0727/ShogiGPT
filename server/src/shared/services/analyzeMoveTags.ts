@@ -47,31 +47,6 @@ function isBishopLineOpen(
   return !foundPiece;
 }
 
-/**
- * 飛車道が開いているかチェック（縦横方向に障害物がないか）
- */
-function isRookLineOpen(
-  board: Board,
-  fromRow: number,
-  fromCol: number,
-  dirRow: number,
-  dirCol: number
-): boolean {
-  let row = fromRow + dirRow;
-  let col = fromCol + dirCol;
-  let foundPiece = false;
-
-  while (row >= 0 && row < 9 && col >= 0 && col < 9) {
-    if (board.cells[row][col]) {
-      foundPiece = true;
-      break;
-    }
-    row += dirRow;
-    col += dirCol;
-  }
-
-  return !foundPiece;
-}
 
 
 /**
@@ -476,6 +451,9 @@ function analyzeRookLine(
 
   if (moveInfo.isDrop || !moveInfo.from) return results;
 
+  const movedPiece = board.cells[moveInfo.from.row][moveInfo.from.col];
+  if (!movedPiece) return results;
+
   // 自分の飛車道
   const myRookPos = findPiece(board, currentPlayer, [
     PieceType.Rook,
@@ -487,6 +465,8 @@ function analyzeRookLine(
       moveInfo.from.col === myRookPos.col;
 
     if (!isMovingRook) {
+      // 飛車以外の駒を動かした場合
+      const forwardDir = currentPlayer === "SENTE" ? 1 : -1;
       const directions = [
         { dirRow: -1, dirCol: 0 },
         { dirRow: 1, dirCol: 0 },
@@ -495,26 +475,48 @@ function analyzeRookLine(
       ];
 
       for (const { dirRow, dirCol } of directions) {
-        const wasOpen = isRookLineOpen(
-          board,
+        // 移動前の駒が飛車の進路上にあったかチェック
+        const wasOnRookLine = isOnLine(
           myRookPos.row,
           myRookPos.col,
-          dirRow,
-          dirCol
-        );
-        const isOpen = isRookLineOpen(
-          boardAfter,
-          myRookPos.row,
-          myRookPos.col,
+          moveInfo.from.row,
+          moveInfo.from.col,
           dirRow,
           dirCol
         );
 
-        if (!wasOpen && isOpen) {
+        if (!wasOnRookLine) continue;
+
+        // 移動後の位置が飛車の進路上にあるかチェック
+        const isStillOnRookLine = isOnLine(
+          myRookPos.row,
+          myRookPos.col,
+          moveInfo.to.row,
+          moveInfo.to.col,
+          dirRow,
+          dirCol
+        );
+
+        // 飛車の進路上のまま前に進んだ場合（飛車先を伸ばす）
+        if (wasOnRookLine && isStillOnRookLine) {
+          const rowDiff = moveInfo.to.row - moveInfo.from.row;
+          const colDiff = moveInfo.to.col - moveInfo.from.col;
+
+          // 前方向（縦）に進んだかチェック
+          if (colDiff === 0 && rowDiff * forwardDir > 0) {
+            results.push("飛車先を伸ばす");
+            break;
+          }
+        }
+
+        // 進路から外れた場合
+        if (wasOnRookLine && !isStillOnRookLine) {
           results.push(isSelfMove ? "飛車道を開ける" : "飛車道を開けてくる");
           break;
         }
-        if (wasOpen && !isOpen) {
+
+        // 進路上に入った場合
+        if (!wasOnRookLine && isStillOnRookLine) {
           results.push(
             isSelfMove ? "飛車道を閉じさせられる" : "飛車道を閉じる"
           );
@@ -543,28 +545,38 @@ function analyzeRookLine(
       ];
 
       for (const { dirRow, dirCol } of directions) {
-        const wasOpen = isRookLineOpen(
-          board,
+        // 移動前の駒が相手飛車の進路上にあったかチェック
+        const wasOnRookLine = isOnLine(
           opponentRookPos.row,
           opponentRookPos.col,
-          dirRow,
-          dirCol
-        );
-        const isOpen = isRookLineOpen(
-          boardAfter,
-          opponentRookPos.row,
-          opponentRookPos.col,
+          moveInfo.from.row,
+          moveInfo.from.col,
           dirRow,
           dirCol
         );
 
-        if (!wasOpen && isOpen) {
+        if (!wasOnRookLine) continue;
+
+        // 移動後の位置が相手飛車の進路上にあるかチェック
+        const isStillOnRookLine = isOnLine(
+          opponentRookPos.row,
+          opponentRookPos.col,
+          moveInfo.to.row,
+          moveInfo.to.col,
+          dirRow,
+          dirCol
+        );
+
+        // 進路から外れた場合
+        if (wasOnRookLine && !isStillOnRookLine) {
           results.push(
             isSelfMove ? "相手の飛車道を開けさせる" : "飛車道を開ける"
           );
           break;
         }
-        if (wasOpen && !isOpen) {
+
+        // 進路上に入った場合
+        if (!wasOnRookLine && isStillOnRookLine) {
           results.push(
             isSelfMove ? "相手の飛車道を閉じる" : "飛車道を閉じさせる"
           );
@@ -575,6 +587,31 @@ function analyzeRookLine(
   }
 
   return results;
+}
+
+/**
+ * 指定位置が直線上にあるかチェック
+ */
+function isOnLine(
+  fromRow: number,
+  fromCol: number,
+  targetRow: number,
+  targetCol: number,
+  dirRow: number,
+  dirCol: number
+): boolean {
+  let row = fromRow + dirRow;
+  let col = fromCol + dirCol;
+
+  while (row >= 0 && row < 9 && col >= 0 && col < 9) {
+    if (row === targetRow && col === targetCol) {
+      return true;
+    }
+    row += dirRow;
+    col += dirCol;
+  }
+
+  return false;
 }
 
 /**

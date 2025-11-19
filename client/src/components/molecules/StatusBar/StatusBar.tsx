@@ -19,21 +19,16 @@ export function StatusBar({
 
   return (
     <div className={styles.container}>
-      <span>{currentTurn === "SENTE" ? "☗先手" : "☖後手"}の番</span>
-      <span className={styles.divider}>|</span>
+      <span>
+        {isAiThinking && (
+          <span className={styles.thinking}>
+            AI思考中...
+            {thinkingTimeSec && ` (${thinkingTimeSec}秒)`}
+          </span>
+        )}
+      </span>
       <span>{moveNumber + 1}手目</span>
-      {isAiThinking && (
-        <>
-          <span className={styles.divider}>|</span>
-          <span className={styles.thinking}>AI思考中...</span>
-        </>
-      )}
-      {thinkingTimeSec && (
-        <>
-          <span className={styles.divider}>|</span>
-          <span className={styles.time}>{thinkingTimeSec}秒</span>
-        </>
-      )}
+      <span>{currentTurn === "SENTE" ? "☗先手" : "☖後手"}の番</span>
     </div>
   );
 }

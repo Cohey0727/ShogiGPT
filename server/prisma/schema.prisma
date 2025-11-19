@@ -41,8 +41,6 @@ model MatchState {
   /// この局面に至った指し手表記（USI形式、例: "7g7f"）
   /// 初期局面（index=0）の場合はnull
   moveNotation String?
-  /// この盤面での手番プレイヤー
-  player       Player
   /// 盤面（SFEN形式）
   sfen         String
   /// 消費時間（秒、オプション）

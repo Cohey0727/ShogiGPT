@@ -123,7 +123,6 @@ export function MatchDetailPage() {
             },
           });
           const evaluation = evaluationResponse.data?.evaluateMatchState;
-          console.log("AI Evaluation:", evaluation);
 
           // 思考時間を設定
           if (evaluation?.timeMs) {

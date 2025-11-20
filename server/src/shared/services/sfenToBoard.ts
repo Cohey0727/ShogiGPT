@@ -106,12 +106,12 @@ export function sfenToBoard(sfen: string): Board {
   const turn = turnPart === "b" ? Player.Sente : Player.Gote;
 
   // 3. 持ち駒の解析
-  const { capturedBySente, capturedByGote } = parseHand(handPart);
+  const { senteHands, goteHands } = parseHand(handPart);
 
   return {
     cells,
-    capturedBySente,
-    capturedByGote,
+    senteHands: senteHands,
+    goteHands: goteHands,
     turn,
   };
 }
@@ -120,14 +120,14 @@ export function sfenToBoard(sfen: string): Board {
  * SFEN形式の持ち駒文字列を解析する
  */
 function parseHand(handPart: string): {
-  capturedBySente: PieceType[];
-  capturedByGote: PieceType[];
+  senteHands: PieceType[];
+  goteHands: PieceType[];
 } {
-  const capturedBySente: PieceType[] = [];
-  const capturedByGote: PieceType[] = [];
+  const senteHands: PieceType[] = [];
+  const goteHands: PieceType[] = [];
 
   if (handPart === "-") {
-    return { capturedBySente, capturedByGote };
+    return { senteHands, goteHands };
   }
 
   let i = 0;
@@ -158,9 +158,7 @@ function parseHand(handPart: string): {
         throw new Error(`Invalid SFEN hand format: unknown piece ${pieceChar}`);
       }
 
-      const targetArray = /[A-Z]/.test(pieceChar)
-        ? capturedBySente
-        : capturedByGote;
+      const targetArray = /[A-Z]/.test(pieceChar) ? senteHands : goteHands;
 
       for (let j = 0; j < count; j++) {
         targetArray.push(pieceType);
@@ -177,12 +175,12 @@ function parseHand(handPart: string): {
         throw new Error(`Invalid SFEN hand format: unknown piece ${char}`);
       }
 
-      const targetArray = /[A-Z]/.test(char) ? capturedBySente : capturedByGote;
+      const targetArray = /[A-Z]/.test(char) ? senteHands : goteHands;
       targetArray.push(pieceType);
 
       i++;
     }
   }
 
-  return { capturedBySente, capturedByGote };
+  return { senteHands, goteHands };
 }

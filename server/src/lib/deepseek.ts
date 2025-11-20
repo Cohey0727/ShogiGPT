@@ -11,8 +11,27 @@ const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
 
 interface DeepSeekMessage {
-  role: "user" | "assistant" | "system";
+  role: "user" | "assistant" | "system" | "tool";
   content: string;
+  tool_calls?: Array<{
+    id: string;
+    type: "function";
+    function: {
+      name: string;
+      arguments: string;
+    };
+  }>;
+  tool_call_id?: string;
+  name?: string;
+}
+
+interface DeepSeekTool {
+  type: "function";
+  function: {
+    name: string;
+    description: string;
+    parameters: Record<string, unknown>;
+  };
 }
 
 interface DeepSeekRequest {
@@ -20,6 +39,8 @@ interface DeepSeekRequest {
   messages: DeepSeekMessage[];
   temperature?: number;
   max_tokens?: number;
+  tools?: DeepSeekTool[];
+  tool_choice?: "auto" | "none";
 }
 
 interface DeepSeekResponse {
@@ -31,7 +52,15 @@ interface DeepSeekResponse {
     index: number;
     message: {
       role: string;
-      content: string;
+      content: string | null;
+      tool_calls?: Array<{
+        id: string;
+        type: "function";
+        function: {
+          name: string;
+          arguments: string;
+        };
+      }>;
     };
     finish_reason: string;
   }>;
@@ -51,58 +80,156 @@ interface MoveVariation {
   pv: string[] | null | undefined;
 }
 
+interface GenerateChatResponseOptions {
+  userMessage: string;
+  conversationHistory?: DeepSeekMessage[];
+  tools?: DeepSeekTool[];
+  onToolCall?: (
+    toolName: string,
+    toolArgs: unknown
+  ) => Promise<string | Record<string, unknown>>;
+  maxIterations?: number;
+}
+
+export async function generateChatResponse(
+  options: GenerateChatResponseOptions
+): Promise<string>;
 export async function generateChatResponse(
   userMessage: string,
+  conversationHistory?: DeepSeekMessage[]
+): Promise<string>;
+export async function generateChatResponse(
+  optionsOrMessage: GenerateChatResponseOptions | string,
   conversationHistory: DeepSeekMessage[] = []
 ): Promise<string> {
   if (!DEEPSEEK_API_KEY) {
     throw new Error("DEEPSEEK_API_KEY is not set");
   }
 
+  // オーバーロード対応：引数の正規化
+  const options: GenerateChatResponseOptions =
+    typeof optionsOrMessage === "string"
+      ? { userMessage: optionsOrMessage, conversationHistory }
+      : optionsOrMessage;
+
+  const {
+    userMessage,
+    conversationHistory: history = [],
+    tools = [],
+    onToolCall,
+    maxIterations = 5,
+  } = options;
+
   const messages: DeepSeekMessage[] = [
     {
       role: "system",
       content:
-        "あなたは将棋の対局をサポートするAIアシスタントです。ユーザーの質問に対して、親切で分かりやすく回答してください。",
+        "あなたは将棋の対局をサポートするAIアシスタントです。ユーザーの質問に対して、親切で分かりやすく回答してください。候補手や評価値が必要な場合は、利用可能なツールを使用して情報を取得してください。",
     },
-    ...conversationHistory,
+    ...history,
     {
       role: "user",
       content: userMessage,
     },
   ];
 
-  const requestBody: DeepSeekRequest = {
-    model: "deepseek-chat",
-    messages,
-    temperature: 0.7,
-    max_tokens: 1000,
-  };
+  // Function Callingのループ（最大maxIterations回）
+  for (let iteration = 0; iteration < maxIterations; iteration++) {
+    const requestBody: DeepSeekRequest = {
+      model: "deepseek-chat",
+      messages,
+      temperature: 0.7,
+      max_tokens: 1000,
+      ...(tools.length > 0 ? { tools, tool_choice: "auto" } : {}),
+    };
 
-  const response = await fetch(DEEPSEEK_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
-    },
-    body: JSON.stringify(requestBody),
-  });
+    const response = await fetch(DEEPSEEK_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
+      },
+      body: JSON.stringify(requestBody),
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `DeepSeek API error: ${response.status} ${response.statusText} - ${errorText}`
-    );
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `DeepSeek API error: ${response.status} ${response.statusText} - ${errorText}`
+      );
+    }
+
+    const data = (await response.json()) as DeepSeekResponse;
+    const choice = data.choices[0];
+
+    if (!choice) {
+      throw new Error("No response from DeepSeek API");
+    }
+
+    const { message, finish_reason } = choice;
+
+    // ツール呼び出しがある場合
+    if (finish_reason === "tool_calls" && message.tool_calls && onToolCall) {
+      // アシスタントメッセージを履歴に追加
+      messages.push({
+        role: "assistant",
+        content: message.content ?? "",
+        tool_calls: message.tool_calls,
+      });
+
+      // 各ツールを実行
+      for (const toolCall of message.tool_calls) {
+        const toolName = toolCall.function.name;
+        const toolArgs = JSON.parse(toolCall.function.arguments);
+
+        console.log(
+          `🔧 Tool called: ${toolName} with args:`,
+          JSON.stringify(toolArgs, null, 2)
+        );
+
+        try {
+          const toolResult = await onToolCall(toolName, toolArgs);
+          const toolResultString =
+            typeof toolResult === "string"
+              ? toolResult
+              : JSON.stringify(toolResult, null, 2);
+
+          console.log(`✅ Tool result: ${toolResultString.substring(0, 200)}...`);
+
+          // ツール結果を履歴に追加
+          messages.push({
+            role: "tool",
+            tool_call_id: toolCall.id,
+            name: toolName,
+            content: toolResultString,
+          });
+        } catch (error) {
+          console.error(`❌ Tool execution failed:`, error);
+          messages.push({
+            role: "tool",
+            tool_call_id: toolCall.id,
+            name: toolName,
+            content: `エラー: ${error instanceof Error ? error.message : String(error)}`,
+          });
+        }
+      }
+
+      // 次のイテレーションでツール結果を含めて再度APIを呼び出す
+      continue;
+    }
+
+    // 通常の応答
+    const assistantMessage = message.content;
+    if (!assistantMessage) {
+      throw new Error("No content in assistant message");
+    }
+
+    return assistantMessage;
   }
 
-  const data = (await response.json()) as DeepSeekResponse;
-
-  const assistantMessage = data.choices[0]?.message?.content;
-  if (!assistantMessage) {
-    throw new Error("No response from DeepSeek API");
-  }
-
-  return assistantMessage;
+  throw new Error(
+    `Max iterations (${maxIterations}) reached in function calling loop`
+  );
 }
 
 /**

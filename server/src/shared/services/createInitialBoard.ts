@@ -54,8 +54,8 @@ export function createInitialBoard(): Board {
 
   return {
     cells,
-    capturedBySente: [],
-    capturedByGote: [],
+    senteHands: [],
+    goteHands: [],
     turn: Player.Sente,
   };
 }

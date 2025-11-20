@@ -84,7 +84,7 @@ function formatHand(board: Board): string {
   const pieces: string[] = [];
 
   // 先手の持ち駒
-  const senteCounts = countPieces(board.capturedBySente);
+  const senteCounts = countPieces(board.senteHands);
   for (const [type, count] of Object.entries(senteCounts)) {
     const sfen = SFEN_PIECE_MAP[type as PieceType];
     const pieceStr = count > 1 ? `${count}${sfen}` : sfen;
@@ -92,7 +92,7 @@ function formatHand(board: Board): string {
   }
 
   // 後手の持ち駒
-  const goteCounts = countPieces(board.capturedByGote);
+  const goteCounts = countPieces(board.goteHands);
   for (const [type, count] of Object.entries(goteCounts)) {
     const sfen = SFEN_PIECE_MAP[type as PieceType];
     const pieceStr = count > 1 ? `${count}${sfen}` : sfen;

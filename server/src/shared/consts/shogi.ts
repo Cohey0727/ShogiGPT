@@ -83,9 +83,9 @@ export interface Board {
   /** 盤上（9x9の2次元配列） */
   cells: Cell[][];
   /** 先手の持ち駒 */
-  capturedBySente: PieceType[];
+  senteHands: PieceType[];
   /** 後手の持ち駒 */
-  capturedByGote: PieceType[];
+  goteHands: PieceType[];
   /** 手番 */
   turn: Player;
 }
@@ -96,6 +96,8 @@ export interface Board {
 export interface PieceProperties {
   /** 駒の日本語表記 */
   name: string;
+  /** 駒の短縮表記 */
+  shortName: string;
   /** 駒の画像ファイル名 */
   image: string;
   /** 成った後の駒（undefined = 成れない） */
@@ -110,69 +112,83 @@ export interface PieceProperties {
 export const pieceProperties: Record<PieceType, PieceProperties> = {
   [PieceType.King]: {
     name: "王",
+    shortName: "王",
     image: "/assets/pieces/king.png",
   },
   [PieceType.Rook]: {
     name: "飛",
+    shortName: "飛",
     image: "/assets/pieces/rook.png",
     promoted: PieceType.PromotedRook,
   },
   [PieceType.Bishop]: {
     name: "角",
+    shortName: "角",
     image: "/assets/pieces/bishop.png",
     promoted: PieceType.PromotedBishop,
   },
   [PieceType.Gold]: {
     name: "金",
+    shortName: "金",
     image: "/assets/pieces/gold.png",
   },
   [PieceType.Silver]: {
     name: "銀",
+    shortName: "銀",
     image: "/assets/pieces/silver.png",
     promoted: PieceType.PromotedSilver,
   },
   [PieceType.Knight]: {
     name: "桂",
+    shortName: "桂",
     image: "/assets/pieces/knight.png",
     promoted: PieceType.PromotedKnight,
   },
   [PieceType.Lance]: {
     name: "香",
+    shortName: "香",
     image: "/assets/pieces/lance.png",
     promoted: PieceType.PromotedLance,
   },
   [PieceType.Pawn]: {
     name: "歩",
+    shortName: "歩",
     image: "/assets/pieces/pawn.png",
     promoted: PieceType.PromotedPawn,
   },
   [PieceType.PromotedRook]: {
     name: "竜",
+    shortName: "竜",
     image: "/assets/pieces/promoted_rook.png",
     unpromoted: PieceType.Rook,
   },
   [PieceType.PromotedBishop]: {
     name: "馬",
+    shortName: "馬",
     image: "/assets/pieces/promoted_bishop.png",
     unpromoted: PieceType.Bishop,
   },
   [PieceType.PromotedSilver]: {
     name: "成銀",
+    shortName: "全",
     image: "/assets/pieces/promoted_silver.png",
     unpromoted: PieceType.Silver,
   },
   [PieceType.PromotedKnight]: {
     name: "成桂",
+    shortName: "圭",
     image: "/assets/pieces/promoted_knight.png",
     unpromoted: PieceType.Knight,
   },
   [PieceType.PromotedLance]: {
     name: "成香",
+    shortName: "杏",
     image: "/assets/pieces/promoted_lance.png",
     unpromoted: PieceType.Lance,
   },
   [PieceType.PromotedPawn]: {
     name: "と",
+    shortName: "と",
     image: "/assets/pieces/promoted_pawn.png",
     unpromoted: PieceType.Pawn,
   },

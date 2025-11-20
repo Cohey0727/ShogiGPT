@@ -2,6 +2,7 @@ import type { MutationResolvers } from "../../generated/graphql/types";
 import { db } from "../../lib/db";
 import { generateChatResponse } from "../../lib/deepseek";
 import { MessageContentsSchema } from "../../shared";
+import { getShogiCandidateMovesTool } from "../../services/getShogiCandidateMovesTool";
 
 export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
   _parent,
@@ -70,14 +71,11 @@ async function generateAndUpdateAiResponse(params: {
   try {
     const { matchId, content, userMessageId, assistantMessageId } = params;
 
-    // 会話履歴を取得（最新10件、partial除外）
+    // 会話履歴を取得（最新5件、partial除外）
     const history = await db.chatMessage.findMany({
-      where: {
-        matchId,
-        isPartial: false,
-      },
+      where: { matchId, isPartial: false },
       orderBy: { createdAt: "asc" },
-      take: 10,
+      take: 5,
     });
 
     // DeepSeek APIで応答を生成
@@ -98,10 +96,28 @@ async function generateAndUpdateAiResponse(params: {
         };
       });
 
-    const aiResponseContent = await generateChatResponse(
-      content,
-      conversationHistory
+    // ツールマップを作成
+    const tools = [getShogiCandidateMovesTool];
+    const toolMap = new Map(
+      tools.map((tool) => [tool.definition.function.name, tool])
     );
+
+    // Function Callingを有効にしてAI応答を生成
+    const aiResponseContent = await generateChatResponse({
+      userMessage: `対局ID: ${matchId}\n${content}`,
+      conversationHistory,
+      tools: tools.map((t) => t.definition),
+      onToolCall: async (toolName, toolArgs) => {
+        const tool = toolMap.get(toolName);
+        if (!tool) {
+          throw new Error(`Unknown tool: ${toolName}`);
+        }
+        // Zodでバリデーション
+        const validatedArgs = tool.argsSchema.parse(toolArgs);
+        // ツールを実行
+        return await tool.execute(validatedArgs);
+      },
+    });
 
     // AI応答メッセージを更新
     await db.chatMessage.update({

@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { Player, pieceProperties, PieceType } from "../../../shared/consts";
-import styles from "./PieceStand.css";
+import styles from "./HandStand.css";
 
 interface PieceStandProps {
   player: Player;
@@ -11,7 +11,7 @@ interface PieceStandProps {
 }
 
 // 持ち駒として表示する駒の種類（価値の高い順）
-const PIECE_ORDER: PieceType[] = [
+const pieceOrder: PieceType[] = [
   PieceType.Rook,
   PieceType.Bishop,
   PieceType.Gold,
@@ -21,7 +21,7 @@ const PIECE_ORDER: PieceType[] = [
   PieceType.Pawn,
 ];
 
-export function PieceStand({
+export function HandStand({
   player,
   pieces,
   selectedPieceType,
@@ -44,7 +44,7 @@ export function PieceStand({
       })}
     >
       <div className={styles.capturedList}>
-        {PIECE_ORDER.map((pieceType) => {
+        {pieceOrder.map((pieceType) => {
           const count = pieceCounts[pieceType] || 0;
           const piece = pieceProperties[pieceType];
           const captured = count > 0;

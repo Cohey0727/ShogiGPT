@@ -196,7 +196,7 @@ export function MatchDetailPage() {
             <div className={styles.gotePieceStand}>
               <PieceStand
                 player="GOTE"
-                pieces={boardState.board.capturedByGote}
+                pieces={boardState.board.goteHands}
                 selectedPieceType={
                   boardState.board.turn === "GOTE" ? selectedHandPiece : null
                 }
@@ -222,7 +222,7 @@ export function MatchDetailPage() {
             <div className={styles.sentePieceStand}>
               <PieceStand
                 player="SENTE"
-                pieces={boardState.board.capturedBySente}
+                pieces={boardState.board.senteHands}
                 selectedPieceType={
                   boardState.board.turn === "SENTE" ? selectedHandPiece : null
                 }

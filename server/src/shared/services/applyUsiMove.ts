@@ -24,8 +24,8 @@ const USI_TO_PIECE_TYPE: Record<string, PieceType> = {
 export function applyUsiMove(board: Board, usiMove: string): Board {
   // 盤面をディープコピー
   const newCells: Cell[][] = board.cells.map((row) => [...row]);
-  const newCapturedBySente = [...board.capturedBySente];
-  const newCapturedByGote = [...board.capturedByGote];
+  const newCapturedBySente = [...board.senteHands];
+  const newCapturedByGote = [...board.goteHands];
 
   // 駒打ちの場合（例: G*5e）
   if (usiMove.includes("*")) {
@@ -57,8 +57,8 @@ export function applyUsiMove(board: Board, usiMove: string): Board {
 
     return {
       cells: newCells,
-      capturedBySente: newCapturedBySente,
-      capturedByGote: newCapturedByGote,
+      senteHands: newCapturedBySente,
+      goteHands: newCapturedByGote,
       turn: board.turn === "SENTE" ? "GOTE" : "SENTE",
     };
   }
@@ -113,8 +113,8 @@ export function applyUsiMove(board: Board, usiMove: string): Board {
 
   return {
     cells: newCells,
-    capturedBySente: newCapturedBySente,
-    capturedByGote: newCapturedByGote,
+    senteHands: newCapturedBySente,
+    goteHands: newCapturedByGote,
     turn: board.turn === "SENTE" ? "GOTE" : "SENTE",
   };
 }

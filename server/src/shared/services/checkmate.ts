@@ -70,8 +70,8 @@ function simulateMove(board: Board, from: Position, to: Position): Board {
   const newBoard: Board = {
     ...board,
     cells: board.cells.map((row) => [...row]),
-    capturedBySente: [...board.capturedBySente],
-    capturedByGote: [...board.capturedByGote],
+    senteHands: [...board.senteHands],
+    goteHands: [...board.goteHands],
   };
 
   const piece = newBoard.cells[from.row][from.col];
@@ -80,9 +80,7 @@ function simulateMove(board: Board, from: Position, to: Position): Board {
   // 駒を取る場合、持ち駒に追加
   if (capturedPiece && piece) {
     const capturedArray =
-      piece.player === "SENTE"
-        ? newBoard.capturedBySente
-        : newBoard.capturedByGote;
+      piece.player === "SENTE" ? newBoard.senteHands : newBoard.goteHands;
     capturedArray.push(capturedPiece.type);
   }
 
@@ -104,13 +102,13 @@ function simulateDrop(
   const newBoard: Board = {
     ...board,
     cells: board.cells.map((row) => [...row]),
-    capturedBySente: [...board.capturedBySente],
-    capturedByGote: [...board.capturedByGote],
+    senteHands: [...board.senteHands],
+    goteHands: [...board.goteHands],
   };
 
   // 持ち駒から削除
   const capturedArray =
-    player === "SENTE" ? newBoard.capturedBySente : newBoard.capturedByGote;
+    player === "SENTE" ? newBoard.senteHands : newBoard.goteHands;
   const index = capturedArray.indexOf(pieceType);
   if (index > -1) {
     capturedArray.splice(index, 1);
@@ -161,7 +159,7 @@ export function isCheckmate(board: Board, player: Player): boolean {
 
   // 持ち駒を打って王手を回避できるかチェック
   const capturedPieces =
-    player === "SENTE" ? board.capturedBySente : board.capturedByGote;
+    player === "SENTE" ? board.senteHands : board.goteHands;
 
   if (capturedPieces.length > 0) {
     const uniquePieceTypes = new Set<PieceType>(capturedPieces);

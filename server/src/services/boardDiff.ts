@@ -111,8 +111,8 @@ export function getBoardDiff(before: Board, after: Board): BoardDiff {
   }
 
   // 持ち駒の差分を検出
-  const senteDiff = getArrayDiff(before.capturedBySente, after.capturedBySente);
-  const goteDiff = getArrayDiff(before.capturedByGote, after.capturedByGote);
+  const senteDiff = getArrayDiff(before.senteHands, after.senteHands);
+  const goteDiff = getArrayDiff(before.goteHands, after.goteHands);
 
   const capturedDiff: CapturedDiff = {
     sente: senteDiff,

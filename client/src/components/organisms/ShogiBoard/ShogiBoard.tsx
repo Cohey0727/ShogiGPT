@@ -1,8 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
 import { Player, pieceProperties } from "../../../shared/consts";
-import type { Board, BoardIndex, Position, PieceType } from "../../../shared/consts";
-import { getPossibleMoves, canPromote, getDropPositions } from "../../../services";
+import type {
+  Board,
+  BoardIndex,
+  Position,
+  PieceType,
+} from "../../../shared/consts";
+import {
+  getPossibleMoves,
+  canPromote,
+  getDropPositions,
+} from "../../../services";
 import { useModal } from "../../molecules/hooks";
 import { PromotionModal } from "../../molecules";
 import styles from "./ShogiBoard.css";
@@ -84,8 +93,8 @@ export function ShogiBoard({
           };
 
           // 持ち駒から削除
-          const newCapturedBySente = [...board.capturedBySente];
-          const newCapturedByGote = [...board.capturedByGote];
+          const newCapturedBySente = [...board.senteHands];
+          const newCapturedByGote = [...board.goteHands];
 
           if (currentPlayer === Player.Sente) {
             const index = newCapturedBySente.indexOf(selectedHandPiece);
@@ -102,8 +111,8 @@ export function ShogiBoard({
           onBoardChange({
             ...board,
             cells: newCells,
-            capturedBySente: newCapturedBySente,
-            capturedByGote: newCapturedByGote,
+            senteHands: newCapturedBySente,
+            goteHands: newCapturedByGote,
           });
 
           // 持ち駒の選択を解除
@@ -134,16 +143,15 @@ export function ShogiBoard({
             // 合法手の場合のみ移動を実行
             const newCells = board.cells.map((r) => r.slice());
             const piece = newCells[selectedPosition.row][selectedPosition.col];
-            const capturedPiece = newCells[row][col];
+            const handsPiece = newCells[row][col];
 
             if (!piece) return;
 
             // 成れるかチェック
-            const shouldPromote = canPromote(
-              piece,
-              selectedPosition,
-              { row, col }
-            );
+            const shouldPromote = canPromote(piece, selectedPosition, {
+              row,
+              col,
+            });
 
             let finalPiece = piece;
 
@@ -172,30 +180,29 @@ export function ShogiBoard({
             newCells[row][col] = finalPiece;
 
             // 持ち駒の更新
-            const newCapturedBySente = [...board.capturedBySente];
-            const newCapturedByGote = [...board.capturedByGote];
+            const newSenteHands = [...board.senteHands];
+            const newGoteHands = [...board.goteHands];
 
-            if (capturedPiece) {
+            if (handsPiece) {
               // 駒を取った場合、持ち駒に追加
               // 成り駒の場合は元の駒に戻す
               const capturedType =
-                pieceProperties[capturedPiece.type].unpromoted ||
-                capturedPiece.type;
+                pieceProperties[handsPiece.type].unpromoted || handsPiece.type;
 
               if (piece.player === Player.Sente) {
                 // 先手が取った
-                newCapturedBySente.push(capturedType);
+                newSenteHands.push(capturedType);
               } else {
                 // 後手が取った
-                newCapturedByGote.push(capturedType);
+                newGoteHands.push(capturedType);
               }
             }
 
             onBoardChange({
               ...board,
               cells: newCells,
-              capturedBySente: newCapturedBySente,
-              capturedByGote: newCapturedByGote,
+              senteHands: newSenteHands,
+              goteHands: newGoteHands,
             });
           }
 
@@ -254,7 +261,10 @@ export function ShogiBoard({
                   [styles.diff]: isDiff,
                 })}
                 onClick={() =>
-                  handleCellClick(rowIndex as BoardIndex, colIndex as BoardIndex)
+                  handleCellClick(
+                    rowIndex as BoardIndex,
+                    colIndex as BoardIndex
+                  )
                 }
               >
                 {cell && (

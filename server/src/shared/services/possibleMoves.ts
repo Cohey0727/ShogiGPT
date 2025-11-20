@@ -1,5 +1,5 @@
-import { PieceType, Player } from "../shared/consts";
-import type { Board, BoardIndex, Position } from "../shared/consts";
+import { PieceType, Player } from "../consts";
+import type { Board, BoardIndex, Position } from "../consts";
 
 /**
  * 移動方向（相対座標）

@@ -1,4 +1,4 @@
-import { Player, PieceType, type Board, type Position } from "../shared/consts";
+import { Player, PieceType, type Board, type Position } from "../consts";
 
 /**
  * 持ち駒を打てる位置を取得する
@@ -23,10 +23,16 @@ export function getDropPositions(
         // 二歩チェック（歩を打つ場合）
         if (pieceType === PieceType.Pawn) {
           if (!hasDoublesPawn(board, col, player)) {
-            positions.push({ row: row as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, col: col as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 });
+            positions.push({
+              row: row as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
+              col: col as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
+            });
           }
         } else {
-          positions.push({ row: row as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, col: col as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 });
+          positions.push({
+            row: row as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
+            col: col as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
+          });
         }
       }
     }
@@ -46,11 +52,7 @@ export function getDropPositions(
 function hasDoublesPawn(board: Board, col: number, player: Player): boolean {
   for (let row = 0; row < 9; row++) {
     const cell = board.cells[row][col];
-    if (
-      cell &&
-      cell.player === player &&
-      cell.type === PieceType.Pawn
-    ) {
+    if (cell && cell.player === player && cell.type === PieceType.Pawn) {
       return true;
     }
   }

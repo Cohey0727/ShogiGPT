@@ -149,10 +149,9 @@ export async function generateBestMoveCommentary(params: {
       topVariation.pv.forEach((usiMove, index) => {
         const moveLabel = formatMoveToJapanese(usiMove, currentBoard);
         const player = index % 2 === 0 ? "自分" : "相手";
-        const isSelfMove = index % 2 === 0; // 偶数=自分、奇数=相手
 
         // 各手の戦術特徴を分析
-        const tacticalTags = analyzeMoveTags(currentBoard, usiMove, isSelfMove);
+        const tacticalTags = analyzeMoveTags(currentBoard, usiMove);
         const mateTags = analyzeMateTags(currentBoard, usiMove);
         const allTags = [...mateTags, ...tacticalTags];
 

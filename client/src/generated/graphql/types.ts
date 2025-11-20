@@ -451,6 +451,7 @@ export type MatchState = {
 export type MatchStates = {
   __typename?: 'MatchStates';
   createdAt: Scalars['timestamp']['output'];
+  evaluation?: Maybe<Scalars['Int']['output']>;
   index: Scalars['Int']['output'];
   /** An object relationship */
   match: Matches;
@@ -484,6 +485,7 @@ export type MatchStatesArrRelInsertInput = {
 
 /** order by avg() on columns of table "match_states" */
 export type MatchStatesAvgOrderBy = {
+  evaluation?: InputMaybe<OrderBy>;
   index?: InputMaybe<OrderBy>;
   thinkingTime?: InputMaybe<OrderBy>;
 };
@@ -494,6 +496,7 @@ export type MatchStatesBoolExp = {
   _not?: InputMaybe<MatchStatesBoolExp>;
   _or?: InputMaybe<Array<MatchStatesBoolExp>>;
   createdAt?: InputMaybe<TimestampComparisonExp>;
+  evaluation?: InputMaybe<IntComparisonExp>;
   index?: InputMaybe<IntComparisonExp>;
   match?: InputMaybe<MatchesBoolExp>;
   matchId?: InputMaybe<StringComparisonExp>;
@@ -511,6 +514,7 @@ export const MatchStatesConstraint = {
 export type MatchStatesConstraint = typeof MatchStatesConstraint[keyof typeof MatchStatesConstraint];
 /** input type for incrementing numeric columns in table "match_states" */
 export type MatchStatesIncInput = {
+  evaluation?: InputMaybe<Scalars['Int']['input']>;
   index?: InputMaybe<Scalars['Int']['input']>;
   thinkingTime?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -518,6 +522,7 @@ export type MatchStatesIncInput = {
 /** input type for inserting data into table "match_states" */
 export type MatchStatesInsertInput = {
   createdAt?: InputMaybe<Scalars['timestamp']['input']>;
+  evaluation?: InputMaybe<Scalars['Int']['input']>;
   index?: InputMaybe<Scalars['Int']['input']>;
   match?: InputMaybe<MatchesObjRelInsertInput>;
   matchId?: InputMaybe<Scalars['String']['input']>;
@@ -529,6 +534,7 @@ export type MatchStatesInsertInput = {
 /** order by max() on columns of table "match_states" */
 export type MatchStatesMaxOrderBy = {
   createdAt?: InputMaybe<OrderBy>;
+  evaluation?: InputMaybe<OrderBy>;
   index?: InputMaybe<OrderBy>;
   matchId?: InputMaybe<OrderBy>;
   moveNotation?: InputMaybe<OrderBy>;
@@ -539,6 +545,7 @@ export type MatchStatesMaxOrderBy = {
 /** order by min() on columns of table "match_states" */
 export type MatchStatesMinOrderBy = {
   createdAt?: InputMaybe<OrderBy>;
+  evaluation?: InputMaybe<OrderBy>;
   index?: InputMaybe<OrderBy>;
   matchId?: InputMaybe<OrderBy>;
   moveNotation?: InputMaybe<OrderBy>;
@@ -565,6 +572,7 @@ export type MatchStatesOnConflict = {
 /** Ordering options when selecting data from "match_states". */
 export type MatchStatesOrderBy = {
   createdAt?: InputMaybe<OrderBy>;
+  evaluation?: InputMaybe<OrderBy>;
   index?: InputMaybe<OrderBy>;
   match?: InputMaybe<MatchesOrderBy>;
   matchId?: InputMaybe<OrderBy>;
@@ -584,6 +592,8 @@ export const MatchStatesSelectColumn = {
   /** column name */
   CreatedAt: 'createdAt',
   /** column name */
+  Evaluation: 'evaluation',
+  /** column name */
   Index: 'index',
   /** column name */
   MatchId: 'matchId',
@@ -599,6 +609,7 @@ export type MatchStatesSelectColumn = typeof MatchStatesSelectColumn[keyof typeo
 /** input type for updating data in table "match_states" */
 export type MatchStatesSetInput = {
   createdAt?: InputMaybe<Scalars['timestamp']['input']>;
+  evaluation?: InputMaybe<Scalars['Int']['input']>;
   index?: InputMaybe<Scalars['Int']['input']>;
   matchId?: InputMaybe<Scalars['String']['input']>;
   moveNotation?: InputMaybe<Scalars['String']['input']>;
@@ -608,18 +619,21 @@ export type MatchStatesSetInput = {
 
 /** order by stddev() on columns of table "match_states" */
 export type MatchStatesStddevOrderBy = {
+  evaluation?: InputMaybe<OrderBy>;
   index?: InputMaybe<OrderBy>;
   thinkingTime?: InputMaybe<OrderBy>;
 };
 
 /** order by stddevPop() on columns of table "match_states" */
 export type MatchStatesStddevPopOrderBy = {
+  evaluation?: InputMaybe<OrderBy>;
   index?: InputMaybe<OrderBy>;
   thinkingTime?: InputMaybe<OrderBy>;
 };
 
 /** order by stddevSamp() on columns of table "match_states" */
 export type MatchStatesStddevSampOrderBy = {
+  evaluation?: InputMaybe<OrderBy>;
   index?: InputMaybe<OrderBy>;
   thinkingTime?: InputMaybe<OrderBy>;
 };
@@ -635,6 +649,7 @@ export type MatchStatesStreamCursorInput = {
 /** Initial value of the column from where the streaming should start */
 export type MatchStatesStreamCursorValueInput = {
   createdAt?: InputMaybe<Scalars['timestamp']['input']>;
+  evaluation?: InputMaybe<Scalars['Int']['input']>;
   index?: InputMaybe<Scalars['Int']['input']>;
   matchId?: InputMaybe<Scalars['String']['input']>;
   moveNotation?: InputMaybe<Scalars['String']['input']>;
@@ -644,6 +659,7 @@ export type MatchStatesStreamCursorValueInput = {
 
 /** order by sum() on columns of table "match_states" */
 export type MatchStatesSumOrderBy = {
+  evaluation?: InputMaybe<OrderBy>;
   index?: InputMaybe<OrderBy>;
   thinkingTime?: InputMaybe<OrderBy>;
 };
@@ -652,6 +668,8 @@ export type MatchStatesSumOrderBy = {
 export const MatchStatesUpdateColumn = {
   /** column name */
   CreatedAt: 'createdAt',
+  /** column name */
+  Evaluation: 'evaluation',
   /** column name */
   Index: 'index',
   /** column name */
@@ -676,18 +694,21 @@ export type MatchStatesUpdates = {
 
 /** order by varPop() on columns of table "match_states" */
 export type MatchStatesVarPopOrderBy = {
+  evaluation?: InputMaybe<OrderBy>;
   index?: InputMaybe<OrderBy>;
   thinkingTime?: InputMaybe<OrderBy>;
 };
 
 /** order by varSamp() on columns of table "match_states" */
 export type MatchStatesVarSampOrderBy = {
+  evaluation?: InputMaybe<OrderBy>;
   index?: InputMaybe<OrderBy>;
   thinkingTime?: InputMaybe<OrderBy>;
 };
 
 /** order by variance() on columns of table "match_states" */
 export type MatchStatesVarianceOrderBy = {
+  evaluation?: InputMaybe<OrderBy>;
   index?: InputMaybe<OrderBy>;
   thinkingTime?: InputMaybe<OrderBy>;
 };

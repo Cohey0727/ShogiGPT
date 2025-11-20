@@ -5,6 +5,7 @@ interface StatusBarProps {
   moveNumber: number;
   isAiThinking?: boolean;
   thinkingTimeMs?: number;
+  winner?: "SENTE" | "GOTE" | null;
 }
 
 export function StatusBar({
@@ -12,6 +13,7 @@ export function StatusBar({
   moveNumber,
   isAiThinking = false,
   thinkingTimeMs,
+  winner = null,
 }: StatusBarProps) {
   const thinkingTimeSec = thinkingTimeMs
     ? (thinkingTimeMs / 1000).toFixed(1)
@@ -28,7 +30,13 @@ export function StatusBar({
         )}
       </span>
       <span>{moveNumber + 1}手目</span>
-      <span>{currentTurn === "SENTE" ? "☗先手" : "☖後手"}の番</span>
+      {winner ? (
+        <span className={styles.checkmate}>
+          詰み - {winner === "SENTE" ? "☗先手" : "☖後手"}の勝ち
+        </span>
+      ) : (
+        <span>{currentTurn === "SENTE" ? "☗先手" : "☖後手"}の番</span>
+      )}
     </div>
   );
 }

@@ -23,36 +23,21 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
  *
  * APIルート
  */
-export const rootGet = <ThrowOnError extends boolean = false>(options?: Options<RootGetData, ThrowOnError>) => {
-    return (options?.client ?? client).get<RootGetResponses, unknown, ThrowOnError>({
-        url: '/',
-        ...options
-    });
-};
+export const rootGet = <ThrowOnError extends boolean = false>(options?: Options<RootGetData, ThrowOnError>) => (options?.client ?? client).get<RootGetResponses, unknown, ThrowOnError>({ url: '/', ...options });
 
 /**
  * Health Check
  *
  * ヘルスチェックエンドポイント
  */
-export const healthCheckHealthGet = <ThrowOnError extends boolean = false>(options?: Options<HealthCheckHealthGetData, ThrowOnError>) => {
-    return (options?.client ?? client).get<HealthCheckHealthGetResponses, unknown, ThrowOnError>({
-        url: '/health',
-        ...options
-    });
-};
+export const healthCheckHealthGet = <ThrowOnError extends boolean = false>(options?: Options<HealthCheckHealthGetData, ThrowOnError>) => (options?.client ?? client).get<HealthCheckHealthGetResponses, unknown, ThrowOnError>({ url: '/health', ...options });
 
 /**
  * Get Engine Info
  *
  * エンジン情報を取得
  */
-export const getEngineInfoEngineInfoGet = <ThrowOnError extends boolean = false>(options?: Options<GetEngineInfoEngineInfoGetData, ThrowOnError>) => {
-    return (options?.client ?? client).get<GetEngineInfoEngineInfoGetResponses, unknown, ThrowOnError>({
-        url: '/engine/info',
-        ...options
-    });
-};
+export const getEngineInfoEngineInfoGet = <ThrowOnError extends boolean = false>(options?: Options<GetEngineInfoEngineInfoGetData, ThrowOnError>) => (options?.client ?? client).get<GetEngineInfoEngineInfoGetResponses, unknown, ThrowOnError>({ url: '/engine/info', ...options });
 
 /**
  * Analyze Position
@@ -65,16 +50,14 @@ export const getEngineInfoEngineInfoGet = <ThrowOnError extends boolean = false>
  * - **depth**: 探索深さ（指定時は固定深さ探索）
  * - **multipv**: 候補手の数（1-10）
  */
-export const analyzePositionAnalyzePost = <ThrowOnError extends boolean = false>(options: Options<AnalyzePositionAnalyzePostData, ThrowOnError>) => {
-    return (options.client ?? client).post<AnalyzePositionAnalyzePostResponses, AnalyzePositionAnalyzePostErrors, ThrowOnError>({
-        url: '/analyze',
-        ...options,
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-        }
-    });
-};
+export const analyzePositionAnalyzePost = <ThrowOnError extends boolean = false>(options: Options<AnalyzePositionAnalyzePostData, ThrowOnError>) => (options.client ?? client).post<AnalyzePositionAnalyzePostResponses, AnalyzePositionAnalyzePostErrors, ThrowOnError>({
+    url: '/analyze',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
 
 /**
  * Search Mate
@@ -85,13 +68,11 @@ export const analyzePositionAnalyzePost = <ThrowOnError extends boolean = false>
  * - **moves**: 初期局面からの指し手リスト
  * - **time_ms**: 詰み探索時間（ミリ秒）
  */
-export const searchMateMatePost = <ThrowOnError extends boolean = false>(options: Options<SearchMateMatePostData, ThrowOnError>) => {
-    return (options.client ?? client).post<SearchMateMatePostResponses, SearchMateMatePostErrors, ThrowOnError>({
-        url: '/mate',
-        ...options,
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-        }
-    });
-};
+export const searchMateMatePost = <ThrowOnError extends boolean = false>(options: Options<SearchMateMatePostData, ThrowOnError>) => (options.client ?? client).post<SearchMateMatePostResponses, SearchMateMatePostErrors, ThrowOnError>({
+    url: '/mate',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});

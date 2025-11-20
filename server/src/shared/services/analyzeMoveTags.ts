@@ -1,6 +1,7 @@
 import type { Board, Player } from "../consts/shogi";
 import { PieceType, pieceProperties } from "../consts/shogi";
 import { applyUsiMove } from "./applyUsiMove";
+import { isCheckmate } from "./checkmate";
 
 /**
  * 指定した駒の位置をすべて取得
@@ -218,59 +219,6 @@ function isInCheck(board: Board, player: Player): boolean {
 }
 
 /**
- * 詰みかどうかをチェック（簡易版：玉が逃げられる場所があるかのみチェック）
- */
-function isCheckmate(board: Board, player: Player): boolean {
-  // まず王手されているかチェック
-  if (!isInCheck(board, player)) return false;
-
-  const kingPositions = findPositions(board, player, [PieceType.King]);
-  if (kingPositions.length === 0) return false;
-
-  const kingPos = kingPositions[0];
-  const opponent = player === "SENTE" ? "GOTE" : "SENTE";
-
-  // 玉が移動できる8方向をチェック
-  const directions = [
-    [-1, -1],
-    [-1, 0],
-    [-1, 1],
-    [0, -1],
-    [0, 1],
-    [1, -1],
-    [1, 0],
-    [1, 1],
-  ];
-
-  for (const [dRow, dCol] of directions) {
-    const newRow = kingPos.row + dRow;
-    const newCol = kingPos.col + dCol;
-
-    // 盤面外はスキップ
-    if (newRow < 0 || newRow >= 9 || newCol < 0 || newCol >= 9) continue;
-
-    const targetCell = board.cells[newRow][newCol];
-
-    // 自分の駒がある場所には移動できない
-    if (targetCell && targetCell.player === player) continue;
-
-    // この位置に移動した場合、攻撃されていないかチェック
-    // 仮想的に玉を動かして判定
-    const testBoard = JSON.parse(JSON.stringify(board)) as Board;
-    testBoard.cells[newRow][newCol] = testBoard.cells[kingPos.row][kingPos.col];
-    testBoard.cells[kingPos.row][kingPos.col] = null;
-
-    if (!isPositionUnderAttack(testBoard, newRow, newCol, opponent)) {
-      // 逃げられる場所がある
-      return false;
-    }
-  }
-
-  // 玉が逃げられない（簡易的な詰み判定）
-  return true;
-}
-
-/**
  * USI形式の指し手情報
  */
 interface MoveInfo {
@@ -335,24 +283,79 @@ function analyzeCapture(
 }
 
 /**
+ * エリアの種類
+ */
+type Area = "MY_AREA" | "NEUTRAL_AREA" | "OPPONENT_AREA";
+
+/**
+ * 指定された行がどのエリアに属するか判定
+ * @param row 行番号（0-8）
+ * @param player プレイヤー
+ */
+function getAreaForRow(row: number, player: Player): Area {
+  if (player === "SENTE") {
+    // 先手から見て
+    if (row >= 6) return "MY_AREA"; // 7-9段目
+    if (row >= 3) return "NEUTRAL_AREA"; // 4-6段目
+    return "OPPONENT_AREA"; // 1-3段目
+  } else {
+    // 後手から見て
+    if (row <= 2) return "MY_AREA"; // 1-3段目
+    if (row <= 5) return "NEUTRAL_AREA"; // 4-6段目
+    return "OPPONENT_AREA"; // 7-9段目
+  }
+}
+
+/**
+ * 指定した位置から指定方向に向かって到達できる最遠のエリアを取得
+ * @param board 盤面
+ * @param position 開始位置
+ * @param direction 方向
+ * @param player プレイヤー
+ */
+function getFarthestReachableArea(
+  board: Board,
+  position: { row: number; col: number },
+  direction: { row: number; col: number },
+  player: Player
+): Area {
+  let row = position.row;
+  let col = position.col;
+  let farthestArea = getAreaForRow(row, player);
+
+  while (true) {
+    row += direction.row;
+    col += direction.col;
+
+    // 盤面外に出た場合
+    if (row < 0 || row >= 9 || col < 0 || col >= 9) {
+      break;
+    }
+
+    // 駒がある場合
+    if (board.cells[row][col]) {
+      break;
+    }
+
+    // 到達可能な最遠エリアを更新
+    farthestArea = getAreaForRow(row, player);
+  }
+
+  return farthestArea;
+}
+
+/**
  * 角道の変化を分析
  * @param board 移動前の盤面
  * @param usiMove USI形式の指し手
- * @param isSente 自分が先手かどうか
  */
-function analyzeBishopLine(
-  board: Board,
-  usiMove: string,
-  isSente: boolean
-): string[] {
+function analyzeBishopLine(board: Board, usiMove: string): string[] {
   const results: string[] = [];
 
   const moveInfo = parseUsiMove(usiMove);
   const boardAfter = applyUsiMove(board, usiMove);
   const currentPlayer = board.turn;
   const opponentPlayer = currentPlayer === "SENTE" ? "GOTE" : "SENTE";
-  const selfPlayer = isSente ? "SENTE" : "GOTE";
-  const isSelfMove = currentPlayer === selfPlayer;
 
   const directions = [
     { row: -1, col: -1 },
@@ -391,20 +394,28 @@ function analyzeBishopLine(
       }
 
       if (wasOnLine && isOnLine) {
-        if (isSelfMove) {
-          results.push("角道を伸ばす");
-        }
         continue;
       }
 
-      const rangeBefore = getLineOpenRange(board, position, direction);
-      const rangeAfter = getLineOpenRange(boardAfter, position, direction);
-
       if (isOnLine) {
-        results.push(isSelfMove ? "角道を閉じてしまう" : "角道を塞がれる");
+        results.push("角道を閉じる");
       } else {
-        if (rangeAfter - rangeBefore >= 2) {
-          results.push(isSelfMove ? "角道を空ける" : "角道を開けてくれる");
+        // 角道が開通した場合、最遠到達エリアが変化したかチェック
+        const farthestBefore = getFarthestReachableArea(
+          board,
+          position,
+          direction,
+          currentPlayer
+        );
+        const farthestAfter = getFarthestReachableArea(
+          boardAfter,
+          position,
+          direction,
+          currentPlayer
+        );
+
+        if (farthestBefore !== farthestAfter) {
+          results.push("角道を空ける");
         }
       }
     }
@@ -440,24 +451,28 @@ function analyzeBishopLine(
       }
 
       if (wasOnLine && isOnLine) {
-        if (!isSelfMove) {
-          results.push("角道を伸ばしてくる");
-        }
         continue;
       }
 
-      const rangeBefore = getLineOpenRange(board, position, direction);
-      const rangeAfter = getLineOpenRange(boardAfter, position, direction);
-
       if (isOnLine) {
-        if (isSelfMove) {
-          results.push("角道を塞ぐ");
-        }
+        results.push("角道を塞ぐ");
       } else {
-        if (rangeAfter - rangeBefore >= 2) {
-          results.push(
-            isSelfMove ? "角道を開けさせられる" : "角道を開けてくる"
-          );
+        // 相手の角道が開通した場合、最遠到達エリアが変化したかチェック
+        const farthestBefore = getFarthestReachableArea(
+          board,
+          position,
+          direction,
+          opponentPlayer
+        );
+        const farthestAfter = getFarthestReachableArea(
+          boardAfter,
+          position,
+          direction,
+          opponentPlayer
+        );
+
+        if (farthestBefore !== farthestAfter) {
+          results.push("角道を空ける");
         }
       }
     }
@@ -470,21 +485,14 @@ function analyzeBishopLine(
  * 飛車道の変化を分析
  * @param board 移動前の盤面
  * @param usiMove USI形式の指し手
- * @param isSente 自分が先手かどうか
  */
-function analyzeRookLine(
-  board: Board,
-  usiMove: string,
-  isSente: boolean
-): string[] {
+function analyzeRookLine(board: Board, usiMove: string): string[] {
   const results: string[] = [];
 
   const moveInfo = parseUsiMove(usiMove);
   const boardAfter = applyUsiMove(board, usiMove);
   const currentPlayer = board.turn;
   const opponentPlayer = currentPlayer === "SENTE" ? "GOTE" : "SENTE";
-  const selfPlayer = isSente ? "SENTE" : "GOTE";
-  const isSelfMove = currentPlayer === selfPlayer;
 
   const directions = [
     { row: -1, col: 0 },
@@ -498,7 +506,6 @@ function analyzeRookLine(
     PieceType.Rook,
     PieceType.PromotedRook,
   ]);
-
   positions.forEach((position) => {
     const isMovingRook =
       moveInfo.from?.row === position.row &&
@@ -526,7 +533,7 @@ function analyzeRookLine(
       }
 
       if (wasOnLine && isOnLine) {
-        if (isSelfMove) results.push("飛車道を伸ばす");
+        results.push("飛車先を伸ばす");
         continue;
       }
 
@@ -534,10 +541,10 @@ function analyzeRookLine(
       const rangeAfter = getLineOpenRange(boardAfter, position, direction);
 
       if (isOnLine) {
-        results.push(isSelfMove ? "飛車道を閉じてしまう" : "飛車道を塞がれる");
+        results.push("飛車道を塞ぐ");
       } else {
-        if (rangeAfter - rangeBefore >= 2) {
-          results.push(isSelfMove ? "飛車道を空ける" : "飛車道を開けてくれる");
+        if (rangeAfter - rangeBefore >= 3) {
+          results.push("飛車道を空ける");
         }
       }
     }
@@ -574,9 +581,7 @@ function analyzeRookLine(
       }
 
       if (wasOnLine && isOnLine) {
-        if (!isSelfMove) {
-          results.push("飛車道を伸ばしてくる");
-        }
+        results.push("飛車先を伸ばす");
         continue;
       }
 
@@ -584,14 +589,10 @@ function analyzeRookLine(
       const rangeAfter = getLineOpenRange(boardAfter, position, direction);
 
       if (isOnLine) {
-        if (isSelfMove) {
-          results.push("飛車道を塞ぐ");
-        }
+        results.push("飛車道を塞ぐ");
       } else {
         if (rangeAfter - rangeBefore >= 2) {
-          results.push(
-            isSelfMove ? "飛車道を開けさせられる" : "飛車道を開けてくる"
-          );
+          results.push("飛車道を空ける");
         }
       }
     }
@@ -630,6 +631,8 @@ function isPathClearAndOnLine(
 
 /**
  * 王手・詰み関連のタグを分析
+ * @param board 盤面
+ * @param usiMove USI形式の指し手
  */
 export function analyzeMateTags(board: Board, usiMove: string): string[] {
   const currentPlayer = board.turn;
@@ -637,8 +640,6 @@ export function analyzeMateTags(board: Board, usiMove: string): string[] {
   const tags: string[] = [];
 
   try {
-    const moveInfo = parseUsiMove(usiMove);
-
     // 手を指す前に王手されているかチェック
     const wasInCheck = isInCheck(board, currentPlayer);
 
@@ -648,22 +649,13 @@ export function analyzeMateTags(board: Board, usiMove: string): string[] {
     // 手を指した後に王手されているかチェック
     const isStillInCheck = isInCheck(boardAfter, currentPlayer);
 
-    // 被王手（手を指す前に王手されていた）
     if (wasInCheck) {
-      tags.push("被王手");
+      tags.push("王手中");
     }
 
     // 王手をかわす・回避の判定
     if (wasInCheck && !isStillInCheck) {
-      // 玉を動かしたかチェック
-      if (moveInfo.from) {
-        const movedPiece = board.cells[moveInfo.from.row][moveInfo.from.col];
-        if (movedPiece?.type === PieceType.King) {
-          tags.push("王手をかわす");
-        } else {
-          tags.push("王手を回避");
-        }
-      }
+      tags.push("王手回避");
     }
 
     // 相手に王手をかけたかチェック
@@ -685,18 +677,10 @@ export function analyzeMateTags(board: Board, usiMove: string): string[] {
 
 /**
  * 指し手の戦術的特徴を分析
- * @param isSelfMove 自分の手かどうか（trueなら自分、falseなら相手）
  */
-export function analyzeMoveTags(
-  board: Board,
-  usiMove: string,
-  isSelfMove: boolean
-): string[] {
+export function analyzeMoveTags(board: Board, usiMove: string): string[] {
   const currentPlayer = board.turn;
   const opponentPlayer = currentPlayer === "SENTE" ? "GOTE" : "SENTE";
-  const isSente = isSelfMove
-    ? currentPlayer === "SENTE"
-    : opponentPlayer === "SENTE";
 
   const features: string[] = [];
 
@@ -710,10 +694,17 @@ export function analyzeMoveTags(
     }
 
     // 角道の変化分析
-    features.push(...analyzeBishopLine(board, usiMove, isSente));
+    features.push(...analyzeBishopLine(board, usiMove));
 
     // 飛車道の変化分析
-    features.push(...analyzeRookLine(board, usiMove, isSente));
+    features.push(...analyzeRookLine(board, usiMove));
+
+    // 詰みの判定
+    const boardAfter = applyUsiMove(board, usiMove);
+    if (isCheckmate(boardAfter, opponentPlayer)) {
+      // 手を指した後に相手が詰んでいる場合
+      features.push("詰み");
+    }
   } catch (error) {
     console.error("Failed to analyze move features:", error);
   }

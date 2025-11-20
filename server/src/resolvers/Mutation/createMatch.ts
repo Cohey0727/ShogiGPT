@@ -1,6 +1,6 @@
 import type { MutationResolvers } from "../../generated/graphql/types";
 import { db } from "../../lib/db";
-import { PlayerType } from "../../generated/prisma";
+import { PlayerType } from "../../generated/prisma/client";
 
 /**
  * 対局を作成する

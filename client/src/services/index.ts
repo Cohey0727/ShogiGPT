@@ -1,3 +1,3 @@
-export * from "./possibleMoves";
+export * from "../shared/services/possibleMoves";
 export * from "./promotion";
-export * from "./dropPiece";
+export * from "../shared/services/dropPiece";

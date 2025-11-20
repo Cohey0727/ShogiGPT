@@ -15,6 +15,7 @@ import {
   applyUsiMove,
   createInitialBoard,
   calculateDiffCells,
+  getWinner,
 } from "../../../shared/services";
 import { Col, Row } from "../../atoms";
 
@@ -175,7 +176,8 @@ export function MatchDetailPage() {
     return calculateDiffCells(boardState.previousBoard, boardState.board);
   }, [boardState.previousBoard, boardState.board]);
 
-  console.log({ boardState, diffCells });
+  // 勝者を計算
+  const winner = useMemo(() => getWinner(boardState.board), [boardState.board]);
 
   return (
     <div className={styles.container}>
@@ -190,6 +192,7 @@ export function MatchDetailPage() {
             moveNumber={boardState.moveIndex}
             isAiThinking={isAiThinking}
             thinkingTimeMs={aiThinkingTimeMs}
+            winner={winner}
           />
           <Row className={styles.boardSection} align="center" justify="center">
             <div className={styles.gotePieceStand}>

@@ -2,6 +2,7 @@ export * from "./analyzeMoveTags";
 export * from "./applyUsiMove";
 export * from "./boardToSfen";
 export * from "./calculateDiffCells";
+export * from "./checkmate";
 export * from "./convertPositionToJapanese";
 export * from "./countPieces";
 export * from "./createInitialBoard";

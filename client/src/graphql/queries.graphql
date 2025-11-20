@@ -88,8 +88,8 @@ mutation StartMatch(
   $id: String
   $playerSente: String
   $playerGote: String
-  $senteType: PlayerType
-  $goteType: PlayerType
+  $senteType: PlayerType!
+  $goteType: PlayerType!
 ) {
   startMatch(
     input: {

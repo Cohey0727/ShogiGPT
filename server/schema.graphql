@@ -165,11 +165,11 @@ input StartMatchInput {
   """
   先手のプレイヤータイプ
   """
-  senteType: PlayerType
+  senteType: PlayerType!
   """
   後手のプレイヤータイプ
   """
-  goteType: PlayerType
+  goteType: PlayerType!
 }
 
 """

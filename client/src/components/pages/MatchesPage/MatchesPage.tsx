@@ -1,13 +1,9 @@
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { useState } from "react";
-import { createId } from "@paralleldrive/cuid2";
-import {
-  useGetMatchesQuery,
-  useStartMatchMutation,
-} from "../../../generated/graphql/types";
+import { useGetMatchesQuery } from "../../../generated/graphql/types";
 import type { Scalars } from "../../../generated/graphql/types";
 import { Button } from "../../atoms";
-import { StartMatchDialog, type MatchConfig } from "../../organisms";
+import { StartMatchDialog } from "../../organisms";
 import styles from "./MatchesPage.css";
 
 const statusLabels: Record<Scalars["MatchStatus"]["input"], string> = {
@@ -23,36 +19,7 @@ const formatDate = (isoString: string): string => {
 
 export function MatchesPage() {
   const [{ data, error }] = useGetMatchesQuery();
-  const [, setLocation] = useLocation();
-  const [, startMatch] = useStartMatchMutation();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [matchConfig, setMatchConfig] = useState<MatchConfig>({
-    senteType: "HUMAN",
-    goteType: "AI",
-  });
-
-  const handleStartMatch = async () => {
-    try {
-      const newMatchId = createId();
-      const result = await startMatch({
-        id: newMatchId,
-        playerSente: matchConfig.senteType === "HUMAN" ? "あなた" : "AI",
-        playerGote: matchConfig.goteType === "HUMAN" ? "あなた" : "AI",
-        senteType: matchConfig.senteType,
-        goteType: matchConfig.goteType,
-      });
-
-      if (result.data?.startMatch) {
-        setLocation(`/matches/${result.data.startMatch.id}`);
-      } else if (result.error) {
-        alert(`対局の作成に失敗しました: ${result.error.message}`);
-      }
-    } catch (error) {
-      alert(`対局の作成に失敗しました: ${error}`);
-    } finally {
-      setShowConfirmDialog(false);
-    }
-  };
 
   if (error) {
     return (
@@ -118,9 +85,6 @@ export function MatchesPage() {
       <StartMatchDialog
         open={showConfirmDialog}
         onClose={() => setShowConfirmDialog(false)}
-        value={matchConfig}
-        onChange={setMatchConfig}
-        onStartMatch={handleStartMatch}
       />
     </div>
   );

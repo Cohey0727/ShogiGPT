@@ -10,3 +10,5 @@ generates:
       useIndexSignature: true
       useTypeImports: true
       maybeValue: T | null | undefined
+      scalars:
+        PlayerType: "'HUMAN' | 'AI'"

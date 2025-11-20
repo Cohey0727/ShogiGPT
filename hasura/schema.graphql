@@ -1491,7 +1491,7 @@ type SendChatMessageResult {
 """対局作成リクエスト"""
 input StartMatchInput {
   """後手のプレイヤータイプ"""
-  goteType: PlayerType
+  goteType: PlayerType!
 
   """対局ID（指定しない場合は自動生成）"""
   id: String
@@ -1503,7 +1503,7 @@ input StartMatchInput {
   playerSente: String
 
   """先手のプレイヤータイプ"""
-  senteType: PlayerType
+  senteType: PlayerType!
 }
 
 """

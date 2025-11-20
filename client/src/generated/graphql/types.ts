@@ -1020,7 +1020,7 @@ export type SendChatMessageResult = {
 /** 対局作成リクエスト */
 export type StartMatchInput = {
   /** 後手のプレイヤータイプ */
-  goteType?: InputMaybe<Scalars['PlayerType']['input']>;
+  goteType: Scalars['PlayerType']['input'];
   /** 対局ID（指定しない場合は自動生成） */
   id?: InputMaybe<Scalars['String']['input']>;
   /** 後手のプレイヤー名 */
@@ -1028,7 +1028,7 @@ export type StartMatchInput = {
   /** 先手のプレイヤー名 */
   playerSente?: InputMaybe<Scalars['String']['input']>;
   /** 先手のプレイヤータイプ */
-  senteType?: InputMaybe<Scalars['PlayerType']['input']>;
+  senteType: Scalars['PlayerType']['input'];
 };
 
 /** Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'. */
@@ -1477,8 +1477,8 @@ export type StartMatchMutationVariables = Exact<{
   id?: InputMaybe<Scalars['String']['input']>;
   playerSente?: InputMaybe<Scalars['String']['input']>;
   playerGote?: InputMaybe<Scalars['String']['input']>;
-  senteType?: InputMaybe<Scalars['PlayerType']['input']>;
-  goteType?: InputMaybe<Scalars['PlayerType']['input']>;
+  senteType: Scalars['PlayerType']['input'];
+  goteType: Scalars['PlayerType']['input'];
 }>;
 
 
@@ -1623,7 +1623,7 @@ export function useSubscribeChatMessagesSubscription<TData = SubscribeChatMessag
   return Urql.useSubscription<SubscribeChatMessagesSubscription, TData, SubscribeChatMessagesSubscriptionVariables>({ query: SubscribeChatMessagesDocument, ...options }, handler);
 };
 export const StartMatchDocument = gql`
-    mutation StartMatch($id: String, $playerSente: String, $playerGote: String, $senteType: PlayerType, $goteType: PlayerType) {
+    mutation StartMatch($id: String, $playerSente: String, $playerGote: String, $senteType: PlayerType!, $goteType: PlayerType!) {
   startMatch(
     input: {id: $id, playerSente: $playerSente, playerGote: $playerGote, senteType: $senteType, goteType: $goteType}
   ) {

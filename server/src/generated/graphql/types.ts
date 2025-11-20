@@ -16,7 +16,7 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   /** プレイヤータイプ（HUMAN または AI） */
-  PlayerType: { input: any; output: any; }
+  PlayerType: { input: 'HUMAN' | 'AI'; output: 'HUMAN' | 'AI'; }
 };
 
 /** 最善手コンテンツ（盤面解析結果） */
@@ -198,7 +198,7 @@ export type SendChatMessageResult = {
 /** 対局作成リクエスト */
 export type StartMatchInput = {
   /** 後手のプレイヤータイプ */
-  goteType?: InputMaybe<Scalars['PlayerType']['input']>;
+  goteType: Scalars['PlayerType']['input'];
   /** 対局ID（指定しない場合は自動生成） */
   id?: InputMaybe<Scalars['String']['input']>;
   /** 後手のプレイヤー名 */
@@ -206,7 +206,7 @@ export type StartMatchInput = {
   /** 先手のプレイヤー名 */
   playerSente?: InputMaybe<Scalars['String']['input']>;
   /** 先手のプレイヤータイプ */
-  senteType?: InputMaybe<Scalars['PlayerType']['input']>;
+  senteType: Scalars['PlayerType']['input'];
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;

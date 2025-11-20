@@ -1,7 +1,6 @@
 import { useParams } from "wouter";
 import { useState, useCallback, useMemo } from "react";
-import { ShogiBoard, MatchChat, PieceStand } from "../../organisms";
-import { StatusBar } from "../../molecules";
+import { ShogiBoard, MatchChat, PieceStand, StatusBar } from "../../organisms";
 import {
   useGetMatchQuery,
   useInsertMatchStateMutation,

@@ -1,4 +1,5 @@
 import { forwardRef, type ButtonHTMLAttributes } from "react";
+import clsx from "clsx";
 import styles from "./Button.css";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -11,7 +12,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={`${styles.base} ${styles.variant[variant]} ${styles.size[size]} ${className || ""}`}
+        className={clsx(
+          styles.base,
+          styles.variant[variant],
+          styles.size[size],
+          className
+        )}
         {...props}
       />
     );

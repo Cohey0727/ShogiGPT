@@ -69,14 +69,17 @@ const styles = {
     sm: style({
       height: "2rem",
       padding: "0 0.75rem",
+      fontSize: "0.75rem",
     }),
     md: style({
       height: "2.5rem",
       padding: "0 1rem",
+      fontSize: "0.875rem",
     }),
     lg: style({
       height: "3rem",
       padding: "0 1.5rem",
+      fontSize: "1.125rem",
     }),
   },
 };

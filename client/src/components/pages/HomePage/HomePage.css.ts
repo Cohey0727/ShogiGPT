@@ -22,9 +22,6 @@ const styles = {
   title: style({
     fontSize: "5rem",
     fontWeight: "bold",
-    background: "linear-gradient(45deg, #d4af37, #f4e5a1)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
     backgroundClip: "text",
   }),
 

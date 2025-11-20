@@ -1,1 +1,1 @@
-export { StartMatchDialog } from "./StartMatchDialog";
+export * from "./StartMatchDialog";

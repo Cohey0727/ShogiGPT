@@ -1,4 +1,4 @@
-- name: ShogiAI Server
+- name: ShogiGPT Server
   definition:
     url: http://host.docker.internal:8787/graphql
     timeout_seconds: 60

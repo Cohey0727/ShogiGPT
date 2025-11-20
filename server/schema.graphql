@@ -4,10 +4,7 @@ type Query {
 
 type Mutation {
   sendChatMessage(input: SendChatMessageInput!): SendChatMessageResult!
-  createMatch(input: CreateMatchInput!): Match!
-  saveMatchStateAndGetCandidates(
-    input: SaveMatchStateInput!
-  ): SaveMatchStateResult!
+  startMatch(input: StartMatchInput!): Match!
   evaluateMatchState(input: EvaluateMatchStateInput!): EvaluateMatchStateResult!
 }
 
@@ -152,7 +149,7 @@ type ChatMessage {
 """
 対局作成リクエスト
 """
-input CreateMatchInput {
+input StartMatchInput {
   """
   対局ID（指定しない場合は自動生成）
   """
@@ -211,54 +208,6 @@ type Match {
   後手のプレイヤータイプ
   """
   goteType: PlayerType!
-}
-
-"""
-対局状態保存リクエスト
-"""
-input SaveMatchStateInput {
-  """
-  対局ID
-  """
-  matchId: String!
-  """
-  局面番号（何手目か）
-  """
-  index: Int!
-  """
-  この局面に至った指し手（USI形式）
-  """
-  moveNotation: String
-  """
-  盤面（SFEN形式）
-  """
-  sfen: String!
-  """
-  消費時間（秒）
-  """
-  thinkingTime: Int
-  """
-  候補手の数（MultiPV、デフォルト: 3）
-  """
-  multipv: Int
-  """
-  思考時間（ミリ秒、デフォルト: 1000）
-  """
-  timeMs: Int
-}
-
-"""
-対局状態保存結果
-"""
-type SaveMatchStateResult {
-  """
-  保存された対局状態
-  """
-  matchState: MatchState!
-  """
-  次の候補手リスト
-  """
-  candidates: [MoveVariation!]!
 }
 
 """

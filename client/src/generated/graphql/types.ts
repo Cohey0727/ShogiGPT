@@ -304,20 +304,6 @@ export type ChatMessagesUpdates = {
   where: ChatMessagesBoolExp;
 };
 
-/** 対局作成リクエスト */
-export type CreateMatchInput = {
-  /** 後手のプレイヤータイプ */
-  goteType?: InputMaybe<Scalars['PlayerType']['input']>;
-  /** 対局ID（指定しない場合は自動生成） */
-  id?: InputMaybe<Scalars['String']['input']>;
-  /** 後手のプレイヤー名 */
-  playerGote?: InputMaybe<Scalars['String']['input']>;
-  /** 先手のプレイヤー名 */
-  playerSente?: InputMaybe<Scalars['String']['input']>;
-  /** 先手のプレイヤータイプ */
-  senteType?: InputMaybe<Scalars['PlayerType']['input']>;
-};
-
 /** ordering argument of a cursor */
 export const CursorOrdering = {
   /** ascending ordering of the cursor */
@@ -959,15 +945,9 @@ export type MoveVariation = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  createMatch: Match;
   evaluateMatchState: EvaluateMatchStateResult;
-  saveMatchStateAndGetCandidates: SaveMatchStateResult;
   sendChatMessage: SendChatMessageResult;
-};
-
-
-export type MutationCreateMatchArgs = {
-  input: CreateMatchInput;
+  startMatch: Match;
 };
 
 
@@ -976,13 +956,13 @@ export type MutationEvaluateMatchStateArgs = {
 };
 
 
-export type MutationSaveMatchStateAndGetCandidatesArgs = {
-  input: SaveMatchStateInput;
+export type MutationSendChatMessageArgs = {
+  input: SendChatMessageInput;
 };
 
 
-export type MutationSendChatMessageArgs = {
-  input: SendChatMessageInput;
+export type MutationStartMatchArgs = {
+  input: StartMatchInput;
 };
 
 /** column ordering options */
@@ -1020,33 +1000,6 @@ export type Query = {
   health: Health;
 };
 
-/** 対局状態保存リクエスト */
-export type SaveMatchStateInput = {
-  /** 局面番号（何手目か） */
-  index: Scalars['Int']['input'];
-  /** 対局ID */
-  matchId: Scalars['String']['input'];
-  /** この局面に至った指し手（USI形式） */
-  moveNotation?: InputMaybe<Scalars['String']['input']>;
-  /** 候補手の数（MultiPV、デフォルト: 3） */
-  multipv?: InputMaybe<Scalars['Int']['input']>;
-  /** 盤面（SFEN形式） */
-  sfen: Scalars['String']['input'];
-  /** 消費時間（秒） */
-  thinkingTime?: InputMaybe<Scalars['Int']['input']>;
-  /** 思考時間（ミリ秒、デフォルト: 1000） */
-  timeMs?: InputMaybe<Scalars['Int']['input']>;
-};
-
-/** 対局状態保存結果 */
-export type SaveMatchStateResult = {
-  __typename?: 'SaveMatchStateResult';
-  /** 次の候補手リスト */
-  candidates: Array<MoveVariation>;
-  /** 保存された対局状態 */
-  matchState: MatchState;
-};
-
 /** チャットメッセージ送信リクエスト */
 export type SendChatMessageInput = {
   /** メッセージ内容 */
@@ -1062,6 +1015,20 @@ export type SendChatMessageResult = {
   assistantMessage: ChatMessage;
   /** 作成されたユーザーメッセージ */
   userMessage: ChatMessage;
+};
+
+/** 対局作成リクエスト */
+export type StartMatchInput = {
+  /** 後手のプレイヤータイプ */
+  goteType?: InputMaybe<Scalars['PlayerType']['input']>;
+  /** 対局ID（指定しない場合は自動生成） */
+  id?: InputMaybe<Scalars['String']['input']>;
+  /** 後手のプレイヤー名 */
+  playerGote?: InputMaybe<Scalars['String']['input']>;
+  /** 先手のプレイヤー名 */
+  playerSente?: InputMaybe<Scalars['String']['input']>;
+  /** 先手のプレイヤータイプ */
+  senteType?: InputMaybe<Scalars['PlayerType']['input']>;
 };
 
 /** Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'. */
@@ -1113,7 +1080,6 @@ export type TimestampComparisonExp = {
 /** mutation root */
 export type Mutation_Root = {
   __typename?: 'mutation_root';
-  createMatch: Match;
   /** delete data from the table: "chat_messages" */
   deleteChatMessages?: Maybe<ChatMessagesMutationResponse>;
   /** delete single row from the table: "chat_messages" */
@@ -1139,8 +1105,8 @@ export type Mutation_Root = {
   insertMatches?: Maybe<MatchesMutationResponse>;
   /** insert a single row into the table: "matches" */
   insertMatchesOne?: Maybe<Matches>;
-  saveMatchStateAndGetCandidates: SaveMatchStateResult;
   sendChatMessage: SendChatMessageResult;
+  startMatch: Match;
   /** update data of the table: "chat_messages" */
   updateChatMessages?: Maybe<ChatMessagesMutationResponse>;
   /** update single row of the table: "chat_messages" */
@@ -1159,12 +1125,6 @@ export type Mutation_Root = {
   updateMatchesByPk?: Maybe<Matches>;
   /** update multiples rows of table: "matches" */
   updateMatchesMany?: Maybe<Array<Maybe<MatchesMutationResponse>>>;
-};
-
-
-/** mutation root */
-export type Mutation_RootCreateMatchArgs = {
-  input: CreateMatchInput;
 };
 
 
@@ -1254,14 +1214,14 @@ export type Mutation_RootInsertMatchesOneArgs = {
 
 
 /** mutation root */
-export type Mutation_RootSaveMatchStateAndGetCandidatesArgs = {
-  input: SaveMatchStateInput;
+export type Mutation_RootSendChatMessageArgs = {
+  input: SendChatMessageInput;
 };
 
 
 /** mutation root */
-export type Mutation_RootSendChatMessageArgs = {
-  input: SendChatMessageInput;
+export type Mutation_RootStartMatchArgs = {
+  input: StartMatchInput;
 };
 
 
@@ -1513,7 +1473,7 @@ export type SubscribeChatMessagesSubscriptionVariables = Exact<{
 
 export type SubscribeChatMessagesSubscription = { __typename?: 'subscription_root', chatMessages: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, matchId: string, role: 'USER' | 'ASSISTANT', contents: any, metadata?: string | null | undefined, isPartial: boolean }> };
 
-export type CreateMatchMutationVariables = Exact<{
+export type StartMatchMutationVariables = Exact<{
   id?: InputMaybe<Scalars['String']['input']>;
   playerSente?: InputMaybe<Scalars['String']['input']>;
   playerGote?: InputMaybe<Scalars['String']['input']>;
@@ -1522,7 +1482,7 @@ export type CreateMatchMutationVariables = Exact<{
 }>;
 
 
-export type CreateMatchMutation = { __typename?: 'mutation_root', createMatch: { __typename?: 'Match', id: string, createdAt: string, updatedAt: string, status: string, playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI' } };
+export type StartMatchMutation = { __typename?: 'mutation_root', startMatch: { __typename?: 'Match', id: string, createdAt: string, updatedAt: string, status: string, playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI' } };
 
 export type SendChatMessageMutationVariables = Exact<{
   matchId: Scalars['String']['input'];
@@ -1537,13 +1497,6 @@ export type SendChatMessageMutation = { __typename?: 'mutation_root', sendChatMe
         | { __typename?: 'BestMoveContent', type: string, bestmove: string, timeMs: number, engineName: string, variations: Array<{ __typename?: 'MoveVariation', move: string, scoreCp?: number | null | undefined, scoreMate?: number | null | undefined, depth: number, nodes?: number | null | undefined, pv?: Array<string> | null | undefined }> }
         | { __typename?: 'MarkdownContent', type: string, content: string }
       > } } };
-
-export type SaveMatchStateAndGetCandidatesMutationVariables = Exact<{
-  input: SaveMatchStateInput;
-}>;
-
-
-export type SaveMatchStateAndGetCandidatesMutation = { __typename?: 'mutation_root', saveMatchStateAndGetCandidates: { __typename?: 'SaveMatchStateResult', matchState: { __typename?: 'MatchState', matchId: string, index: number, moveNotation?: string | null | undefined, sfen: string, thinkingTime?: number | null | undefined, createdAt: string }, candidates: Array<{ __typename?: 'MoveVariation', move: string, scoreCp?: number | null | undefined, scoreMate?: number | null | undefined, depth: number, nodes?: number | null | undefined, pv?: Array<string> | null | undefined }> } };
 
 export type InsertMatchStateMutationVariables = Exact<{
   matchId: Scalars['String']['input'];
@@ -1669,9 +1622,9 @@ export const SubscribeChatMessagesDocument = gql`
 export function useSubscribeChatMessagesSubscription<TData = SubscribeChatMessagesSubscription>(options: Omit<Urql.UseSubscriptionArgs<SubscribeChatMessagesSubscriptionVariables>, 'query'>, handler?: Urql.SubscriptionHandler<SubscribeChatMessagesSubscription, TData>) {
   return Urql.useSubscription<SubscribeChatMessagesSubscription, TData, SubscribeChatMessagesSubscriptionVariables>({ query: SubscribeChatMessagesDocument, ...options }, handler);
 };
-export const CreateMatchDocument = gql`
-    mutation CreateMatch($id: String, $playerSente: String, $playerGote: String, $senteType: PlayerType, $goteType: PlayerType) {
-  createMatch(
+export const StartMatchDocument = gql`
+    mutation StartMatch($id: String, $playerSente: String, $playerGote: String, $senteType: PlayerType, $goteType: PlayerType) {
+  startMatch(
     input: {id: $id, playerSente: $playerSente, playerGote: $playerGote, senteType: $senteType, goteType: $goteType}
   ) {
     id
@@ -1686,8 +1639,8 @@ export const CreateMatchDocument = gql`
 }
     `;
 
-export function useCreateMatchMutation() {
-  return Urql.useMutation<CreateMatchMutation, CreateMatchMutationVariables>(CreateMatchDocument);
+export function useStartMatchMutation() {
+  return Urql.useMutation<StartMatchMutation, StartMatchMutationVariables>(StartMatchDocument);
 };
 export const SendChatMessageDocument = gql`
     mutation SendChatMessage($matchId: String!, $content: String!) {
@@ -1750,32 +1703,6 @@ export const SendChatMessageDocument = gql`
 
 export function useSendChatMessageMutation() {
   return Urql.useMutation<SendChatMessageMutation, SendChatMessageMutationVariables>(SendChatMessageDocument);
-};
-export const SaveMatchStateAndGetCandidatesDocument = gql`
-    mutation SaveMatchStateAndGetCandidates($input: SaveMatchStateInput!) {
-  saveMatchStateAndGetCandidates(input: $input) {
-    matchState {
-      matchId
-      index
-      moveNotation
-      sfen
-      thinkingTime
-      createdAt
-    }
-    candidates {
-      move
-      scoreCp
-      scoreMate
-      depth
-      nodes
-      pv
-    }
-  }
-}
-    `;
-
-export function useSaveMatchStateAndGetCandidatesMutation() {
-  return Urql.useMutation<SaveMatchStateAndGetCandidatesMutation, SaveMatchStateAndGetCandidatesMutationVariables>(SaveMatchStateAndGetCandidatesDocument);
 };
 export const InsertMatchStateDocument = gql`
     mutation InsertMatchState($matchId: String!, $index: Int!, $moveNotation: String, $sfen: String!, $thinkingTime: Int) {

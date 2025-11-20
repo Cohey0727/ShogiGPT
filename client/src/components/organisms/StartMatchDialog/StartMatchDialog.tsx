@@ -14,7 +14,7 @@ const options = [
   { value: "AI" as const, label: "AI" },
 ];
 
-interface MatchConfig {
+export interface MatchConfig {
   senteType: "HUMAN" | "AI";
   goteType: "HUMAN" | "AI";
 }
@@ -24,7 +24,7 @@ interface StartMatchDialogProps {
   onClose: () => void;
   value: MatchConfig;
   onChange: (value: MatchConfig) => void;
-  onCreateMatch: () => void;
+  onStartMatch: () => void;
 }
 
 export function StartMatchDialog({
@@ -32,7 +32,7 @@ export function StartMatchDialog({
   onClose,
   value,
   onChange,
-  onCreateMatch,
+  onStartMatch,
 }: StartMatchDialogProps) {
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
@@ -68,7 +68,7 @@ export function StartMatchDialog({
           <Button variant="outlined" onClick={onClose}>
             キャンセル
           </Button>
-          <Button variant="filled" onClick={onCreateMatch}>
+          <Button variant="filled" onClick={onStartMatch}>
             開始
           </Button>
         </Row>

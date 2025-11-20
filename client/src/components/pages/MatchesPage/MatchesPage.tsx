@@ -3,11 +3,11 @@ import { useState } from "react";
 import { createId } from "@paralleldrive/cuid2";
 import {
   useGetMatchesQuery,
-  useCreateMatchMutation,
+  useStartMatchMutation,
 } from "../../../generated/graphql/types";
 import type { Scalars } from "../../../generated/graphql/types";
 import { Button } from "../../atoms";
-import { StartMatchDialog } from "../../organisms";
+import { StartMatchDialog, type MatchConfig } from "../../organisms";
 import styles from "./MatchesPage.css";
 
 const statusLabels: Record<Scalars["MatchStatus"]["input"], string> = {
@@ -24,20 +24,17 @@ const formatDate = (isoString: string): string => {
 export function MatchesPage() {
   const [{ data, error }] = useGetMatchesQuery();
   const [, setLocation] = useLocation();
-  const [, createMatch] = useCreateMatchMutation();
+  const [, startMatch] = useStartMatchMutation();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [matchConfig, setMatchConfig] = useState<{
-    senteType: "HUMAN" | "AI";
-    goteType: "HUMAN" | "AI";
-  }>({
+  const [matchConfig, setMatchConfig] = useState<MatchConfig>({
     senteType: "HUMAN",
     goteType: "AI",
   });
 
-  const handleCreateMatch = async () => {
+  const handleStartMatch = async () => {
     try {
       const newMatchId = createId();
-      const result = await createMatch({
+      const result = await startMatch({
         id: newMatchId,
         playerSente: matchConfig.senteType === "HUMAN" ? "あなた" : "AI",
         playerGote: matchConfig.goteType === "HUMAN" ? "あなた" : "AI",
@@ -45,8 +42,8 @@ export function MatchesPage() {
         goteType: matchConfig.goteType,
       });
 
-      if (result.data?.createMatch) {
-        setLocation(`/matches/${result.data.createMatch.id}`);
+      if (result.data?.startMatch) {
+        setLocation(`/matches/${result.data.startMatch.id}`);
       } else if (result.error) {
         alert(`対局の作成に失敗しました: ${result.error.message}`);
       }
@@ -123,7 +120,7 @@ export function MatchesPage() {
         onClose={() => setShowConfirmDialog(false)}
         value={matchConfig}
         onChange={setMatchConfig}
-        onCreateMatch={handleCreateMatch}
+        onStartMatch={handleStartMatch}
       />
     </div>
   );

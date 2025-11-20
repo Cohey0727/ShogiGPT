@@ -1,4 +1,3 @@
-export * from "./createMatch";
+export * from "./startMatch";
 export * from "./sendChatMessage";
-export * from "./saveMatchStateAndGetCandidates";
 export * from "./evaluateMatchState";

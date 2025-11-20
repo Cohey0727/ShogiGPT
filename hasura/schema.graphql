@@ -355,24 +355,6 @@ input ChatMessagesUpdates {
   where: ChatMessagesBoolExp!
 }
 
-"""対局作成リクエスト"""
-input CreateMatchInput {
-  """後手のプレイヤータイプ"""
-  goteType: PlayerType
-
-  """対局ID（指定しない場合は自動生成）"""
-  id: String
-
-  """後手のプレイヤー名"""
-  playerGote: String
-
-  """先手のプレイヤー名"""
-  playerSente: String
-
-  """先手のプレイヤータイプ"""
-  senteType: PlayerType
-}
-
 """ordering argument of a cursor"""
 enum CursorOrdering {
   """ascending ordering of the cursor"""
@@ -750,27 +732,6 @@ input MatchesUpdates {
 
   """filter the rows which have to be updated"""
   where: MatchesBoolExp!
-}
-
-"""対局状態"""
-type MatchState {
-  """作成日時"""
-  createdAt: String!
-
-  """局面番号"""
-  index: Int!
-
-  """対局ID"""
-  matchId: String!
-
-  """指し手（USI形式）"""
-  moveNotation: String
-
-  """盤面（SFEN形式）"""
-  sfen: String!
-
-  """消費時間（秒）"""
-  thinkingTime: Int
 }
 
 """
@@ -1160,8 +1121,6 @@ type MoveVariation {
 
 """mutation root"""
 type mutation_root {
-  createMatch(input: CreateMatchInput!): Match!
-
   """
   delete data from the table: "chat_messages"
   """
@@ -1267,8 +1226,8 @@ type mutation_root {
     """upsert condition"""
     onConflict: MatchesOnConflict
   ): Matches
-  saveMatchStateAndGetCandidates(input: SaveMatchStateInput!): SaveMatchStateResult!
   sendChatMessage(input: SendChatMessageInput!): SendChatMessageResult!
+  startMatch(input: StartMatchInput!): Match!
 
   """
   update data of the table: "chat_messages"
@@ -1511,39 +1470,6 @@ type query_root {
   matchesByPk(id: String!): Matches
 }
 
-"""対局状態保存リクエスト"""
-input SaveMatchStateInput {
-  """局面番号（何手目か）"""
-  index: Int!
-
-  """対局ID"""
-  matchId: String!
-
-  """この局面に至った指し手（USI形式）"""
-  moveNotation: String
-
-  """候補手の数（MultiPV、デフォルト: 3）"""
-  multipv: Int
-
-  """盤面（SFEN形式）"""
-  sfen: String!
-
-  """消費時間（秒）"""
-  thinkingTime: Int
-
-  """思考時間（ミリ秒、デフォルト: 1000）"""
-  timeMs: Int
-}
-
-"""対局状態保存結果"""
-type SaveMatchStateResult {
-  """次の候補手リスト"""
-  candidates: [MoveVariation!]!
-
-  """保存された対局状態"""
-  matchState: MatchState!
-}
-
 """チャットメッセージ送信リクエスト"""
 input SendChatMessageInput {
   """メッセージ内容"""
@@ -1560,6 +1486,24 @@ type SendChatMessageResult {
 
   """作成されたユーザーメッセージ"""
   userMessage: ChatMessage!
+}
+
+"""対局作成リクエスト"""
+input StartMatchInput {
+  """後手のプレイヤータイプ"""
+  goteType: PlayerType
+
+  """対局ID（指定しない場合は自動生成）"""
+  id: String
+
+  """後手のプレイヤー名"""
+  playerGote: String
+
+  """先手のプレイヤー名"""
+  playerSente: String
+
+  """先手のプレイヤータイプ"""
+  senteType: PlayerType
 }
 
 """

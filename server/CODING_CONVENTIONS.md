@@ -47,7 +47,7 @@ resolvers/
 │   ├── matches.ts    # matchesクエリのリゾルバー
 │   └── index.ts      # 再エクスポート
 ├── Mutation/
-│   ├── createMatch.ts
+│   ├── startMatch.ts
 │   └── index.ts
 ├── resolvers.ts      # すべてのリゾルバーを集約
 ├── schema.ts         # GraphQLスキーマ
@@ -461,7 +461,7 @@ GraphQLのエラーハンドリングは適切に行う。
 ```ts
 import { GraphQLError } from "graphql";
 
-export const createMatch: MutationResolvers["createMatch"] = (_, args) => {
+export const startMatch: MutationResolvers["startMatch"] = (_, args) => {
   if (!isValidInput(args)) {
     throw new GraphQLError("Invalid input", {
       extensions: { code: "BAD_USER_INPUT" },
@@ -622,7 +622,7 @@ feat: 指し手解析機能を追加
 すべての外部入力（GraphQLの引数など）を検証する。
 
 ```ts
-export const createMatch: MutationResolvers["createMatch"] = (_, args) => {
+export const startMatch: MutationResolvers["startMatch"] = (_, args) => {
   // 入力検証
   if (!args.player1 || !args.player2) {
     throw new GraphQLError("Player names are required");

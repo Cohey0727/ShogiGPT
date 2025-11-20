@@ -5,7 +5,7 @@ import { PlayerType } from "../../generated/prisma/client";
 /**
  * 対局を作成する
  */
-export const createMatch: MutationResolvers["createMatch"] = async (
+export const startMatch: MutationResolvers["startMatch"] = async (
   _parent,
   { input }
 ) => {
@@ -17,10 +17,8 @@ export const createMatch: MutationResolvers["createMatch"] = async (
       ...(id && { id }),
       playerSente: playerSente ?? null,
       playerGote: playerGote ?? null,
-      senteType:
-        senteType === "AI" ? PlayerType.AI : PlayerType.HUMAN,
-      goteType:
-        goteType === "AI" ? PlayerType.AI : PlayerType.HUMAN,
+      senteType: senteType === "AI" ? PlayerType.AI : PlayerType.HUMAN,
+      goteType: goteType === "AI" ? PlayerType.AI : PlayerType.HUMAN,
     },
   });
 

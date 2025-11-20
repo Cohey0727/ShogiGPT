@@ -84,14 +84,14 @@ subscription SubscribeChatMessages($matchId: String!) {
   }
 }
 
-mutation CreateMatch(
+mutation StartMatch(
   $id: String
   $playerSente: String
   $playerGote: String
   $senteType: PlayerType
   $goteType: PlayerType
 ) {
-  createMatch(
+  startMatch(
     input: {
       id: $id
       playerSente: $playerSente
@@ -164,27 +164,6 @@ mutation SendChatMessage($matchId: String!, $content: String!) {
         }
       }
       createdAt
-    }
-  }
-}
-
-mutation SaveMatchStateAndGetCandidates($input: SaveMatchStateInput!) {
-  saveMatchStateAndGetCandidates(input: $input) {
-    matchState {
-      matchId
-      index
-      moveNotation
-      sfen
-      thinkingTime
-      createdAt
-    }
-    candidates {
-      move
-      scoreCp
-      scoreMate
-      depth
-      nodes
-      pv
     }
   }
 }

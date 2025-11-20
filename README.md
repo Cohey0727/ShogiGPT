@@ -33,20 +33,12 @@ ShogiGPTは、将棋AIの思考プロセス（Reasoning、Thinking）を可視�
 ## ディレクトリ構成
 ```
 shogi-web/
-├─ README.md (このファイル)
-└─ client/  # Web クライアント (Bun + React + vanilla-extract + Vite)
-   ├─ src/
-   │  ├─ main.tsx           # ルートエントリ (React 19 + Vite)
-   │  ├─ App.tsx            # UI ルートコンポーネント
-   │  └─ index.css          # リセットや共通スタイル
-   ├─ package.json
-   ├─ bunfig.toml / bun.lock
-   └─ README.md (Bun テンプレート既定の説明)
-
-### client パッケージ概要
-- 目的: ブラウザ上の将棋 UI、API テスター、AI の指し手根拠表示 UI の実験場
-- 技術スタック: Bun 1.2 以降、React 19、TypeScript、vanilla-extract、Vite
-- エントリポイント: `src/main.tsx` → `App.tsx`（将棋 UI/説明 UI を順次追加予定）
+├─ client/      # Web クライアント (Bun + React + vanilla-extract + Vite)
+├─ server/      # GraphQL API サーバー (Hono + Bun)
+├─ hasura/      # Hasura 設定とメタデータ
+├─ shogi-ai/    # 将棋エンジン API (FastAPI + Python)
+├─ justfile     # タスクランナー設定
+└─ docker-compose.yml  # Docker 構成
 ```
 
 ## セットアップ
@@ -77,15 +69,3 @@ shogi-web/
 | `just db-reset` | データベースを完全にリセット（**警告**: すべてのデータを削除） |
 
 `just dev` は複数プロセスを [`mprocs`](https://github.com/pvolok/mprocs) で監視しながら起動します。まだ `mprocs` が無い場合は `brew install mprocs` もしくは `cargo install mprocs` で導入してください。インストールされていない場合は自動的に従来のバックグラウンド起動方式へフォールバックします。
-
-### ルートから実行できる `just` コマンド
-プロジェクトルート (`shogi-web/`) に `justfile` を用意し、各ディレクトリに移動することなく主要タスクを実行できるようにしています。
-すべてのコマンドは、クライアントとサーバーの両方に対して実行されます（該当する場合）。
-
-## 今後のTODO例
-1. 将棋盤 UI と棋譜管理の実装
-2. DeepSeek などの AI 推論 API との連携、および指し手根拠の表示 UI
-3. バックエンド API (例: /api/move, /api/explain) の設計とセキュリティ
-4. E2E / 単体テスト整備
-
-README の内容を更新したい点があれば、気軽に教えてください。

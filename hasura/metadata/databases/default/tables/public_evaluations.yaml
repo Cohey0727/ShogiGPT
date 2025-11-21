@@ -1,0 +1,53 @@
+table:
+  name: evaluations
+  schema: public
+array_relationships:
+  - name: matchStates
+    using:
+      foreign_key_constraint_on:
+        column: evaluationId
+        table:
+          name: match_states
+          schema: public
+insert_permissions:
+  - role: anonymous
+    permission:
+      check: {}
+      columns:
+        - id
+        - createdAt
+        - updatedAt
+        - sfen
+        - engineName
+        - variations
+    comment: ""
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - id
+        - createdAt
+        - updatedAt
+        - sfen
+        - engineName
+        - variations
+      filter: {}
+    comment: ""
+update_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - id
+        - createdAt
+        - updatedAt
+        - sfen
+        - engineName
+        - variations
+      filter: {}
+      check: {}
+    comment: ""
+delete_permissions:
+  - role: anonymous
+    permission:
+      filter: {}
+    comment: ""

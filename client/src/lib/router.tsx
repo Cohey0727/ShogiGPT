@@ -1,4 +1,4 @@
-import { Suspense, type ComponentType, type JSX, type ReactNode } from "react";
+import type { ComponentType, JSX, ReactNode } from "react";
 import urlJoin from "url-join";
 import { Route, Switch, type RouteComponentProps } from "wouter";
 
@@ -7,14 +7,12 @@ export type RouteConfig = RouteConfigWithoutChildren | RouteConfigWithChildren;
 export interface RouteConfigWithoutChildren {
   path: string;
   component: ComponentType<RouteComponentProps>;
-  fallback?: ReactNode;
 }
 
 export interface RouteConfigWithChildren {
   path: string;
   component: ComponentType<RouteComponentProps & { children: ReactNode }>;
   children: RouteConfig[];
-  fallback?: ReactNode;
 }
 
 export interface NotFoundRouteConfig {
@@ -28,7 +26,6 @@ export interface RouteConfigWithNotFound {
 
 export function renderRoutes(
   routeConfigs: RouteConfig[],
-  defaultFallback?: ReactNode,
   parentPath?: string
 ): JSX.Element[] {
   const routeElements: JSX.Element[] = [];
@@ -45,26 +42,19 @@ export function renderRoutes(
           path={`${fullPath}*`}
           component={() => (
             <Component>
-              <Switch>
-                {renderRoutes(children, defaultFallback, fullPath)}
-              </Switch>
+              <Switch>{renderRoutes(children, fullPath)}</Switch>
             </Component>
           )}
         />
       );
     } else {
-      const { component, fallback } = route;
+      const { component } = route;
       const Component = component as ComponentType;
-      const suspenseFallback = fallback || defaultFallback;
       routeElements.push(
         <Route
           key={fullPath}
           path={fullPath}
-          component={() => (
-            <Suspense fallback={suspenseFallback}>
-              <Component />
-            </Suspense>
-          )}
+          component={() => <Component />}
         />
       );
     }

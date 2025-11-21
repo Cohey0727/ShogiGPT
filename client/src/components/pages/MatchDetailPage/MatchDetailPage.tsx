@@ -3,6 +3,7 @@ import { useState, useCallback, useMemo } from "react";
 import { ShogiBoard, MatchChat, PieceStand, StatusBar } from "../../organisms";
 import {
   useGetMatchQuery,
+  useSubscribeMatchStatesSubscription,
   useInsertMatchStateMutation,
   useEvaluateMatchStateMutation,
 } from "../../../generated/graphql/types";
@@ -34,6 +35,12 @@ export function MatchDetailPage() {
   });
   const match = matchData?.matchesByPk;
 
+  // MatchStatesをSubscriptionで監視
+  const [{ data: matchStatesData }] = useSubscribeMatchStatesSubscription({
+    variables: { matchId },
+    pause: !matchId,
+  });
+
   const [, insertMatchState] = useInsertMatchStateMutation();
   const [, evaluateMatchState] = useEvaluateMatchStateMutation();
 
@@ -41,34 +48,52 @@ export function MatchDetailPage() {
     throw new Error("Match not found");
   }
 
-  // matchStatesから最新の盤面と前の盤面を計算
-  const initialBoardState = useMemo(() => {
-    const matchStates = match.matchStates || [];
+  /**
+   * 現在表示中のstateのインデックス
+   * null: 最新の状態を表示中（対局進行中）
+   * number: 過去の状態を表示中（対局停止中・巻き戻し中）
+   */
+  const [viewingStateIndex, setViewingStateIndex] = useState<number | null>(
+    null
+  );
+
+  const isPaused = viewingStateIndex !== null;
+
+  const boardState = useMemo<BoardState>(() => {
+    const matchStates = matchStatesData?.matchStates || [];
 
     if (matchStates.length === 0) {
       return {
         board: createInitialBoard(),
-        currentTurn: "SENTE" as const,
         moveIndex: 0,
         previousBoard: null,
       };
     }
 
-    // 最新のmatchStateのSFENから盤面を作成
-    const lastState = matchStates[matchStates.length - 1];
-    const board = sfenToBoard(lastState.sfen);
+    // viewingStateIndexがnullでない場合は、指定されたインデックスの状態を表示
+    // nullの場合は最新の状態を表示
+    const targetIndex = viewingStateIndex ?? matchStates.length - 1;
+    const currentState = matchStates[targetIndex];
+
+    if (!currentState) {
+      // インデックスが範囲外の場合は最新の状態を表示
+      const lastState = matchStates[matchStates.length - 1];
+      const board = sfenToBoard(lastState.sfen);
+      return { board, moveIndex: lastState.index, previousBoard: null };
+    }
+
+    const board = sfenToBoard(currentState.sfen);
 
     // 前の盤面も取得
     let previousBoard: Board | null = null;
-    if (matchStates.length >= 2) {
-      const prevState = matchStates[matchStates.length - 2];
+    if (targetIndex > 0) {
+      const prevState = matchStates[targetIndex - 1];
       previousBoard = sfenToBoard(prevState.sfen);
     }
 
-    return { board, moveIndex: matchStates.length, previousBoard };
-  }, [match.matchStates]);
+    return { board, moveIndex: currentState.index, previousBoard };
+  }, [matchStatesData?.matchStates, viewingStateIndex]);
 
-  const [boardState, setBoardState] = useState<BoardState>(initialBoardState);
   const [selectedHandPiece, setSelectedHandPiece] = useState<PieceType | null>(
     null
   );
@@ -79,21 +104,21 @@ export function MatchDetailPage() {
 
   const handleBoardChange = useCallback(
     async (newBoard: Board) => {
+      // 巻き戻し中は指し手を無効化
+      if (viewingStateIndex !== null) {
+        return;
+      }
+
       const { moveIndex, board } = boardState;
       const nextTurn: "SENTE" | "GOTE" =
         board.turn === "SENTE" ? "GOTE" : "SENTE";
       const nextMoveIndex = moveIndex + 1;
       const updatedBoard = { ...newBoard, turn: nextTurn };
-      setBoardState({
-        board: updatedBoard,
-        moveIndex: nextMoveIndex,
-        previousBoard: board,
-      });
 
       // 盤面をSFEN形式に変換
       const newSfen = boardToSfen(updatedBoard);
 
-      // MatchStateを保存（AIでも人間でも常に保存）
+      // MatchStateを保存（Subscriptionで自動的にUIが更新される）
       const result = await insertMatchState({
         matchId,
         index: nextMoveIndex,
@@ -138,13 +163,7 @@ export function MatchDetailPage() {
               );
               const aiMoveIndex = nextMoveIndex + 1;
 
-              setBoardState({
-                board: newBoardWithAiMove,
-                moveIndex: aiMoveIndex,
-                previousBoard: updatedBoard,
-              });
-
-              // AIの指し手もMatchStateに保存
+              // AIの指し手もMatchStateに保存（Subscriptionで自動的にUIが更新される）
               const aiSfen = boardToSfen(newBoardWithAiMove);
               await insertMatchState({
                 matchId,
@@ -163,7 +182,14 @@ export function MatchDetailPage() {
         }
       }
     },
-    [boardState, match, matchId, insertMatchState, evaluateMatchState]
+    [
+      boardState,
+      match,
+      matchId,
+      insertMatchState,
+      evaluateMatchState,
+      viewingStateIndex,
+    ]
   );
 
   // 前の盤面との差分セルを計算
@@ -177,6 +203,24 @@ export function MatchDetailPage() {
   // 勝者を計算
   const winner = useMemo(() => getWinner(boardState.board), [boardState.board]);
 
+  // 全ての対局状態
+  const matchStates = matchStatesData?.matchStates || [];
+
+  // 表示するstateのインデックスを変更
+  const handleViewingIndexChange = useCallback((newIndex: number) => {
+    setViewingStateIndex(newIndex);
+  }, []);
+
+  // 対局を停止
+  const handlePause = useCallback(() => {
+    setViewingStateIndex(matchStates.length - 1);
+  }, [matchStates.length]);
+
+  // 対局を再開
+  const handleResume = useCallback(() => {
+    setViewingStateIndex(null);
+  }, []);
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -187,10 +231,16 @@ export function MatchDetailPage() {
         <Col>
           <StatusBar
             currentTurn={boardState.board.turn}
-            moveNumber={boardState.moveIndex}
+            matchStateIndex={boardState.moveIndex}
             isAiThinking={isAiThinking}
             thinkingTimeMs={aiThinkingTimeMs}
             winner={winner}
+            isPaused={isPaused}
+            viewingStateIndex={viewingStateIndex}
+            totalStates={matchStates.length}
+            onPause={handlePause}
+            onResume={handleResume}
+            onViewingIndexChange={handleViewingIndexChange}
           />
           <Row className={styles.boardSection} align="center" justify="center">
             <div className={styles.gotePieceStand}>
@@ -205,7 +255,7 @@ export function MatchDetailPage() {
                     setSelectedHandPiece(pieceType);
                   }
                 }}
-                disabled={isAiThinking}
+                disabled={isAiThinking || isPaused}
               />
             </div>
             <div className={styles.boardContainer}>
@@ -215,7 +265,7 @@ export function MatchDetailPage() {
                 onBoardChange={handleBoardChange}
                 selectedHandPiece={selectedHandPiece}
                 onHandPieceDeselect={() => setSelectedHandPiece(null)}
-                disabled={isAiThinking}
+                disabled={isAiThinking || isPaused}
                 diffCells={diffCells}
               />
             </div>
@@ -231,7 +281,7 @@ export function MatchDetailPage() {
                     setSelectedHandPiece(pieceType);
                   }
                 }}
-                disabled={isAiThinking}
+                disabled={isAiThinking || isPaused}
               />
             </div>
           </Row>

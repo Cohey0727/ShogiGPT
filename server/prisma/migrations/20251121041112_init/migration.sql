@@ -26,10 +26,10 @@ CREATE TABLE "match_states" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "matchId" TEXT NOT NULL,
     "index" INTEGER NOT NULL,
-    "moveNotation" TEXT,
+    "moveNotation" TEXT NOT NULL,
     "sfen" TEXT NOT NULL,
     "thinkingTime" INTEGER,
-    "evaluation" INTEGER,
+    "evaluationId" TEXT,
 
     CONSTRAINT "match_states_pkey" PRIMARY KEY ("matchId","index")
 );
@@ -47,6 +47,18 @@ CREATE TABLE "chat_messages" (
     CONSTRAINT "chat_messages_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "evaluations" (
+    "id" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "sfen" TEXT NOT NULL,
+    "engineName" TEXT NOT NULL,
+    "variations" JSONB NOT NULL,
+
+    CONSTRAINT "evaluations_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE INDEX "matches_createdAt_idx" ON "matches"("createdAt");
 
@@ -54,13 +66,28 @@ CREATE INDEX "matches_createdAt_idx" ON "matches"("createdAt");
 CREATE INDEX "matches_status_idx" ON "matches"("status");
 
 -- CreateIndex
+CREATE INDEX "match_states_evaluationId_idx" ON "match_states"("evaluationId");
+
+-- CreateIndex
 CREATE INDEX "chat_messages_matchId_idx" ON "chat_messages"("matchId");
 
 -- CreateIndex
 CREATE INDEX "chat_messages_createdAt_idx" ON "chat_messages"("createdAt");
 
+-- CreateIndex
+CREATE INDEX "evaluations_sfen_idx" ON "evaluations"("sfen");
+
+-- CreateIndex
+CREATE INDEX "evaluations_engineName_idx" ON "evaluations"("engineName");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "evaluations_sfen_engineName_key" ON "evaluations"("sfen", "engineName");
+
 -- AddForeignKey
 ALTER TABLE "match_states" ADD CONSTRAINT "match_states_matchId_fkey" FOREIGN KEY ("matchId") REFERENCES "matches"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "match_states" ADD CONSTRAINT "match_states_evaluationId_fkey" FOREIGN KEY ("evaluationId") REFERENCES "evaluations"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "chat_messages" ADD CONSTRAINT "chat_messages_matchId_fkey" FOREIGN KEY ("matchId") REFERENCES "matches"("id") ON DELETE CASCADE ON UPDATE CASCADE;

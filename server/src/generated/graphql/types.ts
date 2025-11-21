@@ -207,6 +207,8 @@ export type StartMatchInput = {
   playerSente?: InputMaybe<Scalars['String']['input']>;
   /** 先手のプレイヤータイプ */
   senteType: Scalars['PlayerType']['input'];
+  /** 初期盤面（SFEN形式、指定しない場合は平手の初期盤面） */
+  sfen?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;

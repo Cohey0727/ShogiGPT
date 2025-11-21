@@ -398,6 +398,270 @@ type EvaluateMatchStateResult {
   variations: [MoveVariation!]!
 }
 
+"""
+columns and relationships of "evaluations"
+"""
+type Evaluations {
+  createdAt: timestamp!
+  engineName: String!
+  id: String!
+
+  """An array relationship"""
+  matchStates(
+    """distinct select on columns"""
+    distinctOn: [MatchStatesSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [MatchStatesOrderBy!]
+
+    """filter the rows returned"""
+    where: MatchStatesBoolExp
+  ): [MatchStates!]!
+  sfen: String!
+  updatedAt: timestamp!
+  variations(
+    """JSON select path"""
+    path: String
+  ): jsonb!
+}
+
+"""append existing jsonb value of filtered columns with new jsonb value"""
+input EvaluationsAppendInput {
+  variations: jsonb
+}
+
+"""
+Boolean expression to filter rows from the table "evaluations". All fields are combined with a logical 'AND'.
+"""
+input EvaluationsBoolExp {
+  _and: [EvaluationsBoolExp!]
+  _not: EvaluationsBoolExp
+  _or: [EvaluationsBoolExp!]
+  createdAt: TimestampComparisonExp
+  engineName: StringComparisonExp
+  id: StringComparisonExp
+  matchStates: MatchStatesBoolExp
+  sfen: StringComparisonExp
+  updatedAt: TimestampComparisonExp
+  variations: JsonbComparisonExp
+}
+
+"""
+unique or primary key constraints on table "evaluations"
+"""
+enum EvaluationsConstraint {
+  """
+  unique or primary key constraint on columns "id"
+  """
+  evaluations_pkey
+
+  """
+  unique or primary key constraint on columns "engineName", "sfen"
+  """
+  evaluations_sfen_engineName_key
+}
+
+"""
+delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+"""
+input EvaluationsDeleteAtPathInput {
+  variations: [String!]
+}
+
+"""
+delete the array element with specified index (negative integers count from the
+end). throws an error if top level container is not an array
+"""
+input EvaluationsDeleteElemInput {
+  variations: Int
+}
+
+"""
+delete key/value pair or string element. key/value pairs are matched based on their key value
+"""
+input EvaluationsDeleteKeyInput {
+  variations: String
+}
+
+"""
+input type for inserting data into table "evaluations"
+"""
+input EvaluationsInsertInput {
+  createdAt: timestamp
+  engineName: String
+  id: String
+  matchStates: MatchStatesArrRelInsertInput
+  sfen: String
+  updatedAt: timestamp
+  variations: jsonb
+}
+
+"""
+response of any mutation on the table "evaluations"
+"""
+type EvaluationsMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [Evaluations!]!
+}
+
+"""
+input type for inserting object relation for remote table "evaluations"
+"""
+input EvaluationsObjRelInsertInput {
+  data: EvaluationsInsertInput!
+
+  """upsert condition"""
+  onConflict: EvaluationsOnConflict
+}
+
+"""
+on_conflict condition type for table "evaluations"
+"""
+input EvaluationsOnConflict {
+  constraint: EvaluationsConstraint!
+  updateColumns: [EvaluationsUpdateColumn!]! = []
+  where: EvaluationsBoolExp
+}
+
+"""Ordering options when selecting data from "evaluations"."""
+input EvaluationsOrderBy {
+  createdAt: OrderBy
+  engineName: OrderBy
+  id: OrderBy
+  matchStatesAggregate: MatchStatesAggregateOrderBy
+  sfen: OrderBy
+  updatedAt: OrderBy
+  variations: OrderBy
+}
+
+"""primary key columns input for table: evaluations"""
+input EvaluationsPkColumnsInput {
+  id: String!
+}
+
+"""prepend existing jsonb value of filtered columns with new jsonb value"""
+input EvaluationsPrependInput {
+  variations: jsonb
+}
+
+"""
+select columns of table "evaluations"
+"""
+enum EvaluationsSelectColumn {
+  """column name"""
+  createdAt
+
+  """column name"""
+  engineName
+
+  """column name"""
+  id
+
+  """column name"""
+  sfen
+
+  """column name"""
+  updatedAt
+
+  """column name"""
+  variations
+}
+
+"""
+input type for updating data in table "evaluations"
+"""
+input EvaluationsSetInput {
+  createdAt: timestamp
+  engineName: String
+  id: String
+  sfen: String
+  updatedAt: timestamp
+  variations: jsonb
+}
+
+"""
+Streaming cursor of the table "evaluations"
+"""
+input EvaluationsStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: EvaluationsStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input EvaluationsStreamCursorValueInput {
+  createdAt: timestamp
+  engineName: String
+  id: String
+  sfen: String
+  updatedAt: timestamp
+  variations: jsonb
+}
+
+"""
+update columns of table "evaluations"
+"""
+enum EvaluationsUpdateColumn {
+  """column name"""
+  createdAt
+
+  """column name"""
+  engineName
+
+  """column name"""
+  id
+
+  """column name"""
+  sfen
+
+  """column name"""
+  updatedAt
+
+  """column name"""
+  variations
+}
+
+input EvaluationsUpdates {
+  """append existing jsonb value of filtered columns with new jsonb value"""
+  _append: EvaluationsAppendInput
+
+  """
+  delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+  """
+  _deleteAtPath: EvaluationsDeleteAtPathInput
+
+  """
+  delete the array element with specified index (negative integers count from
+  the end). throws an error if top level container is not an array
+  """
+  _deleteElem: EvaluationsDeleteElemInput
+
+  """
+  delete key/value pair or string element. key/value pairs are matched based on their key value
+  """
+  _deleteKey: EvaluationsDeleteKeyInput
+
+  """prepend existing jsonb value of filtered columns with new jsonb value"""
+  _prepend: EvaluationsPrependInput
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: EvaluationsSetInput
+
+  """filter the rows which have to be updated"""
+  where: EvaluationsBoolExp!
+}
+
 type Health {
   status: String!
   timestamp: String!
@@ -739,13 +1003,16 @@ columns and relationships of "match_states"
 """
 type MatchStates {
   createdAt: timestamp!
-  evaluation: Int
+
+  """An object relationship"""
+  evaluation: Evaluations
+  evaluationId: String
   index: Int!
 
   """An object relationship"""
   match: Matches!
   matchId: String!
-  moveNotation: String
+  moveNotation: String!
   sfen: String!
   thinkingTime: Int
 }
@@ -781,7 +1048,6 @@ input MatchStatesArrRelInsertInput {
 order by avg() on columns of table "match_states"
 """
 input MatchStatesAvgOrderBy {
-  evaluation: OrderBy
   index: OrderBy
   thinkingTime: OrderBy
 }
@@ -794,7 +1060,8 @@ input MatchStatesBoolExp {
   _not: MatchStatesBoolExp
   _or: [MatchStatesBoolExp!]
   createdAt: TimestampComparisonExp
-  evaluation: IntComparisonExp
+  evaluation: EvaluationsBoolExp
+  evaluationId: StringComparisonExp
   index: IntComparisonExp
   match: MatchesBoolExp
   matchId: StringComparisonExp
@@ -817,7 +1084,6 @@ enum MatchStatesConstraint {
 input type for incrementing numeric columns in table "match_states"
 """
 input MatchStatesIncInput {
-  evaluation: Int
   index: Int
   thinkingTime: Int
 }
@@ -827,7 +1093,8 @@ input type for inserting data into table "match_states"
 """
 input MatchStatesInsertInput {
   createdAt: timestamp
-  evaluation: Int
+  evaluation: EvaluationsObjRelInsertInput
+  evaluationId: String
   index: Int
   match: MatchesObjRelInsertInput
   matchId: String
@@ -841,7 +1108,7 @@ order by max() on columns of table "match_states"
 """
 input MatchStatesMaxOrderBy {
   createdAt: OrderBy
-  evaluation: OrderBy
+  evaluationId: OrderBy
   index: OrderBy
   matchId: OrderBy
   moveNotation: OrderBy
@@ -854,7 +1121,7 @@ order by min() on columns of table "match_states"
 """
 input MatchStatesMinOrderBy {
   createdAt: OrderBy
-  evaluation: OrderBy
+  evaluationId: OrderBy
   index: OrderBy
   matchId: OrderBy
   moveNotation: OrderBy
@@ -885,7 +1152,8 @@ input MatchStatesOnConflict {
 """Ordering options when selecting data from "match_states"."""
 input MatchStatesOrderBy {
   createdAt: OrderBy
-  evaluation: OrderBy
+  evaluation: EvaluationsOrderBy
+  evaluationId: OrderBy
   index: OrderBy
   match: MatchesOrderBy
   matchId: OrderBy
@@ -908,7 +1176,7 @@ enum MatchStatesSelectColumn {
   createdAt
 
   """column name"""
-  evaluation
+  evaluationId
 
   """column name"""
   index
@@ -931,7 +1199,7 @@ input type for updating data in table "match_states"
 """
 input MatchStatesSetInput {
   createdAt: timestamp
-  evaluation: Int
+  evaluationId: String
   index: Int
   matchId: String
   moveNotation: String
@@ -943,7 +1211,6 @@ input MatchStatesSetInput {
 order by stddev() on columns of table "match_states"
 """
 input MatchStatesStddevOrderBy {
-  evaluation: OrderBy
   index: OrderBy
   thinkingTime: OrderBy
 }
@@ -952,7 +1219,6 @@ input MatchStatesStddevOrderBy {
 order by stddevPop() on columns of table "match_states"
 """
 input MatchStatesStddevPopOrderBy {
-  evaluation: OrderBy
   index: OrderBy
   thinkingTime: OrderBy
 }
@@ -961,7 +1227,6 @@ input MatchStatesStddevPopOrderBy {
 order by stddevSamp() on columns of table "match_states"
 """
 input MatchStatesStddevSampOrderBy {
-  evaluation: OrderBy
   index: OrderBy
   thinkingTime: OrderBy
 }
@@ -980,7 +1245,7 @@ input MatchStatesStreamCursorInput {
 """Initial value of the column from where the streaming should start"""
 input MatchStatesStreamCursorValueInput {
   createdAt: timestamp
-  evaluation: Int
+  evaluationId: String
   index: Int
   matchId: String
   moveNotation: String
@@ -992,7 +1257,6 @@ input MatchStatesStreamCursorValueInput {
 order by sum() on columns of table "match_states"
 """
 input MatchStatesSumOrderBy {
-  evaluation: OrderBy
   index: OrderBy
   thinkingTime: OrderBy
 }
@@ -1005,7 +1269,7 @@ enum MatchStatesUpdateColumn {
   createdAt
 
   """column name"""
-  evaluation
+  evaluationId
 
   """column name"""
   index
@@ -1038,7 +1302,6 @@ input MatchStatesUpdates {
 order by variance() on columns of table "match_states"
 """
 input MatchStatesVarianceOrderBy {
-  evaluation: OrderBy
   index: OrderBy
   thinkingTime: OrderBy
 }
@@ -1047,7 +1310,6 @@ input MatchStatesVarianceOrderBy {
 order by varPop() on columns of table "match_states"
 """
 input MatchStatesVarPopOrderBy {
-  evaluation: OrderBy
   index: OrderBy
   thinkingTime: OrderBy
 }
@@ -1056,7 +1318,6 @@ input MatchStatesVarPopOrderBy {
 order by varSamp() on columns of table "match_states"
 """
 input MatchStatesVarSampOrderBy {
-  evaluation: OrderBy
   index: OrderBy
   thinkingTime: OrderBy
 }
@@ -1135,6 +1396,19 @@ type mutation_root {
   deleteChatMessagesByPk(id: String!): ChatMessages
 
   """
+  delete data from the table: "evaluations"
+  """
+  deleteEvaluations(
+    """filter the rows which have to be deleted"""
+    where: EvaluationsBoolExp!
+  ): EvaluationsMutationResponse
+
+  """
+  delete single row from the table: "evaluations"
+  """
+  deleteEvaluationsByPk(id: String!): Evaluations
+
+  """
   delete data from the table: "match_states"
   """
   deleteMatchStates(
@@ -1182,6 +1456,28 @@ type mutation_root {
     """upsert condition"""
     onConflict: ChatMessagesOnConflict
   ): ChatMessages
+
+  """
+  insert data into the table: "evaluations"
+  """
+  insertEvaluations(
+    """the rows to be inserted"""
+    objects: [EvaluationsInsertInput!]!
+
+    """upsert condition"""
+    onConflict: EvaluationsOnConflict
+  ): EvaluationsMutationResponse
+
+  """
+  insert a single row into the table: "evaluations"
+  """
+  insertEvaluationsOne(
+    """the row to be inserted"""
+    object: EvaluationsInsertInput!
+
+    """upsert condition"""
+    onConflict: EvaluationsOnConflict
+  ): Evaluations
 
   """
   insert data into the table: "match_states"
@@ -1300,6 +1596,78 @@ type mutation_root {
     """updates to execute, in order"""
     updates: [ChatMessagesUpdates!]!
   ): [ChatMessagesMutationResponse]
+
+  """
+  update data of the table: "evaluations"
+  """
+  updateEvaluations(
+    """append existing jsonb value of filtered columns with new jsonb value"""
+    _append: EvaluationsAppendInput
+
+    """
+    delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+    """
+    _deleteAtPath: EvaluationsDeleteAtPathInput
+
+    """
+    delete the array element with specified index (negative integers count from
+    the end). throws an error if top level container is not an array
+    """
+    _deleteElem: EvaluationsDeleteElemInput
+
+    """
+    delete key/value pair or string element. key/value pairs are matched based on their key value
+    """
+    _deleteKey: EvaluationsDeleteKeyInput
+
+    """prepend existing jsonb value of filtered columns with new jsonb value"""
+    _prepend: EvaluationsPrependInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: EvaluationsSetInput
+
+    """filter the rows which have to be updated"""
+    where: EvaluationsBoolExp!
+  ): EvaluationsMutationResponse
+
+  """
+  update single row of the table: "evaluations"
+  """
+  updateEvaluationsByPk(
+    """append existing jsonb value of filtered columns with new jsonb value"""
+    _append: EvaluationsAppendInput
+
+    """
+    delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+    """
+    _deleteAtPath: EvaluationsDeleteAtPathInput
+
+    """
+    delete the array element with specified index (negative integers count from
+    the end). throws an error if top level container is not an array
+    """
+    _deleteElem: EvaluationsDeleteElemInput
+
+    """
+    delete key/value pair or string element. key/value pairs are matched based on their key value
+    """
+    _deleteKey: EvaluationsDeleteKeyInput
+
+    """prepend existing jsonb value of filtered columns with new jsonb value"""
+    _prepend: EvaluationsPrependInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: EvaluationsSetInput
+    pkColumns: EvaluationsPkColumnsInput!
+  ): Evaluations
+
+  """
+  update multiples rows of table: "evaluations"
+  """
+  updateEvaluationsMany(
+    """updates to execute, in order"""
+    updates: [EvaluationsUpdates!]!
+  ): [EvaluationsMutationResponse]
 
   """
   update data of the table: "match_states"
@@ -1423,6 +1791,29 @@ type query_root {
 
   """fetch data from the table: "chat_messages" using primary key columns"""
   chatMessagesByPk(id: String!): ChatMessages
+
+  """
+  fetch data from the table: "evaluations"
+  """
+  evaluations(
+    """distinct select on columns"""
+    distinctOn: [EvaluationsSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [EvaluationsOrderBy!]
+
+    """filter the rows returned"""
+    where: EvaluationsBoolExp
+  ): [Evaluations!]!
+
+  """fetch data from the table: "evaluations" using primary key columns"""
+  evaluationsByPk(id: String!): Evaluations
   health: Health!
 
   """An array relationship"""
@@ -1504,6 +1895,9 @@ input StartMatchInput {
 
   """先手のプレイヤータイプ"""
   senteType: PlayerType!
+
+  """初期盤面（SFEN形式、指定しない場合は平手の初期盤面）"""
+  sfen: String
 }
 
 """
@@ -1594,6 +1988,43 @@ type subscription_root {
     """filter the rows returned"""
     where: ChatMessagesBoolExp
   ): [ChatMessages!]!
+
+  """
+  fetch data from the table: "evaluations"
+  """
+  evaluations(
+    """distinct select on columns"""
+    distinctOn: [EvaluationsSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [EvaluationsOrderBy!]
+
+    """filter the rows returned"""
+    where: EvaluationsBoolExp
+  ): [Evaluations!]!
+
+  """fetch data from the table: "evaluations" using primary key columns"""
+  evaluationsByPk(id: String!): Evaluations
+
+  """
+  fetch data from the table in a streaming manner: "evaluations"
+  """
+  evaluationsStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [EvaluationsStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: EvaluationsBoolExp
+  ): [Evaluations!]!
 
   """An array relationship"""
   matchStates(

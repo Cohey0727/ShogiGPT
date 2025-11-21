@@ -32,3 +32,30 @@ export const checkmate = style({
   fontWeight: 700,
   fontSize: "16px",
 });
+
+export const controls = style({
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+});
+
+export const button = style({
+  border: "1px solid #ccc",
+  backgroundColor: "#fff",
+  cursor: "pointer",
+  padding: "2px 8px",
+  fontSize: "14px",
+  borderRadius: "4px",
+  transition: "all 0.2s",
+  ":hover": {
+    backgroundColor: "#f0f0f0",
+  },
+  ":active": {
+    backgroundColor: "#e0e0e0",
+  },
+  ":disabled": {
+    opacity: 0.4,
+    cursor: "not-allowed",
+    backgroundColor: "#f5f5f5",
+  },
+});

@@ -1,4 +1,7 @@
-import { Player, PieceType, type Board, type Position } from "../consts";
+import type { Board, BoardIndex, Position } from "../consts";
+import { Player, PieceType } from "../consts";
+import { canDropAtPosition } from "./canDropAtPosition";
+import { isCheckmate } from "./checkmate";
 
 /**
  * 持ち駒を打てる位置を取得する
@@ -20,20 +23,29 @@ export function getDropPositions(
     for (let col = 0; col < 9; col++) {
       // 空いているマスのみ
       if (board.cells[row][col] === null) {
+        // 最前線への配置禁止チェック
+        if (!canDropAtPosition(pieceType, row, player)) {
+          continue;
+        }
+
+        const position: Position = {
+          row: row as BoardIndex,
+          col: col as BoardIndex,
+        };
+
         // 二歩チェック（歩を打つ場合）
         if (pieceType === PieceType.Pawn) {
-          if (!hasDoublesPawn(board, col, player)) {
-            positions.push({
-              row: row as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
-              col: col as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
-            });
+          if (hasDoublesPawn(board, col, player)) {
+            continue;
           }
-        } else {
-          positions.push({
-            row: row as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
-            col: col as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
-          });
+
+          // 打ち歩詰めチェック
+          if (isUchifuzume(board, position, player)) {
+            continue;
+          }
         }
+
+        positions.push(position);
       }
     }
   }
@@ -57,4 +69,44 @@ function hasDoublesPawn(board: Board, col: number, player: Player): boolean {
     }
   }
   return false;
+}
+
+/**
+ * 打ち歩詰めかどうかをチェック
+ *
+ * @param board 盤面
+ * @param position 歩を打とうとしている位置
+ * @param player プレイヤー
+ * @returns 打ち歩詰めの場合はtrue
+ */
+function isUchifuzume(
+  board: Board,
+  position: Position,
+  player: Player
+): boolean {
+  // 歩を打った後の盤面をシミュレート
+  const newBoard: Board = {
+    ...board,
+    cells: board.cells.map((row) => [...row]),
+    senteHands: [...board.senteHands],
+    goteHands: [...board.goteHands],
+  };
+
+  // 持ち駒から歩を削除
+  const capturedArray =
+    player === Player.Sente ? newBoard.senteHands : newBoard.goteHands;
+  const index = capturedArray.indexOf(PieceType.Pawn);
+  if (index > -1) {
+    capturedArray.splice(index, 1);
+  }
+
+  // 盤面に歩を配置
+  newBoard.cells[position.row][position.col] = {
+    type: PieceType.Pawn,
+    player: player,
+  };
+
+  // 相手が詰みになるかチェック
+  const opponent = player === Player.Sente ? Player.Gote : Player.Sente;
+  return isCheckmate(newBoard, opponent);
 }

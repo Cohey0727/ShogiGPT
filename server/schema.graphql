@@ -170,6 +170,10 @@ input StartMatchInput {
   後手のプレイヤータイプ
   """
   goteType: PlayerType!
+  """
+  初期盤面（SFEN形式、指定しない場合は平手の初期盤面）
+  """
+  sfen: String
 }
 
 """

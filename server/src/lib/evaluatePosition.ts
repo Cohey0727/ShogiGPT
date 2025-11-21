@@ -1,0 +1,139 @@
+import type { Evaluation } from "../generated/prisma/client";
+import { db } from "./db";
+import { analyzePositionAnalyzePost } from "../generated/shogi-api";
+
+/**
+ * 盤面評価結果の型定義
+ */
+export interface EvaluationResult {
+  /** 評価結果オブジェクト */
+  evaluation: Evaluation;
+  /** ベストムーブ */
+  bestmove: string;
+  /** エンジン名 */
+  engineName: string;
+  /** 思考時間（ミリ秒） */
+  timeMs: number;
+  /** 候補手のバリエーション */
+  variations: Array<{
+    move: string;
+    scoreCp: number | null;
+    scoreMate: number | null;
+    depth: number;
+    nodes: number;
+    pv: string[];
+  }>;
+}
+
+/**
+ * 盤面を評価する（キャッシュ機能付き）
+ *
+ * @param sfen - 評価する局面（SFEN形式）
+ * @param multipv - 候補手の数
+ * @param timeMs - 思考時間（ミリ秒）
+ * @param engineName - エンジン名（キャッシュキーに使用、省略時はAPIから取得）
+ * @returns 評価結果
+ */
+export async function evaluatePosition(
+  sfen: string,
+  multipv: number,
+  timeMs: number,
+  engineName?: string
+): Promise<EvaluationResult> {
+  // エンジン名が指定されている場合、キャッシュをチェック
+  if (engineName) {
+    const cachedEvaluation = await db.evaluation.findUnique({
+      where: {
+        sfen_engineName: {
+          sfen,
+          engineName,
+        },
+      },
+    });
+
+    if (cachedEvaluation) {
+      console.log(
+        "✅ Cache hit! Using cached evaluation:",
+        cachedEvaluation.id
+      );
+      const variations = cachedEvaluation.variations as Array<{
+        move: string;
+        scoreCp: number | null;
+        scoreMate: number | null;
+        depth: number;
+        nodes: number;
+        pv: string[];
+      }>;
+
+      return {
+        evaluation: cachedEvaluation,
+        bestmove: variations[0]?.move ?? "",
+        engineName: cachedEvaluation.engineName,
+        timeMs: 0, // キャッシュからの取得なので時間は0
+        variations,
+      };
+    }
+
+    console.log("❌ Cache miss. Analyzing position...");
+  }
+
+  // キャッシュがない場合は新規に評価
+  console.log("🔍 Analyzing position...");
+  console.log("  MultiPV:", multipv);
+  console.log("  Time:", timeMs, "ms");
+
+  const { data, error } = await analyzePositionAnalyzePost({
+    body: {
+      sfen,
+      multipv,
+      time_ms: timeMs,
+      moves: null,
+      depth: null,
+    },
+  });
+
+  if (error || !data) {
+    console.error("❌ shogi-api error:", error);
+    throw new Error("Analysis failed");
+  }
+
+  console.log("✅ Analysis complete:");
+  console.log("  Best move:", data.bestmove);
+  console.log("  Candidates:", data.variations.length);
+
+  const variations = data.variations.map((v) => ({
+    move: v.move,
+    scoreCp: v.score_cp ?? null,
+    scoreMate: v.score_mate ?? null,
+    depth: v.depth,
+    nodes: v.nodes ?? 0,
+    pv: v.pv ?? [],
+  }));
+
+  // 評価結果をEvaluationテーブルに保存
+  const evaluation = await db.evaluation.upsert({
+    where: {
+      sfen_engineName: {
+        sfen,
+        engineName: data.engine_name,
+      },
+    },
+    create: {
+      sfen,
+      engineName: data.engine_name,
+      variations,
+    },
+    update: {
+      variations,
+    },
+  });
+  console.log("💾 Saved evaluation to Evaluation table:", evaluation.id);
+
+  return {
+    evaluation,
+    bestmove: data.bestmove,
+    engineName: data.engine_name,
+    timeMs: data.time_ms,
+    variations,
+  };
+}

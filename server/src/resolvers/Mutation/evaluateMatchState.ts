@@ -3,9 +3,9 @@ import type {
   MutationResolvers,
 } from "../../generated/graphql/types";
 import { db } from "../../lib/db";
-import { analyzePositionAnalyzePost } from "../../generated/shogi-api";
 import { MessageContentsSchema } from "../../shared/schemas/chatMessage";
 import { generateBestMoveCommentary } from "../../lib/deepseek";
+import { evaluatePosition } from "../../lib/evaluatePosition";
 
 /**
  * 既に保存されたMatchStateに対して非同期で盤面評価を行う
@@ -44,53 +44,24 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
     const timeMs = input.thinkingTime ? input.thinkingTime * 1000 : 10000;
 
     try {
-      console.log("🔍 Analyzing position asynchronously...");
-      console.log("  MultiPV:", multipv);
-      console.log("  Time:", timeMs, "ms");
+      // 盤面を評価（キャッシュがあればそれを使用）
+      const evaluationResult = await evaluatePosition(
+        matchState.sfen,
+        multipv,
+        timeMs
+      );
 
-      const { data, error } = await analyzePositionAnalyzePost({
-        body: {
-          sfen: matchState.sfen,
-          multipv,
-          time_ms: timeMs,
-          moves: null,
-          depth: null,
+      // MatchStateに評価結果IDを保存
+      await db.matchState.update({
+        where: {
+          matchId_index: { matchId: input.matchId, index: input.index },
         },
+        data: { evaluationId: evaluationResult.evaluation.id },
       });
+      console.log("💾 Linked evaluation to MatchState");
 
-      if (error || !data) {
-        console.error("❌ shogi-api error:", error);
-        // エラー時のメッセージ更新
-        const errorContents = MessageContentsSchema.parse([
-          { type: "markdown", content: "評価中にエラーが発生しました。" },
-        ]);
-        await db.chatMessage.update({
-          where: { id: thinkingMessage.id },
-          data: {
-            contents: errorContents,
-            isPartial: false,
-          },
-        });
-        throw new Error("Analysis failed");
-      }
-
-      console.log("✅ Analysis complete:");
-      console.log("  Best move:", data.bestmove);
-      console.log("  Candidates:", data.variations.length);
-
-      // ベストムーブの評価値を取得してMatchStateに保存
-      const bestVariation = data.variations[0];
-      let currentEvaluation: number | null = null;
-      if (bestVariation) {
-        currentEvaluation = bestVariation.score_cp ?? null;
-        await db.matchState.update({
-          where: {
-            matchId_index: { matchId: input.matchId, index: input.index },
-          },
-          data: { evaluation: currentEvaluation },
-        });
-        console.log("💾 Saved evaluation to MatchState:", currentEvaluation);
-      }
+      // 現在の評価値を取得
+      const currentEvaluation = evaluationResult.variations[0]?.scoreCp ?? null;
 
       // 直前の局面の評価値を取得
       let previousEvaluation: number | null = null;
@@ -99,13 +70,19 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
           where: {
             matchId: input.matchId,
             index: { lt: input.index },
-            evaluation: { not: null },
+            evaluationId: { not: null },
           },
           orderBy: {
-            index: 'desc',
+            index: "desc",
           },
+          include: { evaluation: true },
         });
-        previousEvaluation = previousState?.evaluation ?? null;
+        if (previousState?.evaluation) {
+          const prevVariations = previousState.evaluation.variations as Array<{
+            scoreCp?: number | null;
+          }>;
+          previousEvaluation = prevVariations[0]?.scoreCp ?? null;
+        }
         console.log("📊 Previous evaluation:", previousEvaluation);
       }
 
@@ -115,17 +92,10 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
       try {
         commentary = await generateBestMoveCommentary({
           sfen: matchState.sfen,
-          bestmove: data.bestmove,
-          variations: data.variations.map((v) => ({
-            move: v.move,
-            scoreCp: v.score_cp,
-            scoreMate: v.score_mate,
-            depth: v.depth,
-            nodes: v.nodes,
-            pv: v.pv,
-          })),
-          engineName: data.engine_name,
-          timeMs: data.time_ms,
+          bestmove: evaluationResult.bestmove,
+          variations: evaluationResult.variations,
+          engineName: evaluationResult.engineName,
+          timeMs: evaluationResult.timeMs,
           previousEvaluation,
           currentEvaluation,
         });
@@ -143,17 +113,10 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
         },
         {
           type: "bestmove",
-          bestmove: data.bestmove,
-          variations: data.variations.map((v) => ({
-            move: v.move,
-            scoreCp: v.score_cp,
-            scoreMate: v.score_mate,
-            depth: v.depth,
-            nodes: v.nodes,
-            pv: v.pv,
-          })),
-          timeMs: data.time_ms,
-          engineName: data.engine_name,
+          bestmove: evaluationResult.bestmove,
+          variations: evaluationResult.variations,
+          timeMs: evaluationResult.timeMs,
+          engineName: evaluationResult.engineName,
           sfen: matchState.sfen,
         },
       ]);
@@ -168,17 +131,10 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
       // 6. BestMoveContent形式で返す
       return {
         type: "bestmove",
-        bestmove: data.bestmove,
-        variations: data.variations.map((v) => ({
-          move: v.move,
-          scoreCp: v.score_cp,
-          scoreMate: v.score_mate,
-          depth: v.depth,
-          nodes: v.nodes,
-          pv: v.pv,
-        })),
-        timeMs: data.time_ms,
-        engineName: data.engine_name,
+        bestmove: evaluationResult.bestmove,
+        variations: evaluationResult.variations,
+        timeMs: evaluationResult.timeMs,
+        engineName: evaluationResult.engineName,
         sfen: matchState.sfen,
       } satisfies EvaluateMatchStateResult;
     } catch (error) {

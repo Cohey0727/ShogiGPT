@@ -84,6 +84,28 @@ subscription SubscribeChatMessages($matchId: String!) {
   }
 }
 
+subscription SubscribeMatchStates($matchId: String!) {
+  matchStates(
+    where: { matchId: { _eq: $matchId } }
+    orderBy: { index: ASC }
+  ) {
+    createdAt
+    matchId
+    index
+    moveNotation
+    sfen
+    thinkingTime
+    evaluation {
+      id
+      sfen
+      engineName
+      variations
+      createdAt
+      updatedAt
+    }
+  }
+}
+
 mutation StartMatch(
   $id: String
   $playerSente: String

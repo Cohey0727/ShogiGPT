@@ -5,12 +5,15 @@ object_relationships:
   - name: match
     using:
       foreign_key_constraint_on: matchId
+  - name: evaluation
+    using:
+      foreign_key_constraint_on: evaluationId
 insert_permissions:
   - role: anonymous
     permission:
       check: {}
       columns:
-        - evaluation
+        - evaluationId
         - index
         - thinkingTime
         - matchId
@@ -22,7 +25,7 @@ select_permissions:
   - role: anonymous
     permission:
       columns:
-        - evaluation
+        - evaluationId
         - index
         - thinkingTime
         - matchId
@@ -35,7 +38,7 @@ update_permissions:
   - role: anonymous
     permission:
       columns:
-        - evaluation
+        - evaluationId
         - index
         - thinkingTime
         - matchId

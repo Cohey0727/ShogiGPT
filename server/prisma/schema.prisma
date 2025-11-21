@@ -32,23 +32,25 @@ model Match {
 
 /// 局面情報（ある時点での盤面状態と、そこに至った指し手）
 model MatchState {
-  createdAt    DateTime @default(now())
+  createdAt     DateTime     @default(now())
   /// 紐づく対局ID
-  matchId      String
+  matchId       String
   /// 局面番号（何手目か、0から開始。0は初期局面）
-  index        Int
+  index         Int
   /// この局面に至った指し手表記（USI形式、例: "7g7f"）
-  /// 初期局面（index=0）の場合はnull
-  moveNotation String?
+  /// 初期局面（index=0）の場合は "0000"（USI標準のパス/無効手表記）
+  moveNotation  String
   /// 盤面（SFEN形式）
-  sfen         String
+  sfen          String
   /// 消費時間（秒、オプション）
-  thinkingTime Int?
-  /// 評価値（先手から見た評価値、オプション）
-  evaluation   Int?
-  match        Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  thinkingTime  Int?
+  /// 評価結果ID（オプション）
+  evaluationId  String?
+  match         Match        @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  evaluation    Evaluation?  @relation(fields: [evaluationId], references: [id], onDelete: SetNull)
 
   @@id([matchId, index])
+  @@index([evaluationId])
   @@map("match_states")
 }
 
@@ -90,4 +92,27 @@ enum PlayerType {
 enum MessageRole {
   USER
   ASSISTANT
+}
+
+/// 評価結果キャッシュ
+model Evaluation {
+  /// 評価結果ID
+  id          String       @id @default(cuid())
+  /// 作成日時
+  createdAt   DateTime     @default(now())
+  /// 更新日時
+  updatedAt   DateTime     @updatedAt
+  /// 局面（SFEN形式）
+  sfen        String
+  /// 使用したエンジン名
+  engineName  String
+  /// 候補手のバリエーション（JSON形式）
+  /// 形式: [{ "move": "7g7f", "score": 100, "pv": ["7g7f", "3c3d"], ... }, ...]
+  variations  Json
+  matchStates MatchState[]
+
+  @@unique([sfen, engineName])
+  @@index([sfen])
+  @@index([engineName])
+  @@map("evaluations")
 }

@@ -4,6 +4,7 @@ export * from "./Button";
 export * from "./Checkbox";
 export * from "./Col";
 export * from "./Dialog";
+export * from "./ErrorBoundary";
 export * from "./Row";
 export * from "./SegmentButton";
 export * from "./Separator";

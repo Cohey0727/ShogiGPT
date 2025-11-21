@@ -3,13 +3,22 @@ import { db } from "../../lib/db";
 import { generateChatResponse } from "../../lib/deepseek";
 
 /**
+ * 平手の初期盤面（SFEN形式）
+ */
+const defaultSfen =
+  "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1";
+
+/**
  * 対局を作成する
  */
 export const startMatch: MutationResolvers["startMatch"] = async (
   _parent,
   { input }
 ) => {
-  const { id, playerSente, playerGote, senteType, goteType } = input;
+  const { id, playerSente, playerGote, senteType, goteType, sfen } = input;
+
+  // 初期盤面のSFEN（指定がない場合は平手の初期盤面）
+  const initialSfen = sfen ?? defaultSfen;
 
   // 対局を作成
   const match = await db.match.create({
@@ -19,6 +28,15 @@ export const startMatch: MutationResolvers["startMatch"] = async (
       playerGote: playerGote ?? null,
       senteType: senteType,
       goteType: goteType,
+      // 初期局面（index=0）を作成
+      states: {
+        create: {
+          index: 0,
+          sfen: initialSfen,
+          moveNotation: "0000", // USI標準のパス/無効手表記
+          thinkingTime: null,
+        },
+      },
     },
   });
 

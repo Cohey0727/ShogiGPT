@@ -1,20 +1,24 @@
 # ShogiGPT
 
 ShogiGPTは、将棋AIの思考プロセス（Reasoning、Thinking）を可視化し、チャット形式で質問できるAIです。
-将棋を Web ベースで提供し、AI による指し手の根拠提示まで行うことを目指すプロジェクトです。現時点ではフロントエンド (Bun + React + vanilla-extract + Vite) の雛形を整備しており、今後 AI 推論サービスやバックエンド API と接続していきます。
+将棋を Web ベースで提供し、AI による指し手の根拠提示まで行うことを目指すプロジェクトです。フロントエンド（React + vanilla-extract）、バックエンド（Hono + GraphQL）、データベース（PostgreSQL + Hasura）、将棋エンジン（FastAPI）を統合したフルスタック構成で開発を進めています。
 
 ## 主な特徴
 - 将棋AIの思考プロセスを可視化し、チャット形式でインタラクティブに質問できる
-- Bun 1.2 以降で動作する高速な開発環境
-- React 19 + vanilla-extract による型安全なスタイリング
+- フルスタック TypeScript 開発（フロントエンド・バックエンド共に型安全）
+- Bun による高速な開発環境とビルドパイプライン
+- Hasura による自動生成 GraphQL API とリアルタイム Subscription
+- FastAPI による高性能な将棋エンジン統合
+- vanilla-extract によるゼロランタイム CSS-in-TS
 - Vite ベースのホットリロード開発体験
-- Bun 標準コマンドで統一されたシンプルなビルド/サーブパイプライン
 
 ## 技術スタック
-- ランタイム: [Bun](https://bun.sh)（bunfig / bun.lock で管理）
-- フレームワーク: React 19、TypeScript
-- スタイリング: vanilla-extract（ゼロランタイム CSS-in-TS）
-- バンドラ/開発ツール: Vite（Rolldown Vite） + Bun build / bunx serve
+- **ランタイム**: [Bun](https://bun.sh)（bunfig / bun.lock で管理）
+- **フロントエンド**: React 19 + TypeScript + vanilla-extract + Vite
+- **バックエンド**: Hono (Bun) + GraphQL
+- **データベース**: PostgreSQL + Hasura GraphQL Engine
+- **将棋エンジン**: FastAPI (Python)
+- **開発ツール**: Vite、Bun build、Just (タスクランナー)
 
 ## サービスポート一覧
 
@@ -24,7 +28,7 @@ ShogiGPTは、将棋AIの思考プロセス（Reasoning、Thinking）を可視�
 | 8787 | Server (Hono) | カスタム GraphQL API サーバー（ビジネスロジック） |
 | 8000 | Shogi API (FastAPI) | 将棋エンジン API（局面解析、指し手生成） |
 | 7777 | Hasura GraphQL API | データベース自動生成 GraphQL API + Subscription |
-| 7776 | Hasura Console | Hasura 管理コンソール） |
+| 7776 | Hasura Console | Hasura 管理コンソール |
 | 5432 | PostgreSQL | データベース（対局、局面、チャット履歴） |
 
 

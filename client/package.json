@@ -11,6 +11,7 @@
     "codegen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
+    "@google/model-viewer": "^4.1.0",
     "@paralleldrive/cuid2": "^3.0.4",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",

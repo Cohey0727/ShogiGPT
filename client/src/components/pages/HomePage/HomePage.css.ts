@@ -9,6 +9,7 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     padding: "2rem",
+    position: "relative",
   }),
 
   hero: style({
@@ -17,6 +18,8 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     gap: "2rem",
+    position: "relative",
+    zIndex: 1,
   }),
 
   title: style({

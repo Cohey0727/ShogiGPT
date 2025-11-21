@@ -32,7 +32,7 @@ ShogiGPTは、将棋AIの思考プロセス（Reasoning、Thinking）を可視�
 
 ## ディレクトリ構成
 ```
-shogi-web/
+shogi-gpt/
 ├─ client/      # Web クライアント (Bun + React + vanilla-extract + Vite)
 ├─ server/      # GraphQL API サーバー (Hono + Bun)
 ├─ hasura/      # Hasura 設定とメタデータ

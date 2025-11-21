@@ -4,6 +4,89 @@ import { applyUsiMove } from "./applyUsiMove";
 import { isCheckmate } from "./checkmate";
 
 /**
+ * 王手・詰み関連のタグを分析
+ * @param board 盤面
+ * @param usiMove USI形式の指し手
+ */
+export function analyzeMateTags(board: Board, usiMove: string): string[] {
+  const currentPlayer = board.turn;
+  const opponentPlayer = currentPlayer === "SENTE" ? "GOTE" : "SENTE";
+  const tags: string[] = [];
+
+  try {
+    // 手を指す前に王手されているかチェック
+    const wasInCheck = isInCheck(board, currentPlayer);
+
+    // 手を指した後の盤面
+    const boardAfter = applyUsiMove(board, usiMove);
+
+    // 手を指した後に王手されているかチェック
+    const isStillInCheck = isInCheck(boardAfter, currentPlayer);
+
+    if (wasInCheck) {
+      tags.push("王手中");
+    }
+
+    // 王手をかわす・回避の判定
+    if (wasInCheck && !isStillInCheck) {
+      tags.push("王手回避");
+    }
+
+    // 相手に王手をかけたかチェック
+    const opponentInCheck = isInCheck(boardAfter, opponentPlayer);
+    if (opponentInCheck) {
+      tags.push("王手");
+    }
+
+    // 詰みの判定
+    if (isCheckmate(boardAfter, opponentPlayer)) {
+      tags.push("詰み");
+    }
+  } catch (error) {
+    console.error("Failed to analyze mate tags:", error);
+  }
+
+  return tags;
+}
+
+/**
+ * 指し手の戦術的特徴を分析
+ */
+export function analyzeMoveTags(board: Board, usiMove: string): string[] {
+  const currentPlayer = board.turn;
+  const opponentPlayer = currentPlayer === "SENTE" ? "GOTE" : "SENTE";
+
+  const features: string[] = [];
+
+  try {
+    const moveInfo = parseUsiMove(usiMove);
+
+    // 駒の取り合い分析
+    const capturedPiece = analyzeCapture(board, moveInfo, opponentPlayer);
+    if (capturedPiece) {
+      features.push(`${capturedPiece}を取る`);
+    }
+
+    // 角道の変化分析
+    features.push(...analyzeBishopLine(board, usiMove));
+
+    // 飛車道の変化分析
+    features.push(...analyzeRookLine(board, usiMove));
+
+    // 詰みの判定
+    const boardAfter = applyUsiMove(board, usiMove);
+    if (isCheckmate(boardAfter, opponentPlayer)) {
+      // 手を指した後に相手が詰んでいる場合
+      features.push("詰み");
+    }
+  } catch (error) {
+    console.error("Failed to analyze move features:", error);
+  }
+
+  return features;
+}
+
+/**
  * 指定した駒の位置をすべて取得
  */
 function findPositions(
@@ -577,19 +660,22 @@ function analyzeRookLine(board: Board, usiMove: string): string[] {
         moveInfo.to,
         direction
       );
-
       if (!wasOnLine && !isOnLine) {
         // 飛車道上に関係のない移動の場合はスキップ
         continue;
       }
 
-      if (wasOnLine && isOnLine) {
-        results.push("飛車先を伸ばす");
+      const rangeBefore = getLineOpenRange(board, position, direction);
+      const rangeAfter = getLineOpenRange(boardAfter, position, direction);
+
+      if (wasOnLine && isOnLine && rangeAfter - rangeBefore === 1) {
+        results.push("飛車先を攻める");
         continue;
       }
 
-      const rangeBefore = getLineOpenRange(board, position, direction);
-      const rangeAfter = getLineOpenRange(boardAfter, position, direction);
+      if (Math.abs(rangeAfter - rangeBefore) < 3) {
+        continue;
+      }
 
       if (isOnLine) {
         results.push("飛車道を塞ぐ");
@@ -630,87 +716,4 @@ function isPathClearAndOnLine(
     col += direction.col;
   }
   return false;
-}
-
-/**
- * 王手・詰み関連のタグを分析
- * @param board 盤面
- * @param usiMove USI形式の指し手
- */
-export function analyzeMateTags(board: Board, usiMove: string): string[] {
-  const currentPlayer = board.turn;
-  const opponentPlayer = currentPlayer === "SENTE" ? "GOTE" : "SENTE";
-  const tags: string[] = [];
-
-  try {
-    // 手を指す前に王手されているかチェック
-    const wasInCheck = isInCheck(board, currentPlayer);
-
-    // 手を指した後の盤面
-    const boardAfter = applyUsiMove(board, usiMove);
-
-    // 手を指した後に王手されているかチェック
-    const isStillInCheck = isInCheck(boardAfter, currentPlayer);
-
-    if (wasInCheck) {
-      tags.push("王手中");
-    }
-
-    // 王手をかわす・回避の判定
-    if (wasInCheck && !isStillInCheck) {
-      tags.push("王手回避");
-    }
-
-    // 相手に王手をかけたかチェック
-    const opponentInCheck = isInCheck(boardAfter, opponentPlayer);
-    if (opponentInCheck) {
-      tags.push("王手");
-    }
-
-    // 詰みの判定
-    if (isCheckmate(boardAfter, opponentPlayer)) {
-      tags.push("詰み");
-    }
-  } catch (error) {
-    console.error("Failed to analyze mate tags:", error);
-  }
-
-  return tags;
-}
-
-/**
- * 指し手の戦術的特徴を分析
- */
-export function analyzeMoveTags(board: Board, usiMove: string): string[] {
-  const currentPlayer = board.turn;
-  const opponentPlayer = currentPlayer === "SENTE" ? "GOTE" : "SENTE";
-
-  const features: string[] = [];
-
-  try {
-    const moveInfo = parseUsiMove(usiMove);
-
-    // 駒の取り合い分析
-    const capturedPiece = analyzeCapture(board, moveInfo, opponentPlayer);
-    if (capturedPiece) {
-      features.push(`${capturedPiece}を取る`);
-    }
-
-    // 角道の変化分析
-    features.push(...analyzeBishopLine(board, usiMove));
-
-    // 飛車道の変化分析
-    features.push(...analyzeRookLine(board, usiMove));
-
-    // 詰みの判定
-    const boardAfter = applyUsiMove(board, usiMove);
-    if (isCheckmate(boardAfter, opponentPlayer)) {
-      // 手を指した後に相手が詰んでいる場合
-      features.push("詰み");
-    }
-  } catch (error) {
-    console.error("Failed to analyze move features:", error);
-  }
-
-  return features;
 }

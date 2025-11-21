@@ -106,6 +106,8 @@ model Evaluation {
   sfen        String
   /// 使用したエンジン名
   engineName  String
+  /// 評価スコア（最善手の評価値）
+  score       Int
   /// 候補手のバリエーション（JSON形式）
   /// 形式: [{ "move": "7g7f", "score": 100, "pv": ["7g7f", "3c3d"], ... }, ...]
   variations  Json

@@ -1,6 +1,7 @@
 export * from "./analyzeMoveTags";
 export * from "./applyUsiMove";
 export * from "./boardToSfen";
+export * from "./boardToUsi";
 export * from "./calculateDiffCells";
 export * from "./canDropAtPosition";
 export * from "./checkmate";

@@ -103,7 +103,7 @@ export function MatchDetailPage() {
   >();
 
   const handleBoardChange = useCallback(
-    async (newBoard: Board) => {
+    async (newBoard: Board, moveNotation: string) => {
       // 巻き戻し中は指し手を無効化
       if (viewingStateIndex !== null) {
         return;
@@ -120,11 +120,13 @@ export function MatchDetailPage() {
 
       // MatchStateを保存（Subscriptionで自動的にUIが更新される）
       const result = await insertMatchState({
-        matchId,
-        index: nextMoveIndex,
-        moveNotation: null,
-        sfen: newSfen,
-        thinkingTime: null,
+        matchState: {
+          matchId,
+          index: nextMoveIndex,
+          moveNotation,
+          sfen: newSfen,
+          thinkingTime: null,
+        },
       });
 
       // 次の手番がAIかどうかを判定
@@ -166,11 +168,13 @@ export function MatchDetailPage() {
               // AIの指し手もMatchStateに保存（Subscriptionで自動的にUIが更新される）
               const aiSfen = boardToSfen(newBoardWithAiMove);
               await insertMatchState({
-                matchId,
-                index: aiMoveIndex,
-                moveNotation: evaluation.bestmove,
-                sfen: aiSfen,
-                thinkingTime: evaluation.timeMs,
+                matchState: {
+                  matchId,
+                  index: aiMoveIndex,
+                  moveNotation: evaluation.bestmove,
+                  sfen: aiSfen,
+                  thinkingTime: evaluation.timeMs,
+                },
               });
             } catch (error) {
               console.error("Failed to apply AI move:", error);

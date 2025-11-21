@@ -12,6 +12,7 @@ import {
   canPromote,
   getDropPositions,
 } from "../../../services";
+import { moveToUsi, dropToUsi } from "../../../shared/services";
 import { useModal } from "../../molecules/hooks";
 import { PromotionModal } from "../../molecules";
 import styles from "./ShogiBoard.css";
@@ -19,7 +20,7 @@ import styles from "./ShogiBoard.css";
 interface ShogiBoardProps {
   board: Board;
   currentPlayer: Player;
-  onBoardChange: (board: Board) => void;
+  onBoardChange: (board: Board, moveNotation: string) => void;
   selectedHandPiece?: PieceType | null;
   onHandPieceDeselect?: () => void;
   disabled?: boolean;
@@ -108,12 +109,18 @@ export function ShogiBoard({
             }
           }
 
-          onBoardChange({
-            ...board,
-            cells: newCells,
-            senteHands: newCapturedBySente,
-            goteHands: newCapturedByGote,
-          });
+          // USI形式の指し手を生成（駒打ち）
+          const moveNotation = dropToUsi(selectedHandPiece, { row, col });
+
+          onBoardChange(
+            {
+              ...board,
+              cells: newCells,
+              senteHands: newCapturedBySente,
+              goteHands: newCapturedByGote,
+            },
+            moveNotation
+          );
 
           // 持ち駒の選択を解除
           if (onHandPieceDeselect) {
@@ -198,12 +205,23 @@ export function ShogiBoard({
               }
             }
 
-            onBoardChange({
-              ...board,
-              cells: newCells,
-              senteHands: newSenteHands,
-              goteHands: newGoteHands,
-            });
+            // USI形式の指し手を生成（駒の移動）
+            const promoted = finalPiece.type !== piece.type;
+            const moveNotation = moveToUsi(
+              selectedPosition,
+              { row, col },
+              promoted
+            );
+
+            onBoardChange(
+              {
+                ...board,
+                cells: newCells,
+                senteHands: newSenteHands,
+                goteHands: newGoteHands,
+              },
+              moveNotation
+            );
           }
 
           // 合法手でもそうでなくても選択を解除

@@ -6,7 +6,6 @@ interface Piece {
   id: number;
   model: string;
   x: number;
-  y: number;
   duration: number;
   delay: number;
   rotate: number;
@@ -33,7 +32,6 @@ function generatePieces(): Piece[] {
     id: i,
     model: PIECE_MODELS[Math.floor(Math.random() * PIECE_MODELS.length)],
     x: Math.random() * 100,
-    y: Math.random() * 100,
     duration: 15 + Math.random() * 15, // 15-30秒
     delay: Math.random() * 5, // 0-5秒の遅延
     rotate: Math.random() * 360,
@@ -54,7 +52,6 @@ export function FloatingPieces() {
           className={styles.pieceWrapper}
           style={{
             left: `${piece.x}%`,
-            top: `${piece.y}%`,
             animationDuration: `${piece.duration}s`,
             animationDelay: `${piece.delay}s`,
           }}

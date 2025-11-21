@@ -38,43 +38,32 @@ export async function evaluatePosition(
   sfen: string,
   multipv: number,
   timeMs: number,
-  engineName?: string
+  engineName: string = "Suisho5"
 ): Promise<EvaluationResult> {
   // エンジン名が指定されている場合、キャッシュをチェック
-  if (engineName) {
-    const cachedEvaluation = await db.evaluation.findUnique({
-      where: {
-        sfen_engineName: {
-          sfen,
-          engineName,
-        },
-      },
-    });
 
-    if (cachedEvaluation) {
-      console.log(
-        "✅ Cache hit! Using cached evaluation:",
-        cachedEvaluation.id
-      );
-      const variations = cachedEvaluation.variations as Array<{
-        move: string;
-        scoreCp: number | null;
-        scoreMate: number | null;
-        depth: number;
-        nodes: number;
-        pv: string[];
-      }>;
+  const cachedEvaluation = await db.evaluation.findUnique({
+    where: { sfen_engineName: { sfen, engineName } },
+  });
 
-      return {
-        evaluation: cachedEvaluation,
-        bestmove: variations[0]?.move ?? "",
-        engineName: cachedEvaluation.engineName,
-        timeMs: 0, // キャッシュからの取得なので時間は0
-        variations,
-      };
-    }
+  if (cachedEvaluation) {
+    console.log("✅ Cache hit! Using cached evaluation:", cachedEvaluation.id);
+    const variations = cachedEvaluation.variations as Array<{
+      move: string;
+      scoreCp: number | null;
+      scoreMate: number | null;
+      depth: number;
+      nodes: number;
+      pv: string[];
+    }>;
 
-    console.log("❌ Cache miss. Analyzing position...");
+    return {
+      evaluation: cachedEvaluation,
+      bestmove: variations[0]?.move ?? "",
+      engineName: cachedEvaluation.engineName,
+      timeMs: 0, // キャッシュからの取得なので時間は0
+      variations,
+    };
   }
 
   // キャッシュがない場合は新規に評価
@@ -110,20 +99,39 @@ export async function evaluatePosition(
     pv: v.pv ?? [],
   }));
 
+  // 最善手のスコアを計算
+  // 詰みの場合は10000 * 詰みまでの手数、通常の場合はcentipawn評価値
+  const bestVariation = variations[0];
+  const score =
+    bestVariation?.scoreMate !== null && bestVariation?.scoreMate !== undefined
+      ? 10000 * bestVariation.scoreMate
+      : bestVariation?.scoreCp ?? 0;
+
+  // API呼び出し後、保存前にもう一度キャッシュをチェック
+  const existingEvaluation = await db.evaluation.findUnique({
+    where: { sfen_engineName: { sfen, engineName: data.engine_name } },
+  });
+
+  if (existingEvaluation) {
+    console.log(
+      "✅ Evaluation already exists (race condition avoided):",
+      existingEvaluation.id
+    );
+    return {
+      evaluation: existingEvaluation,
+      bestmove: data.bestmove,
+      engineName: data.engine_name,
+      timeMs: data.time_ms,
+      variations,
+    };
+  }
+
   // 評価結果をEvaluationテーブルに保存
-  const evaluation = await db.evaluation.upsert({
-    where: {
-      sfen_engineName: {
-        sfen,
-        engineName: data.engine_name,
-      },
-    },
-    create: {
+  const evaluation = await db.evaluation.create({
+    data: {
       sfen,
       engineName: data.engine_name,
-      variations,
-    },
-    update: {
+      score,
       variations,
     },
   });

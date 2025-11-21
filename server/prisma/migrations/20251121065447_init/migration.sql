@@ -54,6 +54,7 @@ CREATE TABLE "evaluations" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "sfen" TEXT NOT NULL,
     "engineName" TEXT NOT NULL,
+    "score" INTEGER NOT NULL,
     "variations" JSONB NOT NULL,
 
     CONSTRAINT "evaluations_pkey" PRIMARY KEY ("id")

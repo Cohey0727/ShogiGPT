@@ -194,7 +194,9 @@ export async function generateChatResponse(
               ? toolResult
               : JSON.stringify(toolResult, null, 2);
 
-          console.log(`✅ Tool result: ${toolResultString.substring(0, 200)}...`);
+          console.log(
+            `✅ Tool result: ${toolResultString.substring(0, 200)}...`
+          );
 
           // ツール結果を履歴に追加
           messages.push({
@@ -209,7 +211,9 @@ export async function generateChatResponse(
             role: "tool",
             tool_call_id: toolCall.id,
             name: toolName,
-            content: `エラー: ${error instanceof Error ? error.message : String(error)}`,
+            content: `エラー: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
           });
         }
       }
@@ -364,6 +368,7 @@ ${strategyHint}
 
 ## **厳守事項**:
 - []内のタグを解説に活用して説明に組み込んでください。[]自体は表示しないでください。
+- []内のタグは、打ち手視点での挙動です。相手:[歩を取る] → 自分の歩を取られる、のように解釈してください。
 - ()カッコ内は、元々いた駒の位置です。
 - 上記の読み筋とタグの連携を重視してください。
 - 評価値の大きな変化がある場合は、その戦況変化を踏まえて解説してください

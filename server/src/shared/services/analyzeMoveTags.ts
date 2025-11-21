@@ -397,26 +397,27 @@ function analyzeBishopLine(board: Board, usiMove: string): string[] {
         continue;
       }
 
+      // 角道が開通した場合、最遠到達エリアが変化したかチェック
+      const farthestBefore = getFarthestReachableArea(
+        board,
+        position,
+        direction,
+        currentPlayer
+      );
+      const farthestAfter = getFarthestReachableArea(
+        boardAfter,
+        position,
+        direction,
+        currentPlayer
+      );
+
+      if (farthestBefore === farthestAfter) {
+        continue;
+      }
       if (isOnLine) {
         results.push("角道を閉じる");
       } else {
-        // 角道が開通した場合、最遠到達エリアが変化したかチェック
-        const farthestBefore = getFarthestReachableArea(
-          board,
-          position,
-          direction,
-          currentPlayer
-        );
-        const farthestAfter = getFarthestReachableArea(
-          boardAfter,
-          position,
-          direction,
-          currentPlayer
-        );
-
-        if (farthestBefore !== farthestAfter) {
-          results.push("角道を空ける");
-        }
+        results.push("角道を空ける");
       }
     }
   });
@@ -532,20 +533,22 @@ function analyzeRookLine(board: Board, usiMove: string): string[] {
         continue;
       }
 
-      if (wasOnLine && isOnLine) {
+      const rangeBefore = getLineOpenRange(board, position, direction);
+      const rangeAfter = getLineOpenRange(boardAfter, position, direction);
+
+      if (wasOnLine && isOnLine && rangeAfter - rangeBefore === 1) {
         results.push("飛車先を伸ばす");
         continue;
       }
 
-      const rangeBefore = getLineOpenRange(board, position, direction);
-      const rangeAfter = getLineOpenRange(boardAfter, position, direction);
+      if (Math.abs(rangeAfter - rangeBefore) < 3) {
+        continue;
+      }
 
       if (isOnLine) {
         results.push("飛車道を塞ぐ");
       } else {
-        if (rangeAfter - rangeBefore >= 3) {
-          results.push("飛車道を空ける");
-        }
+        results.push("飛車道を空ける");
       }
     }
   });

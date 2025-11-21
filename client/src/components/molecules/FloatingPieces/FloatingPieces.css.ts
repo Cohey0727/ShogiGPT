@@ -3,15 +3,17 @@ import { style, keyframes } from "@vanilla-extract/css";
 const float = keyframes({
   "0%": {
     transform: "translateY(0) rotate(0deg)",
-    opacity: 0.3,
+    opacity: 0,
   },
-  "50%": {
-    transform: "translateY(-100vh) rotate(180deg)",
-    opacity: 0.6,
+  "10%": {
+    opacity: 0.4,
+  },
+  "90%": {
+    opacity: 0.4,
   },
   "100%": {
-    transform: "translateY(-200vh) rotate(360deg)",
-    opacity: 0.3,
+    transform: "translateY(-120vh) rotate(360deg)",
+    opacity: 0,
   },
 });
 
@@ -29,8 +31,8 @@ const styles = {
 
   pieceWrapper: style({
     position: "absolute",
+    top: "100vh",
     animation: `${float} linear infinite`,
-    opacity: 0.4,
     filter: "blur(1px)",
   }),
 };

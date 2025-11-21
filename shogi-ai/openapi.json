@@ -8,7 +8,9 @@
   "paths": {
     "/": {
       "get": {
-        "tags": ["Root"],
+        "tags": [
+          "Root"
+        ],
         "summary": "Root",
         "description": "APIルート",
         "operationId": "root__get",
@@ -26,7 +28,9 @@
     },
     "/health": {
       "get": {
-        "tags": ["Health"],
+        "tags": [
+          "Health"
+        ],
         "summary": "Health Check",
         "description": "ヘルスチェックエンドポイント",
         "operationId": "health_check_health_get",
@@ -44,7 +48,9 @@
     },
     "/engine/info": {
       "get": {
-        "tags": ["Engine"],
+        "tags": [
+          "Engine"
+        ],
         "summary": "Get Engine Info",
         "description": "エンジン情報を取得",
         "operationId": "get_engine_info_engine_info_get",
@@ -64,7 +70,9 @@
     },
     "/analyze": {
       "post": {
-        "tags": ["Analysis"],
+        "tags": [
+          "Analysis"
+        ],
         "summary": "Analyze Position",
         "description": "局面を解析して最善手と候補手を返す\n\n- **sfen**: SFEN形式の局面（省略時は平手初期局面）\n- **moves**: 初期局面からの指し手リスト\n- **time_ms**: 思考時間（ミリ秒）\n- **depth**: 探索深さ（指定時は固定深さ探索）\n- **multipv**: 候補手の数（1-10）",
         "operationId": "analyze_position_analyze_post",
@@ -104,7 +112,9 @@
     },
     "/mate": {
       "post": {
-        "tags": ["Analysis"],
+        "tags": [
+          "Analysis"
+        ],
         "summary": "Search Mate",
         "description": "詰み探索を実行\n\n- **sfen**: SFEN形式の局面\n- **moves**: 初期局面からの指し手リスト\n- **time_ms**: 詰み探索時間（ミリ秒）",
         "operationId": "search_mate_mate_post",
@@ -243,7 +253,12 @@
           }
         },
         "type": "object",
-        "required": ["bestmove", "variations", "time_ms", "engine_name"],
+        "required": [
+          "bestmove",
+          "variations",
+          "time_ms",
+          "engine_name"
+        ],
         "title": "AnalysisResponse",
         "description": "局面解析レスポンス"
       },
@@ -270,7 +285,12 @@
           }
         },
         "type": "object",
-        "required": ["name", "author", "version", "options"],
+        "required": [
+          "name",
+          "author",
+          "version",
+          "options"
+        ],
         "title": "EngineInfoResponse",
         "description": "エンジン情報レスポンス"
       },
@@ -377,7 +397,9 @@
           }
         },
         "type": "object",
-        "required": ["mate_found"],
+        "required": [
+          "mate_found"
+        ],
         "title": "MateSearchResponse",
         "description": "詰み探索レスポンス"
       },
@@ -446,7 +468,10 @@
           }
         },
         "type": "object",
-        "required": ["move", "depth"],
+        "required": [
+          "move",
+          "depth"
+        ],
         "title": "MoveInfo",
         "description": "1つの候補手情報"
       },
@@ -476,7 +501,11 @@
           }
         },
         "type": "object",
-        "required": ["loc", "msg", "type"],
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
         "title": "ValidationError"
       }
     }

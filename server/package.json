@@ -10,7 +10,7 @@
     "lint": "tsc -b --noEmit && eslint .",
     "codegen": "bunx prisma generate && bun run codegen:graphql && bun run codegen:shogi",
     "codegen:graphql": "graphql-codegen --config codegen.yml",
-    "codegen:shogi": "openapi-ts -i openapi.json -o src/generated/shogi-api -c @hey-api/client-fetch",
+    "codegen:shogi": "openapi-ts -i openapi.json -o src/generated/shogi-ai -c @hey-api/client-fetch",
     "migrate": "prisma migrate dev",
     "migrate:create": "prisma migrate dev --create-only",
     "migrate:deploy": "prisma migrate deploy",

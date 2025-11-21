@@ -1,6 +1,6 @@
 import type { Evaluation } from "../generated/prisma/client";
 import { db } from "./db";
-import { analyzePositionAnalyzePost } from "../generated/shogi-api";
+import { analyzePositionAnalyzePost } from "../generated/shogi-ai";
 
 /**
  * 盤面評価結果の型定義
@@ -82,7 +82,7 @@ export async function evaluatePosition(
   });
 
   if (error || !data) {
-    console.error("❌ shogi-api error:", error);
+    console.error("❌ shogi-ai error:", error);
     throw new Error("Analysis failed");
   }
 

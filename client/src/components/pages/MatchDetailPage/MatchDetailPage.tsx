@@ -12,7 +12,6 @@ import type { Board, PieceType } from "../../../shared/consts";
 import {
   sfenToBoard,
   boardToSfen,
-  applyUsiMove,
   createInitialBoard,
   calculateDiffCells,
   getWinner,
@@ -143,42 +142,18 @@ export function MatchDetailPage() {
 
         try {
           // 保存したMatchStateのmatchIdとindexを使ってAI評価を実行
+          // applyBestMove: trueを指定することで、サーバー側で最善手を盤面に反映
           const evaluationResponse = await evaluateMatchState({
             input: {
               matchId: newMatchState.matchId,
               index: newMatchState.index,
+              applyBestMove: true,
             },
           });
           const evaluation = evaluationResponse.data?.evaluateMatchState;
-
           // 思考時間を設定
           if (evaluation?.timeMs) {
             setAiThinkingTimeMs(evaluation.timeMs);
-          }
-
-          // AIの最善手を盤面に反映
-          if (evaluation?.bestmove) {
-            try {
-              const newBoardWithAiMove = applyUsiMove(
-                updatedBoard,
-                evaluation.bestmove
-              );
-              const aiMoveIndex = nextMoveIndex + 1;
-
-              // AIの指し手もMatchStateに保存（Subscriptionで自動的にUIが更新される）
-              const aiSfen = boardToSfen(newBoardWithAiMove);
-              await insertMatchState({
-                matchState: {
-                  matchId,
-                  index: aiMoveIndex,
-                  moveNotation: evaluation.bestmove,
-                  sfen: aiSfen,
-                  thinkingTime: evaluation.timeMs,
-                },
-              });
-            } catch (error) {
-              console.error("Failed to apply AI move:", error);
-            }
           }
         } finally {
           // AIの思考が終了

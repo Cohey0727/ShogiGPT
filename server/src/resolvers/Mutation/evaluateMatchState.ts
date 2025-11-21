@@ -6,6 +6,9 @@ import { db } from "../../lib/db";
 import { MessageContentsSchema } from "../../shared/schemas/chatMessage";
 import { generateBestMoveCommentary } from "../../lib/deepseek";
 import { evaluatePosition } from "../../lib/evaluatePosition";
+import { sfenToBoard } from "../../shared/services/sfenToBoard";
+import { applyUsiMove } from "../../shared/services/applyUsiMove";
+import { boardToSfen } from "../../shared/services/boardToSfen";
 
 /**
  * 既に保存されたMatchStateに対して非同期で盤面評価を行う
@@ -128,7 +131,37 @@ export const evaluateMatchState: MutationResolvers["evaluateMatchState"] =
 
       console.log("✅ Thinking message updated with evaluation result");
 
-      // 6. BestMoveContent形式で返す
+      // 6. applyBestMoveがtrueの場合、最善手を適用した次の局面を保存
+      if (input.applyBestMove) {
+        try {
+          const currentBoard = sfenToBoard(matchState.sfen);
+          const newBoardWithAiMove = applyUsiMove(
+            currentBoard,
+            evaluationResult.bestmove
+          );
+          const aiMoveIndex = input.index + 1;
+          const aiSfen = boardToSfen(newBoardWithAiMove);
+
+          await db.matchState.create({
+            data: {
+              matchId: matchState.matchId,
+              index: aiMoveIndex,
+              moveNotation: evaluationResult.bestmove,
+              sfen: aiSfen,
+              thinkingTime: Math.floor(evaluationResult.timeMs / 1000),
+            },
+          });
+
+          console.log(
+            `✅ Applied best move and created MatchState at index ${aiMoveIndex}`
+          );
+        } catch (error) {
+          console.error("⚠️ Failed to apply best move:", error);
+          // エラーが発生しても評価結果は返す
+        }
+      }
+
+      // 7. BestMoveContent形式で返す
       return {
         type: "bestmove",
         bestmove: evaluationResult.bestmove,

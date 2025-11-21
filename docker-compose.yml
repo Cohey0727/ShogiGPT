@@ -26,12 +26,12 @@ services:
     networks:
       - shogi-network
 
-  shogi-api:
+  shogi-ai:
     platform: linux/amd64
     build:
       context: ./shogi-ai
       dockerfile: Dockerfile
-    container_name: shogi-api
+    container_name: shogi-ai
     ports:
       - "8000:8000"
     environment:

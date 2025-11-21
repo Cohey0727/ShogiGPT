@@ -26,7 +26,7 @@ ShogiGPTは、将棋AIの思考プロセス（Reasoning、Thinking）を可視�
 | --- | --- | --- |
 | 5173 | Client (Vite) | フロントエンド開発サーバー（React UI） |
 | 8787 | Server (Hono) | カスタム GraphQL API サーバー（ビジネスロジック） |
-| 8000 | Shogi API (FastAPI) | 将棋エンジン API（局面解析、指し手生成） |
+| 8000 | Shogi AI (FastAPI) | 将棋エンジン API（局面解析、指し手生成） |
 | 7777 | Hasura GraphQL API | データベース自動生成 GraphQL API + Subscription |
 | 7776 | Hasura Console | Hasura 管理コンソール |
 | 5432 | PostgreSQL | データベース（対局、局面、チャット履歴） |

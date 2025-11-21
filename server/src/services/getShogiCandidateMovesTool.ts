@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { AiFunctionCallingTool } from "./aiFunctionCallingTool";
 import { createAiToolDefinition } from "./aiFunctionCallingTool";
 import { db } from "../lib/db";
-import { analyzePositionAnalyzePost } from "../generated/shogi-api";
+import { analyzePositionAnalyzePost } from "../generated/shogi-ai";
 import { formatMoveToJapanese, sfenToBoard } from "../shared/services";
 import type { Board } from "../shared/consts/shogi";
 import { sfenToAscii } from "../shared/services/sfenToAscii";

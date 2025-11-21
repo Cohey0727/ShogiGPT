@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI):
 
 # FastAPIアプリケーション
 app = FastAPI(
-    title="YaneuraOu + Suisho5 Shogi API",
+    title="YaneuraOu + Suisho5 Shogi AI",
     description="将棋エンジンやねうら王（水匠5評価関数）のREST API",
     version="1.0.0",
     lifespan=lifespan

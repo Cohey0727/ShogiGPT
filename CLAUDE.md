@@ -31,7 +31,7 @@ shogi-gpt/
 | --- | --- | --- |
 | 5173 | Client (Vite) | フロントエンド開発サーバー |
 | 8787 | Server (Hono) | カスタム GraphQL API サーバー |
-| 8000 | Shogi API (FastAPI) | 将棋エンジン API |
+| 8000 | Shogi AI (FastAPI) | 将棋エンジン API |
 | 7777 | Hasura GraphQL API | データベース自動生成 GraphQL API + Subscription |
 | 7776 | Hasura Console | Hasura 管理コンソール |
 | 5432 | PostgreSQL | データベース |

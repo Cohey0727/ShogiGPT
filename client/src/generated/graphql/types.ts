@@ -315,6 +315,8 @@ export const CursorOrdering = {
 export type CursorOrdering = typeof CursorOrdering[keyof typeof CursorOrdering];
 /** 対局状態評価リクエスト */
 export type EvaluateMatchStateInput = {
+  /** 最善手を盤面に反映するかどうか */
+  applyBestMove?: InputMaybe<Scalars['Boolean']['input']>;
   /** 局面番号 */
   index: Scalars['Int']['input'];
   /** 対局ID */

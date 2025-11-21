@@ -264,6 +264,10 @@ input EvaluateMatchStateInput {
   候補手の数（MultiPV、デフォルト: 3）
   """
   multipv: Int
+  """
+  最善手を盤面に反映するかどうか
+  """
+  applyBestMove: Boolean
 }
 
 """

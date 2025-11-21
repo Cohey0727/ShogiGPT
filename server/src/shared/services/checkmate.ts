@@ -54,7 +54,7 @@ function isPositionUnderAttack(
 /**
  * 王手状態かどうかをチェック
  */
-function isInCheck(board: Board, player: Player): boolean {
+export function isInCheck(board: Board, player: Player): boolean {
   const kingPos = findKingPosition(board, player);
   if (!kingPos) return false;
 

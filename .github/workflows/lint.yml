@@ -1,0 +1,54 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Just
+        uses: extractions/setup-just@v2
+
+      - name: Install dependencies
+        run: just install
+
+      - name: Run lint
+        id: lint
+        run: |
+          set +e
+          just lint > lint_output.txt 2>&1
+          LINT_EXIT_CODE=$?
+          cat lint_output.txt
+          echo "exit_code=$LINT_EXIT_CODE" >> $GITHUB_OUTPUT
+          exit $LINT_EXIT_CODE
+
+      - name: Generate error summary
+        if: failure()
+        run: |
+          echo "## :x: Lint Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The following lint errors were found:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat lint_output.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate success summary
+        if: success()
+        run: |
+          echo "## :white_check_mark: Lint Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All lint checks passed successfully!" >> $GITHUB_STEP_SUMMARY

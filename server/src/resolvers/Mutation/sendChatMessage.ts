@@ -72,11 +72,11 @@ async function generateAndUpdateAiResponse(params: {
   try {
     const { matchId, content, userMessageId, assistantMessageId } = params;
 
-    // 会話履歴を取得（最新5件、partial除外）
+    // 会話履歴を取得（最新3件、partial除外）
     const history = await db.chatMessage.findMany({
       where: { matchId, isPartial: false },
       orderBy: { createdAt: "asc" },
-      take: 5,
+      take: 3,
     });
 
     // DeepSeek APIで応答を生成

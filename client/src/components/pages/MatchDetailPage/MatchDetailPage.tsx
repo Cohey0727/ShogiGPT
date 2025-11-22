@@ -6,6 +6,7 @@ import {
   useSubscribeMatchStatesSubscription,
   useInsertMatchStateMutation,
   useEvaluateMatchStateMutation,
+  useSubscribeChatMessagesSubscription,
 } from "../../../generated/graphql/types";
 import styles from "./MatchDetailPage.css";
 import type { Board, PieceType } from "../../../shared/consts";
@@ -40,6 +41,12 @@ export function MatchDetailPage() {
     pause: !matchId,
   });
 
+  // ChatMessagesをSubscriptionで監視（isPartialチェック用）
+  const [{ data: chatMessagesData }] = useSubscribeChatMessagesSubscription({
+    variables: { matchId },
+    pause: !matchId,
+  });
+
   const [, insertMatchState] = useInsertMatchStateMutation();
   const [, evaluateMatchState] = useEvaluateMatchStateMutation();
 
@@ -57,6 +64,13 @@ export function MatchDetailPage() {
   );
 
   const isPaused = viewingStateIndex !== null;
+
+  // 最新のチャットメッセージがisPartialかどうかを判定
+  const isChatPartial = useMemo(() => {
+    const messages = chatMessagesData?.chatMessages || [];
+    if (messages.length === 0) return false;
+    return messages[messages.length - 1].isPartial;
+  }, [chatMessagesData?.chatMessages]);
 
   const boardState = useMemo<BoardState>(() => {
     const matchStates = matchStatesData?.matchStates || [];
@@ -204,7 +218,7 @@ export function MatchDetailPage() {
     <div className={styles.container}>
       <div className={styles.content}>
         <div className={styles.chatSection}>
-          <MatchChat matchId={matchId} />
+          <MatchChat matchId={matchId} disabled={isChatPartial} />
         </div>
 
         <Col>
@@ -234,7 +248,7 @@ export function MatchDetailPage() {
                     setSelectedHandPiece(pieceType);
                   }
                 }}
-                disabled={isAiThinking || isPaused}
+                disabled={isAiThinking || isPaused || isChatPartial}
               />
             </div>
             <div className={styles.boardContainer}>
@@ -244,7 +258,7 @@ export function MatchDetailPage() {
                 onBoardChange={handleBoardChange}
                 selectedHandPiece={selectedHandPiece}
                 onHandPieceDeselect={() => setSelectedHandPiece(null)}
-                disabled={isAiThinking || isPaused}
+                disabled={isAiThinking || isPaused || isChatPartial}
                 diffCells={diffCells}
               />
             </div>
@@ -260,7 +274,7 @@ export function MatchDetailPage() {
                     setSelectedHandPiece(pieceType);
                   }
                 }}
-                disabled={isAiThinking || isPaused}
+                disabled={isAiThinking || isPaused || isChatPartial}
               />
             </div>
           </Row>

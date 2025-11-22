@@ -17,6 +17,7 @@ import styles from "./MatchChat.css";
 interface MatchChatProps {
   matchId: string;
   currentUser?: string;
+  disabled?: boolean;
 }
 
 const formatTimestamp = (isoString: string): string => {
@@ -27,7 +28,10 @@ const formatTimestamp = (isoString: string): string => {
   });
 };
 
-export function MatchChat({ matchId }: MatchChatProps) {
+export function MatchChat({
+  matchId,
+  disabled = false,
+}: MatchChatProps) {
   const [inputValue, setInputValue] = useState("");
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -131,8 +135,11 @@ export function MatchChat({ matchId }: MatchChatProps) {
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="メッセージを入力..."
           className={styles.input}
+          disabled={disabled}
         />
-        <Button type="submit">送信</Button>
+        <Button type="submit" disabled={disabled}>
+          送信
+        </Button>
       </form>
     </div>
   );

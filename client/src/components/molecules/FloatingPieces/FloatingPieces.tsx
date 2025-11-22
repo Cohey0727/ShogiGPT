@@ -63,8 +63,8 @@ export function FloatingPieces() {
             "disable-zoom": true,
             "disable-pan": true,
             style: {
-              width: "80px",
-              height: "80px",
+              width: "8rem",
+              height: "8rem",
               transform: `rotate(${piece.rotate}deg)`,
             },
           })}

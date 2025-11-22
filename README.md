@@ -55,9 +55,7 @@ shogi-gpt/
 
 2. Bun をインストール (例: `curl -fsSL https://bun.sh/install | bash`)
 
-3. 開発用のプロセスマネージャー `mprocs` をインストール（`brew install mprocs` や `cargo install mprocs` など）
-
-4. Hasura CLI をインストール
+3. Hasura CLI をインストール
    ```bash
    # macOS/Linux
    curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | bash
@@ -66,7 +64,17 @@ shogi-gpt/
    brew install hasura-cli
    ```
 
-5. 依存関係をインストール
+4. （推奨）開発用のプロセスマネージャー `mprocs` をインストール
+   ```bash
+   # macOS
+   brew install mprocs
+
+   # または Cargo (Rust)
+   cargo install mprocs
+   ```
+   `just dev` は複数プロセスを `mprocs` で監視しながら起動します。
+
+6. 依存関係をインストール
    ```bash
    just install
    ```
@@ -81,5 +89,3 @@ shogi-gpt/
 | `just lint` | クライアントとサーバーのコードをリント |
 | `just codegen` | GraphQLスキーマから型定義を生成 |
 | `just db-reset` | データベースを完全にリセット（**警告**: すべてのデータを削除） |
-
-`just dev` は複数プロセスを [`mprocs`](https://github.com/pvolok/mprocs) で監視しながら起動します。まだ `mprocs` が無い場合は `brew install mprocs` もしくは `cargo install mprocs` で導入してください。インストールされていない場合は自動的に従来のバックグラウンド起動方式へフォールバックします。

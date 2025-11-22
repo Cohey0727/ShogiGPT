@@ -1,6 +1,5 @@
 import { z } from "zod";
 import type { AiFunctionCallingTool } from "./aiFunctionCallingTool";
-import { createAiToolDefinition } from "./aiFunctionCallingTool";
 import { db } from "../lib/db";
 import {
   sfenToBoard,
@@ -9,6 +8,7 @@ import {
   applyUsiMove,
   boardToSfen,
 } from "../shared/services";
+import { evaluateAndApplyAiMove } from "./evaluateAndApplyAiMove";
 
 const ArgsSchema = z.object({
   matchId: z.string().describe("対局ID"),
@@ -48,6 +48,18 @@ async function execute(args: Args): Promise<Result> {
       };
     }
 
+    // 対局情報を取得
+    const match = await db.match.findUnique({
+      where: { id: matchId },
+    });
+
+    if (!match) {
+      return {
+        success: false,
+        message: `対局ID ${matchId} が見つかりません`,
+      };
+    }
+
     // SFENから盤面を生成
     const board = sfenToBoard(latestState.sfen);
 
@@ -77,7 +89,7 @@ async function execute(args: Args): Promise<Result> {
     const newSfen = boardToSfen(newBoard);
 
     // 新しい局面を保存
-    await db.matchState.create({
+    const newState = await db.matchState.create({
       data: {
         matchId,
         index: latestState.index + 1,
@@ -85,6 +97,56 @@ async function execute(args: Args): Promise<Result> {
         moveNotation: usiMove,
       },
     });
+
+    console.log(
+      `✅ User move applied: ${move} (${usiMove}) at index ${newState.index}`
+    );
+
+    // 次の手番がAIかどうかを判定
+    const nextTurn = newBoard.turn; // applyUsiMoveで既に手番が切り替わっている
+    const isAiTurn =
+      nextTurn === "SENTE" ? match.senteType === "AI" : match.goteType === "AI";
+
+    if (isAiTurn) {
+      console.log("🤖 Next turn is AI. Evaluating position...");
+
+      try {
+        // 新しいサービスを呼び出してAIの評価と手を適用
+        await evaluateAndApplyAiMove({
+          matchId,
+          index: newState.index,
+          multipv: 5,
+          thinkingTime: 10,
+          applyBestMove: true,
+        });
+
+        // AI手適用後の最新局面を取得
+        const aiState = await db.matchState.findFirst({
+          where: { matchId },
+          orderBy: { index: "desc" },
+        });
+
+        return {
+          success: true,
+          message: `指し手「${move}」を実行しました。AIが手を指しました。`,
+          usiMove,
+          newSfen: aiState?.sfen ?? newSfen,
+        };
+      } catch (error) {
+        console.error(
+          "⚠️ Failed to evaluate position or apply AI move:",
+          error
+        );
+
+        // ユーザーの手は成功したので、success: trueを返す
+        return {
+          success: true,
+          message: `指し手「${move}」を実行しましたが、AIの思考中にエラーが発生しました。`,
+          usiMove,
+          newSfen,
+        };
+      }
+    }
 
     return {
       success: true,
@@ -103,12 +165,11 @@ async function execute(args: Args): Promise<Result> {
   }
 }
 
+const description =
+  '指定された指し手を実行します。ユーザーが「7六に歩を進めて」「5五に金を打って」などと指示した際に使用してください。日本語形式の指し手（例: "7六歩", "5五金打", "2四角成"）を受け取り、合法性をチェックして盤面に適用します。78飛車など間違っている場合は、7八飛車など変換してあげてください。';
 export const makeMoveTool: AiFunctionCallingTool<typeof ArgsSchema, Result> = {
-  definition: createAiToolDefinition(
-    "make_move",
-    '指定された指し手を実行します。ユーザーが「7六に歩を進めて」「5五に金を打って」などと指示した際に使用してください。日本語形式の指し手（例: "7六歩", "5五金打", "2四角成"）を受け取り、合法性をチェックして盤面に適用します。78飛車など間違っている場合は、7八飛車など変換してあげてください。',
-    ArgsSchema
-  ),
-  argsSchema: ArgsSchema,
+  name: "make_move",
+  description,
+  args: ArgsSchema,
   execute,
 };

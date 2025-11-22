@@ -91,6 +91,8 @@ interface GenerateChatResponseOptions {
   maxIterations?: number;
 }
 
+const chatSystemPrompt = `あなたは将棋の対局をサポートするAIアシスタントです。ユーザーの質問に対して、親切で分かりやすく回答してください。候補手や評価値が必要な場合は、利用可能なツールを使用して情報を取得してください。`;
+
 export async function generateChatResponse(
   options: GenerateChatResponseOptions
 ): Promise<string>;
@@ -123,8 +125,7 @@ export async function generateChatResponse(
   const messages: DeepSeekMessage[] = [
     {
       role: "system",
-      content:
-        "あなたは将棋の対局をサポートするAIアシスタントです。ユーザーの質問に対して、親切で分かりやすく回答してください。候補手や評価値が必要な場合は、利用可能なツールを使用して情報を取得してください。将棋に関係のないあいさつや質問は、Toolを使用せず、雑に答えてください。",
+      content: chatSystemPrompt,
     },
     ...history,
     {

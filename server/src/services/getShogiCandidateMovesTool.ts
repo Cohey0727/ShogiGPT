@@ -1,6 +1,5 @@
 import { z } from "zod";
 import type { AiFunctionCallingTool } from "./aiFunctionCallingTool";
-import { createAiToolDefinition } from "./aiFunctionCallingTool";
 import { db } from "../lib/db";
 import { analyzePositionAnalyzePost } from "../generated/shogi-ai";
 import { formatMoveToJapanese, sfenToBoard } from "../shared/services";
@@ -94,11 +93,9 @@ export const getShogiCandidateMovesTool: AiFunctionCallingTool<
   typeof ArgsSchema,
   Result
 > = {
-  definition: createAiToolDefinition(
-    "get_shogi_candidate_moves",
+  name: "get_shogi_candidate_moves",
+  description:
     "現在の局面における候補手と評価値を取得します。ユーザーが「候補手は？」「次の手は？」「どう指せばいい？」などと質問した際に使用してください。",
-    ArgsSchema
-  ),
-  argsSchema: ArgsSchema,
+  args: ArgsSchema,
   execute,
 };

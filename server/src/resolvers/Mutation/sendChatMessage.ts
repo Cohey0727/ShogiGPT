@@ -4,6 +4,7 @@ import { generateChatResponse } from "../../lib/deepseek";
 import { MessageContentsSchema } from "../../shared";
 import { getShogiCandidateMovesTool } from "../../services/getShogiCandidateMovesTool";
 import { makeMoveTool } from "../../services/makeMoveTool";
+import { createAiToolDefinition } from "../../services/aiFunctionCallingTool";
 
 export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
   _parent,
@@ -98,37 +99,63 @@ async function generateAndUpdateAiResponse(params: {
       });
 
     // ツールマップを作成
-    const tools = [getShogiCandidateMovesTool, makeMoveTool];
+    const tools = [
+      { tool: getShogiCandidateMovesTool, needsResponse: true },
+      { tool: makeMoveTool, needsResponse: false },
+    ];
     const toolMap = new Map(
-      tools.map((tool) => [tool.definition.function.name, tool])
+      tools.map((entry) => [
+        entry.tool.name,
+        { tool: entry.tool, needsResponse: entry.needsResponse },
+      ])
     );
+
+    let shouldReturnResponse = true;
 
     // Function Callingを有効にしてAI応答を生成
     const aiResponseContent = await generateChatResponse({
-      userMessage: `対局ID: ${matchId}\n${content}`,
+      userMessage: createChatContent(content, matchId),
       conversationHistory,
-      tools: tools.map((t) => t.definition),
+      tools: tools.map((entry) =>
+        createAiToolDefinition(
+          entry.tool.name,
+          entry.tool.description,
+          entry.tool.args
+        )
+      ),
       onToolCall: async (toolName, toolArgs) => {
-        const tool = toolMap.get(toolName);
-        if (!tool) {
+        const toolEntry = toolMap.get(toolName);
+        if (!toolEntry) {
           throw new Error(`Unknown tool: ${toolName}`);
         }
+        const { tool, needsResponse } = toolEntry;
+
+        // ツールがレスポンスを必要としない場合、即座にアシスタントメッセージを削除
+        if (!needsResponse) {
+          shouldReturnResponse = false;
+          await db.chatMessage.delete({
+            where: { id: assistantMessageId },
+          });
+        }
+
         // Zodでバリデーション
-        const validatedArgs = tool.argsSchema.parse(toolArgs);
+        const validatedArgs = tool.args.parse(toolArgs);
         // ツールを実行
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return await tool.execute(validatedArgs as any);
       },
     });
 
-    // AI応答メッセージを更新
-    await db.chatMessage.update({
-      where: { id: assistantMessageId },
-      data: {
-        contents: [{ type: "markdown", content: aiResponseContent }],
-        isPartial: false,
-      },
-    });
+    // レスポンスが必要な場合のみAI応答メッセージを更新
+    if (shouldReturnResponse) {
+      await db.chatMessage.update({
+        where: { id: assistantMessageId },
+        data: {
+          contents: [{ type: "markdown", content: aiResponseContent }],
+          isPartial: false,
+        },
+      });
+    }
   } catch (error) {
     console.error("DeepSeek API error:", error);
     // エラー時も更新
@@ -146,4 +173,16 @@ async function generateAndUpdateAiResponse(params: {
       },
     });
   }
+}
+
+function createChatContent(content: string, matchId: string): string {
+  return `以下の内容に返答してください。ただし以下の内容を厳守してください。
+- 将棋に関係のないあいさつや質問には、無理に将棋を紐付けつる必要はありません。ツールを使用せず、雑に答えてください。
+- メタ的な言及や対局IDへの言及はしないでください。
+- 必要に応じてツールを使用して、候補手を取得して解説に組み込んでください。
+- 評価値はそのまま利用せず、優勢・互角・劣勢などの表現に変換して解説に組み込んでください。
+- 対局ID: ${matchId} ユーザーからのメッセージのメッセージが将棋と関係ない場合、対局IDは無視してください。
+# ユーザーからのメッセージ:
+「${content}」
+`;
 }

@@ -4,15 +4,9 @@ export interface AiFunctionCallingTool<
   TArgs extends z.ZodTypeAny,
   TResult = unknown
 > {
-  definition: {
-    type: "function";
-    function: {
-      name: string;
-      description: string;
-      parameters: Record<string, unknown>;
-    };
-  };
-  argsSchema: TArgs;
+  name: string;
+  description: string;
+  args: TArgs;
   execute: (args: z.infer<TArgs>) => Promise<TResult>;
 }
 

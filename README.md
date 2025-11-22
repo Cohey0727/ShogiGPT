@@ -48,9 +48,16 @@ shogi-gpt/
 ```
 
 ## セットアップ
-1. Bun をインストール (例: `curl -fsSL https://bun.sh/install | bash`)
-2. 開発用のプロセスマネージャー `mprocs` をインストール（`brew install mprocs` や `cargo install mprocs` など）
-3. Hasura CLI をインストール
+1. Docker と Docker Compose をインストール
+   - [Docker Desktop](https://www.docker.com/products/docker-desktop) をインストール（macOS/Windows）
+   - Linux の場合は [Docker Engine](https://docs.docker.com/engine/install/) と [Docker Compose](https://docs.docker.com/compose/install/) をインストール
+   - **本プロジェクトはPostgreSQLやHasuraなどのサービスをDockerで実行するため、Dockerが必須です**
+
+2. Bun をインストール (例: `curl -fsSL https://bun.sh/install | bash`)
+
+3. 開発用のプロセスマネージャー `mprocs` をインストール（`brew install mprocs` や `cargo install mprocs` など）
+
+4. Hasura CLI をインストール
    ```bash
    # macOS/Linux
    curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | bash
@@ -58,7 +65,8 @@ shogi-gpt/
    # または Homebrew
    brew install hasura-cli
    ```
-4. 依存関係をインストール
+
+5. 依存関係をインストール
    ```bash
    just install
    ```

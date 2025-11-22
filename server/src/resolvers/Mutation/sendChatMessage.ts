@@ -3,6 +3,7 @@ import { db } from "../../lib/db";
 import { generateChatResponse } from "../../lib/deepseek";
 import { MessageContentsSchema } from "../../shared";
 import { getShogiCandidateMovesTool } from "../../services/getShogiCandidateMovesTool";
+import { makeMoveTool } from "../../services/makeMoveTool";
 
 export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
   _parent,
@@ -97,7 +98,7 @@ async function generateAndUpdateAiResponse(params: {
       });
 
     // ツールマップを作成
-    const tools = [getShogiCandidateMovesTool];
+    const tools = [getShogiCandidateMovesTool, makeMoveTool];
     const toolMap = new Map(
       tools.map((tool) => [tool.definition.function.name, tool])
     );
@@ -115,7 +116,8 @@ async function generateAndUpdateAiResponse(params: {
         // Zodでバリデーション
         const validatedArgs = tool.argsSchema.parse(toolArgs);
         // ツールを実行
-        return await tool.execute(validatedArgs);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return await tool.execute(validatedArgs as any);
       },
     });
 

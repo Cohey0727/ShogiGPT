@@ -11,4 +11,5 @@ export * from "./createInitialBoard";
 export * from "./formatMoveToJapanese";
 export * from "./getPieceNameJapanese";
 export * from "./isLegalMove";
+export * from "./japaneseToUsiMove";
 export * from "./sfenToBoard";

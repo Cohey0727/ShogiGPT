@@ -2,7 +2,6 @@
 
 ![ShogiGPT](/assets/hero.png)
 
-
 ShogiGPTは、将棋AIの思考プロセス（Reasoning、Thinking）を可視化し、チャット形式で質問できるAIです。
 将棋を Web ベースで提供し、AI による指し手の根拠提示まで行うことを目指すプロジェクトです。フロントエンド（React + vanilla-extract）、バックエンド（Hono + GraphQL）、データベース（PostgreSQL + Hasura）、将棋エンジン（FastAPI）を統合したフルスタック構成で開発を進めています。
 
@@ -14,6 +13,8 @@ ShogiGPTは、将棋AIの思考プロセス（Reasoning、Thinking）を可視�
 - FastAPI による高性能な将棋エンジン統合
 - vanilla-extract によるゼロランタイム CSS-in-TS
 - Vite ベースのホットリロード開発体験
+
+![Match Demo](/assets/match.gif)
 
 ## 技術スタック
 - **ランタイム**: [Bun](https://bun.sh)（bunfig / bun.lock で管理）

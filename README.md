@@ -64,7 +64,7 @@ shogi-gpt/
    brew install hasura-cli
    ```
 
-4. （推奨）開発用のプロセスマネージャー `mprocs` をインストール
+4. 開発用のプロセスマネージャー `mprocs` をインストール
    ```bash
    # macOS
    brew install mprocs
@@ -73,6 +73,12 @@ shogi-gpt/
    cargo install mprocs
    ```
    `just dev` は複数プロセスを `mprocs` で監視しながら起動します。
+
+5. サーバーの環境変数を設定
+   ```bash
+   cp server/.env.example server/.env
+   ```
+   `.env`ファイルを編集して`DEEPSEEK_API_KEY`を設定してください（他の環境変数はデフォルト値で動作します）。
 
 6. 依存関係をインストール
    ```bash

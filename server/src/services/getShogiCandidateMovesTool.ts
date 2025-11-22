@@ -95,7 +95,7 @@ export const getShogiCandidateMovesTool: AiFunctionCallingTool<
 > = {
   name: "get_shogi_candidate_moves",
   description:
-    "現在の局面における候補手と評価値を取得します。ユーザーが「候補手は？」「次の手は？」「どう指せばいい？」などと質問した際に使用してください。",
+    "現在の局面における候補手と評価値を取得します。将棋に関する質問（候補手、次の手、局面評価など）には必ずこのツールを使用して正確な情報を取得してください。推測や想像で答えてはいけません。",
   args: ArgsSchema,
   execute,
 };

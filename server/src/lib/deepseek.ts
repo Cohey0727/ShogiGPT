@@ -91,7 +91,15 @@ interface GenerateChatResponseOptions {
   maxIterations?: number;
 }
 
-const chatSystemPrompt = `あなたは将棋の対局をサポートするAIアシスタントです。ユーザーの質問に対して、親切で分かりやすく回答してください。候補手や評価値が必要な場合は、利用可能なツールを使用して情報を取得してください。`;
+const chatSystemPrompt = `あなたは将棋の対局をサポートするAIアシスタントです。
+
+重要な原則：
+1. 将棋に関する質問や指示には、必ず利用可能なツールを使用してください
+2. ツールを使わずに推測や想像で候補手を答えることは禁止です
+3. ユーザーが指し手を指示した場合は、必ずmake_moveツールで実際に盤面を更新してください
+4. 挨拶や雑談など、将棋に関係ない会話には自然に応答してください（ツール不要）
+
+ユーザーの質問に対して、親切で分かりやすく回答してください。`;
 
 export async function generateChatResponse(
   options: GenerateChatResponseOptions

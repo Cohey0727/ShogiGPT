@@ -28,10 +28,7 @@ const formatTimestamp = (isoString: string): string => {
   });
 };
 
-export function MatchChat({
-  matchId,
-  disabled = false,
-}: MatchChatProps) {
+export function MatchChat({ matchId, disabled = false }: MatchChatProps) {
   const [inputValue, setInputValue] = useState("");
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -65,7 +62,6 @@ export function MatchChat({
       matchId,
       content: inputValue,
     });
-
     setInputValue("");
   };
 

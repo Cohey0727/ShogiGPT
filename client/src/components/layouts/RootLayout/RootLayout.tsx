@@ -12,17 +12,17 @@ const navigationItems = [
   {
     href: "/",
     title: "ホーム",
-    icon: <HomeIcon width={24} height={24} />,
+    icon: HomeIcon,
   },
   {
     href: "/matches",
     title: "対局一覧",
-    icon: <LayersIcon width={20} height={20} />,
+    icon: LayersIcon,
   },
   {
     href: "/settings",
     title: "設定",
-    icon: <GearIcon width={20} height={20} />,
+    icon: GearIcon,
   },
 ];
 
@@ -38,7 +38,7 @@ export function RootLayout({ children }: RootLayoutProps) {
           className={styles.navLink}
           onClick={() => setIsDrawerOpen(false)}
         >
-          {item.icon}
+          <item.icon width={20} height={20} />
           <span className={styles.tooltip}>{item.title}</span>
         </Link>
       ))}

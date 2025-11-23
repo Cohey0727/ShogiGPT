@@ -8,38 +8,41 @@ interface RootLayoutProps {
   children: ReactNode;
 }
 
+const navigationItems = [
+  {
+    href: "/",
+    title: "ホーム",
+    icon: <HomeIcon width={24} height={24} />,
+  },
+  {
+    href: "/matches",
+    title: "対局一覧",
+    icon: <LayersIcon width={20} height={20} />,
+  },
+  {
+    href: "/settings",
+    title: "設定",
+    icon: <GearIcon width={20} height={20} />,
+  },
+];
+
 export function RootLayout({ children }: RootLayoutProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const navigationItems = (
-    <>
-      <Link
-        href="/"
-        className={styles.logo}
-        onClick={() => setIsDrawerOpen(false)}
-      >
-        <HomeIcon width={24} height={24} />
-        <span className={styles.logoText}>ホーム</span>
-      </Link>
-      <nav className={styles.nav}>
+  const renderNavigationItems = () => (
+    <nav className={styles.nav}>
+      {navigationItems.map((item) => (
         <Link
-          href="/matches"
+          key={item.href}
+          href={item.href}
           className={styles.navLink}
           onClick={() => setIsDrawerOpen(false)}
         >
-          <LayersIcon width={20} height={20} />
-          <span className={styles.tooltip}>対局一覧</span>
+          {item.icon}
+          <span className={styles.tooltip}>{item.title}</span>
         </Link>
-        <Link
-          href="/settings"
-          className={styles.navLink}
-          onClick={() => setIsDrawerOpen(false)}
-        >
-          <GearIcon width={20} height={20} />
-          <span className={styles.tooltip}>設定</span>
-        </Link>
-      </nav>
-    </>
+      ))}
+    </nav>
   );
 
   return (
@@ -47,11 +50,11 @@ export function RootLayout({ children }: RootLayoutProps) {
       <Header onMenuClick={() => setIsDrawerOpen(true)} />
 
       {/* Desktop Sidebar */}
-      <aside className={styles.sidebar}>{navigationItems}</aside>
+      <aside className={styles.sidebar}>{renderNavigationItems()}</aside>
 
       {/* Mobile Drawer */}
       <Drawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}>
-        {navigationItems}
+        {renderNavigationItems()}
       </Drawer>
 
       <main className={styles.main}>

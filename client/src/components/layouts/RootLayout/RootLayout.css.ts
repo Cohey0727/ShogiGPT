@@ -25,7 +25,7 @@ const styles = {
     flexDirection: "column",
     gap: "2rem",
     alignItems: "center",
-    overflowY: "auto",
+    overflow: "visible",
     "@media": {
       "(min-width: 769px)": {
         display: "flex",
@@ -44,12 +44,6 @@ const styles = {
     ":hover": {
       color: "#f4e5a1",
     },
-  }),
-
-  logoText: style({
-    display: "none",
-    fontSize: "1rem",
-    fontWeight: "500",
   }),
 
   nav: style({

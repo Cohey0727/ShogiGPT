@@ -40,14 +40,15 @@ const styles = {
 
   inputContainer: style({
     display: "flex",
+    flexDirection: "column",
     gap: "0.5rem",
     padding: "1rem 1.5rem",
     borderTop: "1px solid rgba(212, 175, 55, 0.2)",
     backgroundColor: "rgba(0, 0, 0, 0.2)",
   }),
 
-  input: style({
-    flex: 1,
+  textarea: style({
+    width: "100%",
     padding: "0.75rem 1rem",
     fontSize: "0.875rem",
     backgroundColor: "rgba(255, 255, 255, 0.05)",
@@ -55,7 +56,12 @@ const styles = {
     borderRadius: "0.375rem",
     color: "#f5f5f5",
     outline: "none",
-    transition: "all 0.2s ease",
+    transition: "border-color 0.2s ease, background-color 0.2s ease",
+    resize: "none",
+    overflow: "auto",
+    fontFamily: "inherit",
+    lineHeight: "1.5",
+    boxSizing: "border-box",
     "::placeholder": {
       color: "#808080",
     },

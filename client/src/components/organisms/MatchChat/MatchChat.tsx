@@ -34,6 +34,7 @@ export function MatchChat({
 }: MatchChatProps) {
   const [inputValue, setInputValue] = useState("");
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // メッセージ取得 - Subscriptionでリアルタイム更新
   const [{ data, fetching }] = useSubscribeChatMessagesSubscription({
@@ -55,8 +56,8 @@ export function MatchChat({
     }
   }, [messages]);
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSendMessage = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!inputValue.trim()) return;
 
     // メッセージを送信（サーバーがユーザーメッセージとAI応答の両方を作成）
@@ -66,6 +67,23 @@ export function MatchChat({
     });
 
     setInputValue("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const textarea = e.target;
+    setInputValue(textarea.value);
+
+    // 高さを自動調整
+    textarea.style.height = "auto";
+    const newHeight = Math.min(textarea.scrollHeight, 120);
+    textarea.style.height = `${newHeight}px`;
   };
 
   if (fetching) {
@@ -129,13 +147,16 @@ export function MatchChat({
         })}
       </div>
       <form className={styles.inputContainer} onSubmit={handleSendMessage}>
-        <input
-          type="text"
+        <textarea
+          ref={textareaRef}
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder="メッセージを入力..."
-          className={styles.input}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          placeholder="メッセージを入力... (Cmd+Enter or Ctrl+Enterで送信)"
+          className={styles.textarea}
           disabled={disabled}
+          maxLength={1000}
+          rows={1}
         />
         <Button type="submit" disabled={disabled}>
           送信

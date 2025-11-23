@@ -17,7 +17,7 @@ import {
   calculateDiffCells,
   getWinner,
 } from "../../../shared/services";
-import { Col, Row } from "../../atoms";
+import { Col, Row, ResizableContainer } from "../../atoms";
 
 interface BoardState {
   board: Board;
@@ -216,12 +216,12 @@ export function MatchDetailPage() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.content}>
-        <div className={styles.chatSection}>
-          <MatchChat matchId={matchId} disabled={isChatPartial} />
-        </div>
-
-        <Col>
+      <ResizableContainer
+        direction="row"
+        storageKey="matchDetailPage:chatWidth"
+      >
+        <MatchChat matchId={matchId} disabled={isChatPartial} />
+        <Col style={{ height: "100%", overflow: "hidden" }}>
           <StatusBar
             currentTurn={boardState.board.turn}
             matchStateIndex={boardState.moveIndex}
@@ -279,7 +279,7 @@ export function MatchDetailPage() {
             </div>
           </Row>
         </Col>
-      </div>
+      </ResizableContainer>
     </div>
   );
 }

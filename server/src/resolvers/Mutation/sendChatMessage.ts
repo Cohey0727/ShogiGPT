@@ -2,8 +2,8 @@ import type { MutationResolvers } from "../../generated/graphql/types";
 import { db } from "../../lib/db";
 import { generateChatResponse } from "../../lib/deepseek";
 import { MessageContentsSchema } from "../../shared";
-import { getShogiCandidateMovesTool } from "../../services/getShogiCandidateMovesTool";
-import { makeMoveTool } from "../../services/makeMoveTool";
+import { getCandidateMoves } from "../../services/getCandidateMoves";
+import { makeMove } from "../../services/makeMove";
 import { createAiToolDefinition } from "../../services/aiFunctionCallingTool";
 
 export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
@@ -100,8 +100,8 @@ async function generateAndUpdateAiResponse(params: {
 
     // ツールマップを作成
     const tools = [
-      { tool: getShogiCandidateMovesTool, needsResponse: true },
-      { tool: makeMoveTool, needsResponse: false },
+      { tool: getCandidateMoves, needsResponse: true },
+      { tool: makeMove, needsResponse: false },
     ];
     const toolMap = new Map(
       tools.map((entry) => [

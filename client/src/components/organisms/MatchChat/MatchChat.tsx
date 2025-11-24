@@ -34,7 +34,7 @@ export function MatchChat({ matchId, disabled = false }: MatchChatProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // メッセージ取得 - Subscriptionでリアルタイム更新
-  const [{ data, fetching }] = useSubscribeChatMessagesSubscription({
+  const [{ data }] = useSubscribeChatMessagesSubscription({
     variables: { matchId },
   });
 
@@ -81,16 +81,6 @@ export function MatchChat({ matchId, disabled = false }: MatchChatProps) {
     const newHeight = Math.min(textarea.scrollHeight, 120);
     textarea.style.height = `${newHeight}px`;
   };
-
-  if (fetching) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.messagesContainer}>
-          <p>読み込み中...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={styles.container}>

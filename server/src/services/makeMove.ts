@@ -165,11 +165,10 @@ async function execute(args: Args): Promise<Result> {
   }
 }
 
-const description =
-  '指定された指し手を実行します。ユーザーが指し手を指示した場合（「〇〇に△△を進めて」「〇〇歩」など）、必ずこのツールを使用してください。直接「了解しました」などと答えずに、このツールで実際に盤面を更新してください。日本語形式の指し手（例: "7六歩", "5五金打", "2四角成"）を受け取り、合法性をチェックして盤面に適用します。';
-export const makeMoveTool: AiFunctionCallingTool<typeof ArgsSchema, Result> = {
+export const makeMove: AiFunctionCallingTool<typeof ArgsSchema, Result> = {
   name: "make_move",
-  description,
+  description:
+    '指定された指し手を実行します。ユーザーが指し手を指示した場合（「〇〇に△△を進めて」「〇〇歩」など）、必ずこのツールを使用してください。直接「了解しました」などと答えずに、このツールで実際に盤面を更新してください。日本語形式の指し手（例: "7六歩", "5五金打", "2四角成"）を受け取り、合法性をチェックして盤面に適用します。',
   args: ArgsSchema,
   execute,
 };

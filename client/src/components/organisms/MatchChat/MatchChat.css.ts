@@ -40,16 +40,17 @@ const styles = {
 
   inputContainer: style({
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
+    alignItems: "end",
     gap: "0.5rem",
-    padding: "1rem 1.5rem",
+    padding: "0.6rem 1.5rem",
     borderTop: "1px solid rgba(212, 175, 55, 0.2)",
     backgroundColor: "rgba(0, 0, 0, 0.2)",
   }),
 
   textarea: style({
-    width: "100%",
-    padding: "0.75rem 1rem",
+    flex: 1,
+    padding: "0.575rem 0.825rem",
     fontSize: "0.875rem",
     backgroundColor: "rgba(255, 255, 255, 0.05)",
     border: "1px solid rgba(212, 175, 55, 0.3)",
@@ -68,25 +69,6 @@ const styles = {
     ":focus": {
       borderColor: "#d4af37",
       backgroundColor: "rgba(255, 255, 255, 0.08)",
-    },
-  }),
-
-  sendButton: style({
-    padding: "0.75rem 1.5rem",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    backgroundColor: "#d4af37",
-    color: "#1a1a1a",
-    border: "none",
-    borderRadius: "0.375rem",
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-    whiteSpace: "nowrap",
-    ":hover": {
-      backgroundColor: "#c49d2f",
-    },
-    ":active": {
-      transform: "scale(0.98)",
     },
   }),
 };

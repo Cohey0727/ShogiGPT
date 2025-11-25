@@ -124,60 +124,13 @@ mutation StartMatch(
   }
 }
 
-mutation SendChatMessage($matchId: String!, $content: String!, $aiPersonality: String) {
+mutation SendChatMessage(
+  $matchId: String!
+  $content: String!
+  $aiPersonality: AiPromptPersonality
+) {
   sendChatMessage(input: { matchId: $matchId, content: $content, aiPersonality: $aiPersonality }) {
-    userMessage {
-      id
-      matchId
-      role
-      contents {
-        ... on MarkdownContent {
-          type
-          content
-        }
-        ... on BestMoveContent {
-          type
-          bestmove
-          variations {
-            move
-            scoreCp
-            scoreMate
-            depth
-            nodes
-            pv
-          }
-          timeMs
-          engineName
-        }
-      }
-      createdAt
-    }
-    assistantMessage {
-      id
-      matchId
-      role
-      contents {
-        ... on MarkdownContent {
-          type
-          content
-        }
-        ... on BestMoveContent {
-          type
-          bestmove
-          variations {
-            move
-            scoreCp
-            scoreMate
-            depth
-            nodes
-            pv
-          }
-          timeMs
-          engineName
-        }
-      }
-      createdAt
-    }
+    success
   }
 }
 

@@ -19,8 +19,18 @@ import { getDropPositions } from "./dropPiece";
  * @returns USI形式の指し手、変換できない場合はnull
  */
 export function japaneseToUsiMove(japaneseMove: string, board: Board): string | null {
+  // 全角を半角に変換
+  const normalized = japaneseMove
+    // 全角数字を半角に変換
+    .replace(/[０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0))
+    // 全角括弧を半角に変換
+    .replace(/（/g, "(")
+    .replace(/）/g, ")")
+    // 全角スペースを半角に変換
+    .replace(/\u3000/g, " ");
+
   // 空白を削除
-  const move = japaneseMove.replace(/\s+/g, "");
+  const move = normalized.replace(/\s+/g, "");
 
   if (move.length === 0) {
     return null;

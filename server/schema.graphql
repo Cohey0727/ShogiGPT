@@ -19,6 +19,24 @@ type Health {
 scalar PlayerType
 
 """
+AIプロンプトのパーソナリティ設定
+"""
+enum AiPromptPersonality {
+  """
+  煽りなし
+  """
+  none
+  """
+  戦況に応じて煽る
+  """
+  situational
+  """
+  常に煽る
+  """
+  always
+}
+
+"""
 Markdownコンテンツ
 """
 type MarkdownContent {
@@ -101,9 +119,9 @@ input SendChatMessageInput {
   """
   content: String!
   """
-  AIのパーソナリティ設定 (none, situational, always)
+  AIのパーソナリティ設定
   """
-  aiPersonality: String
+  aiPersonality: AiPromptPersonality
 }
 
 """
@@ -111,13 +129,9 @@ input SendChatMessageInput {
 """
 type SendChatMessageResult {
   """
-  作成されたユーザーメッセージ
+  送信成功フラグ
   """
-  userMessage: ChatMessage!
-  """
-  AIアシスタントの応答メッセージ
-  """
-  assistantMessage: ChatMessage!
+  success: Boolean!
 }
 
 """

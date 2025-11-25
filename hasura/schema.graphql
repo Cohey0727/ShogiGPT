@@ -13,23 +13,16 @@ directive @cached(
   refresh: Boolean! = false
 ) on QUERY
 
-"""最善手コンテンツ（盤面解析結果）"""
-type BestMoveContent {
-  """最善手（USI形式）"""
-  bestmove: String!
+"""AIプロンプトのパーソナリティ設定"""
+enum AiPromptPersonality {
+  """常に煽る"""
+  always
 
-  """エンジン名"""
-  engineName: String!
+  """煽りなし"""
+  none
 
-  """SFEN形式の盤面情報"""
-  sfen: String!
-
-  """思考時間（ミリ秒）"""
-  timeMs: Int!
-  type: String!
-
-  """候補手リスト（MultiPV）"""
-  variations: [MoveVariation!]!
+  """戦況に応じて煽る"""
+  situational
 }
 
 """
@@ -45,27 +38,6 @@ input BooleanComparisonExp {
   _lte: Boolean
   _neq: Boolean
   _nin: [Boolean!]
-}
-
-"""チャットメッセージ"""
-type ChatMessage {
-  """メッセージコンテンツ（Markdownや候補手などを含む配列）"""
-  contents: [MessageContent!]!
-
-  """作成日時"""
-  createdAt: String!
-
-  """メッセージID"""
-  id: String!
-
-  """入力途中かどうか（AI応答待ち）"""
-  isPartial: Boolean!
-
-  """対局ID"""
-  matchId: String!
-
-  """メッセージ役割"""
-  role: String!
 }
 
 """
@@ -722,12 +694,6 @@ input JsonbComparisonExp {
   _nin: [jsonb!]
 }
 
-"""Markdownコンテンツ"""
-type MarkdownContent {
-  content: String!
-  type: String!
-}
-
 """対局情報"""
 type Match {
   """作成日時"""
@@ -1342,9 +1308,6 @@ input MatchStatusComparisonExp {
   _nin: [MatchStatus!]
 }
 
-"""メッセージコンテンツのUnion型"""
-union MessageContent = BestMoveContent | MarkdownContent
-
 scalar MessageRole
 
 """
@@ -1866,6 +1829,9 @@ type query_root {
 
 """チャットメッセージ送信リクエスト"""
 input SendChatMessageInput {
+  """AIのパーソナリティ設定"""
+  aiPersonality: AiPromptPersonality
+
   """メッセージ内容"""
   content: String!
 
@@ -1875,11 +1841,8 @@ input SendChatMessageInput {
 
 """チャットメッセージ送信結果"""
 type SendChatMessageResult {
-  """AIアシスタントの応答メッセージ"""
-  assistantMessage: ChatMessage!
-
-  """作成されたユーザーメッセージ"""
-  userMessage: ChatMessage!
+  """送信成功フラグ"""
+  success: Boolean!
 }
 
 """対局作成リクエスト"""

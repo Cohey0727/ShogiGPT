@@ -23,6 +23,17 @@ export type Scalars = {
   timestamp: { input: string; output: string; }
 };
 
+/** AIプロンプトのパーソナリティ設定 */
+export const AiPromptPersonality = {
+  /** 常に煽る */
+  Always: 'always',
+  /** 煽りなし */
+  None: 'none',
+  /** 戦況に応じて煽る */
+  Situational: 'situational'
+} as const;
+
+export type AiPromptPersonality = typeof AiPromptPersonality[keyof typeof AiPromptPersonality];
 /** 最善手コンテンツ（盤面解析結果） */
 export type BestMoveContent = {
   __typename?: 'BestMoveContent';
@@ -1212,8 +1223,8 @@ export type Query = {
 
 /** チャットメッセージ送信リクエスト */
 export type SendChatMessageInput = {
-  /** AIのパーソナリティ設定 (none, situational, always) */
-  aiPersonality?: InputMaybe<Scalars['String']['input']>;
+  /** AIのパーソナリティ設定 */
+  aiPersonality?: InputMaybe<AiPromptPersonality>;
   /** メッセージ内容 */
   content: Scalars['String']['input'];
   /** 対局ID */
@@ -1223,10 +1234,8 @@ export type SendChatMessageInput = {
 /** チャットメッセージ送信結果 */
 export type SendChatMessageResult = {
   __typename?: 'SendChatMessageResult';
-  /** AIアシスタントの応答メッセージ */
-  assistantMessage: ChatMessage;
-  /** 作成されたユーザーメッセージ */
-  userMessage: ChatMessage;
+  /** 送信成功フラグ */
+  success: Scalars['Boolean']['output'];
 };
 
 /** 対局作成リクエスト */
@@ -1823,17 +1832,11 @@ export type StartMatchMutation = { __typename?: 'mutation_root', startMatch: { _
 export type SendChatMessageMutationVariables = Exact<{
   matchId: Scalars['String']['input'];
   content: Scalars['String']['input'];
-  aiPersonality?: InputMaybe<Scalars['String']['input']>;
+  aiPersonality?: InputMaybe<AiPromptPersonality>;
 }>;
 
 
-export type SendChatMessageMutation = { __typename?: 'mutation_root', sendChatMessage: { __typename?: 'SendChatMessageResult', userMessage: { __typename?: 'ChatMessage', id: string, matchId: string, role: string, createdAt: string, contents: Array<
-        | { __typename?: 'BestMoveContent', type: string, bestmove: string, timeMs: number, engineName: string, variations: Array<{ __typename?: 'MoveVariation', move: string, scoreCp?: number | null | undefined, scoreMate?: number | null | undefined, depth: number, nodes?: number | null | undefined, pv?: Array<string> | null | undefined }> }
-        | { __typename?: 'MarkdownContent', type: string, content: string }
-      > }, assistantMessage: { __typename?: 'ChatMessage', id: string, matchId: string, role: string, createdAt: string, contents: Array<
-        | { __typename?: 'BestMoveContent', type: string, bestmove: string, timeMs: number, engineName: string, variations: Array<{ __typename?: 'MoveVariation', move: string, scoreCp?: number | null | undefined, scoreMate?: number | null | undefined, depth: number, nodes?: number | null | undefined, pv?: Array<string> | null | undefined }> }
-        | { __typename?: 'MarkdownContent', type: string, content: string }
-      > } } };
+export type SendChatMessageMutation = { __typename?: 'mutation_root', sendChatMessage: { __typename?: 'SendChatMessageResult', success: boolean } };
 
 export type EvaluateMatchStateMutationVariables = Exact<{
   input: EvaluateMatchStateInput;
@@ -1993,62 +1996,11 @@ export function useStartMatchMutation() {
   return Urql.useMutation<StartMatchMutation, StartMatchMutationVariables>(StartMatchDocument);
 };
 export const SendChatMessageDocument = gql`
-    mutation SendChatMessage($matchId: String!, $content: String!, $aiPersonality: String) {
+    mutation SendChatMessage($matchId: String!, $content: String!, $aiPersonality: AiPromptPersonality) {
   sendChatMessage(
     input: {matchId: $matchId, content: $content, aiPersonality: $aiPersonality}
   ) {
-    userMessage {
-      id
-      matchId
-      role
-      contents {
-        ... on MarkdownContent {
-          type
-          content
-        }
-        ... on BestMoveContent {
-          type
-          bestmove
-          variations {
-            move
-            scoreCp
-            scoreMate
-            depth
-            nodes
-            pv
-          }
-          timeMs
-          engineName
-        }
-      }
-      createdAt
-    }
-    assistantMessage {
-      id
-      matchId
-      role
-      contents {
-        ... on MarkdownContent {
-          type
-          content
-        }
-        ... on BestMoveContent {
-          type
-          bestmove
-          variations {
-            move
-            scoreCp
-            scoreMate
-            depth
-            nodes
-            pv
-          }
-          timeMs
-          engineName
-        }
-      }
-      createdAt
-    }
+    success
   }
 }
     `;

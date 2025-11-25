@@ -19,6 +19,16 @@ export type Scalars = {
   PlayerType: { input: 'HUMAN' | 'AI'; output: 'HUMAN' | 'AI'; }
 };
 
+/** AIプロンプトのパーソナリティ設定 */
+export enum AiPromptPersonality {
+  /** 常に煽る */
+  Always = 'always',
+  /** 煽りなし */
+  None = 'none',
+  /** 戦況に応じて煽る */
+  Situational = 'situational'
+}
+
 /** 最善手コンテンツ（盤面解析結果） */
 export type BestMoveContent = {
   __typename?: 'BestMoveContent';
@@ -182,8 +192,8 @@ export type Query = {
 
 /** チャットメッセージ送信リクエスト */
 export type SendChatMessageInput = {
-  /** AIのパーソナリティ設定 (none, situational, always) */
-  aiPersonality?: InputMaybe<Scalars['String']['input']>;
+  /** AIのパーソナリティ設定 */
+  aiPersonality?: InputMaybe<AiPromptPersonality>;
   /** メッセージ内容 */
   content: Scalars['String']['input'];
   /** 対局ID */
@@ -193,10 +203,8 @@ export type SendChatMessageInput = {
 /** チャットメッセージ送信結果 */
 export type SendChatMessageResult = {
   __typename?: 'SendChatMessageResult';
-  /** AIアシスタントの応答メッセージ */
-  assistantMessage: ChatMessage;
-  /** 作成されたユーザーメッセージ */
-  userMessage: ChatMessage;
+  /** 送信成功フラグ */
+  success: Scalars['Boolean']['output'];
 };
 
 /** 対局作成リクエスト */
@@ -296,6 +304,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = Reso
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
+  AiPromptPersonality: AiPromptPersonality;
   BestMoveContent: ResolverTypeWrapper<BestMoveContent>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   ChatMessage: ResolverTypeWrapper<Omit<ChatMessage, 'contents'> & { contents: Array<ResolversTypes['MessageContent']> }>;
@@ -312,7 +321,7 @@ export type ResolversTypes = ResolversObject<{
   PlayerType: ResolverTypeWrapper<Scalars['PlayerType']['output']>;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   SendChatMessageInput: SendChatMessageInput;
-  SendChatMessageResult: ResolverTypeWrapper<Omit<SendChatMessageResult, 'assistantMessage' | 'userMessage'> & { assistantMessage: ResolversTypes['ChatMessage'], userMessage: ResolversTypes['ChatMessage'] }>;
+  SendChatMessageResult: ResolverTypeWrapper<SendChatMessageResult>;
   StartMatchInput: StartMatchInput;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
 }>;
@@ -335,7 +344,7 @@ export type ResolversParentTypes = ResolversObject<{
   PlayerType: Scalars['PlayerType']['output'];
   Query: Record<PropertyKey, never>;
   SendChatMessageInput: SendChatMessageInput;
-  SendChatMessageResult: Omit<SendChatMessageResult, 'assistantMessage' | 'userMessage'> & { assistantMessage: ResolversParentTypes['ChatMessage'], userMessage: ResolversParentTypes['ChatMessage'] };
+  SendChatMessageResult: SendChatMessageResult;
   StartMatchInput: StartMatchInput;
   String: Scalars['String']['output'];
 }>;
@@ -427,8 +436,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
 }>;
 
 export type SendChatMessageResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['SendChatMessageResult'] = ResolversParentTypes['SendChatMessageResult']> = ResolversObject<{
-  assistantMessage?: Resolver<ResolversTypes['ChatMessage'], ParentType, ContextType>;
-  userMessage?: Resolver<ResolversTypes['ChatMessage'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
 }>;
 
 export type Resolvers<ContextType = any> = ResolversObject<{

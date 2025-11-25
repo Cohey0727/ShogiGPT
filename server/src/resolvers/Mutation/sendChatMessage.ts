@@ -1,16 +1,15 @@
 import type { MutationResolvers } from "../../generated/graphql/types";
 import { db } from "../../lib/db";
 import { generateChatResponse } from "../../lib/deepseek";
-import { MessageContentsSchema } from "../../shared";
 import { getCandidateMoves } from "../../services/getCandidateMoves";
 import { makeMove } from "../../services/makeMove";
 import { createAiToolDefinition } from "../../services/aiFunctionCallingTool";
 
 export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (_parent, { input }) => {
-  const { matchId, content } = input;
+  const { matchId, content, aiPersonality } = input;
 
   // ユーザーメッセージを作成
-  const userMessage = await db.chatMessage.create({
+  await db.chatMessage.create({
     data: {
       matchId,
       role: "USER",
@@ -34,27 +33,10 @@ export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (_par
     matchId,
     content,
     assistantMessageId: assistantMessage.id,
+    aiPersonality: aiPersonality ?? "none",
   });
 
-  // 即座にレスポンスを返す
-  return {
-    userMessage: {
-      id: userMessage.id,
-      matchId: userMessage.matchId,
-      role: userMessage.role,
-      contents: MessageContentsSchema.parse(userMessage.contents),
-      isPartial: userMessage.isPartial,
-      createdAt: userMessage.createdAt.toISOString(),
-    },
-    assistantMessage: {
-      id: assistantMessage.id,
-      matchId: assistantMessage.matchId,
-      role: assistantMessage.role,
-      contents: MessageContentsSchema.parse(assistantMessage.contents),
-      isPartial: assistantMessage.isPartial,
-      createdAt: assistantMessage.createdAt.toISOString(),
-    },
-  };
+  return { success: true };
 };
 
 /**
@@ -64,9 +46,10 @@ async function generateAndUpdateAiResponse(params: {
   matchId: string;
   content: string;
   assistantMessageId: string;
+  aiPersonality: string;
 }): Promise<void> {
   try {
-    const { matchId, content, assistantMessageId } = params;
+    const { matchId, content, assistantMessageId, aiPersonality } = params;
 
     // 会話履歴を取得（最新3件、partial除外）
     const history = await db.chatMessage.findMany({
@@ -107,7 +90,7 @@ async function generateAndUpdateAiResponse(params: {
 
     // Function Callingを有効にしてAI応答を生成
     const aiResponseContent = await generateChatResponse({
-      userMessage: createChatContent(content, matchId),
+      userMessage: createChatContent(content, matchId, aiPersonality),
       conversationHistory,
       tools: tools.map((entry) =>
         createAiToolDefinition(entry.tool.name, entry.tool.description, entry.tool.args),
@@ -163,12 +146,36 @@ async function generateAndUpdateAiResponse(params: {
   }
 }
 
-function createChatContent(content: string, matchId: string): string {
+function createChatContent(content: string, matchId: string, aiPersonality: string): string {
+  const personalityInstructions = getPersonalityInstructions(aiPersonality);
+
   return `対局ID: ${matchId}
 
 ユーザー: ${content}
 
+【最重要ルール - 必ず守ること】
+- ユーザーが「打って」「指して」「動かして」などと言った場合、絶対にmakeMove関数を呼び出してください
+- 「5六角」「2五歩(2六)」など手順のみをユーザーが言ってきた場合は、絶対にmakeMove関数を呼び出してください
+
 応答の注意点：
 - 評価値は「優勢」「互角」「劣勢」などの表現で説明してください
-- 対局IDには直接言及しないでください`;
+- 対局IDには直接言及しないでください
+${personalityInstructions}`;
+}
+
+function getPersonalityInstructions(aiPersonality: string): string {
+  switch (aiPersonality) {
+    case "always":
+      return `- 常に相手を煽るような口調で応答してください
+- 相手のミスを指摘する時は特に煽ってください
+- 負けそうな時は、黙ってください。`;
+    case "situational":
+      return `- 戦況に応じて煽りを入れてください
+- 自分が優勢の時は煽り、劣勢の時は控えめにしてください
+- 相手が悪手を指した時は、煽ってください`;
+    case "none":
+    default:
+      return `- 丁寧で礼儀正しい口調で応答してください
+- 煽りや挑発は避けてください`;
+  }
 }

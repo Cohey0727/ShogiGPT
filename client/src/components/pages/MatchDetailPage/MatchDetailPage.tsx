@@ -4,18 +4,17 @@ import { ShogiBoard, MatchChat, PieceStand, StatusBar } from "../../organisms";
 import {
   useGetMatchQuery,
   useSubscribeMatchStatesSubscription,
-  useInsertMatchStateMutation,
-  useEvaluateMatchStateMutation,
   useSubscribeChatMessagesSubscription,
+  useSendChatMessageMutation,
 } from "../../../generated/graphql/types";
 import styles from "./MatchDetailPage.css";
 import type { Board, PieceType } from "../../../shared/consts";
 import {
   sfenToBoard,
-  boardToSfen,
   createInitialBoard,
   calculateDiffCells,
   getWinner,
+  formatMoveToJapanese,
 } from "../../../shared/services";
 import { Col, Row, ResizableContainer } from "../../atoms";
 
@@ -47,8 +46,7 @@ export function MatchDetailPage() {
     pause: !matchId,
   });
 
-  const [, insertMatchState] = useInsertMatchStateMutation();
-  const [, evaluateMatchState] = useEvaluateMatchStateMutation();
+  const [, sendChatMessage] = useSendChatMessageMutation();
 
   if (!match) {
     throw new Error("Match not found");
@@ -110,79 +108,27 @@ export function MatchDetailPage() {
   const [selectedHandPiece, setSelectedHandPiece] = useState<PieceType | null>(
     null
   );
-  const [isAiThinking, setIsAiThinking] = useState(false);
-  const [aiThinkingTimeMs, setAiThinkingTimeMs] = useState<
-    number | undefined
-  >();
 
   const handleBoardChange = useCallback(
-    async (newBoard: Board, usiMove: string) => {
+    async (_newBoard: Board, usiMove: string) => {
       // 巻き戻し中は指し手を無効化
       if (viewingStateIndex !== null) {
         return;
       }
 
-      const { moveIndex, board } = boardState;
-      const nextTurn: "SENTE" | "GOTE" =
-        board.turn === "SENTE" ? "GOTE" : "SENTE";
-      const nextMoveIndex = moveIndex + 1;
-      const updatedBoard = { ...newBoard, turn: nextTurn };
+      const { board } = boardState;
 
-      // 盤面をSFEN形式に変換
-      const newSfen = boardToSfen(updatedBoard);
+      // USI形式を日本語に変換（例: "7g7f" → "7六歩(7七)"）
+      const japaneseMove = formatMoveToJapanese(usiMove, board);
 
-      // MatchStateを保存（Subscriptionで自動的にUIが更新される）
-      const result = await insertMatchState({
-        matchState: {
-          matchId,
-          index: nextMoveIndex,
-          usiMove,
-          sfen: newSfen,
-          thinkingTime: null,
-        },
+      // チャット経由で指し手を送信
+      // サーバーのAIがmakeMoveツールを呼び出して盤面を更新
+      await sendChatMessage({
+        matchId,
+        content: japaneseMove,
       });
-
-      // 次の手番がAIかどうかを判定
-      const isAiTurn =
-        nextTurn === "SENTE"
-          ? match.senteType === "AI"
-          : match.goteType === "AI";
-
-      const newMatchState = result.data?.insertMatchStatesOne;
-      if (isAiTurn && newMatchState) {
-        // AIが思考中であることを示す
-        setIsAiThinking(true);
-        setAiThinkingTimeMs(undefined);
-
-        try {
-          // 保存したMatchStateのmatchIdとindexを使ってAI評価を実行
-          // applyBestMove: trueを指定することで、サーバー側で最善手を盤面に反映
-          const evaluationResponse = await evaluateMatchState({
-            input: {
-              matchId: newMatchState.matchId,
-              index: newMatchState.index,
-              applyBestMove: true,
-            },
-          });
-          const evaluation = evaluationResponse.data?.evaluateMatchState;
-          // 思考時間を設定
-          if (evaluation?.timeMs) {
-            setAiThinkingTimeMs(evaluation.timeMs);
-          }
-        } finally {
-          // AIの思考が終了
-          setIsAiThinking(false);
-        }
-      }
     },
-    [
-      boardState,
-      match,
-      matchId,
-      insertMatchState,
-      evaluateMatchState,
-      viewingStateIndex,
-    ]
+    [boardState, matchId, sendChatMessage, viewingStateIndex]
   );
 
   // 前の盤面との差分セルを計算
@@ -225,8 +171,8 @@ export function MatchDetailPage() {
           <StatusBar
             currentTurn={boardState.board.turn}
             matchStateIndex={boardState.moveIndex}
-            isAiThinking={isAiThinking}
-            thinkingTimeMs={aiThinkingTimeMs}
+            isAiThinking={isChatPartial}
+            thinkingTimeMs={undefined}
             winner={winner}
             isPaused={isPaused}
             viewingStateIndex={viewingStateIndex}
@@ -248,7 +194,7 @@ export function MatchDetailPage() {
                     setSelectedHandPiece(pieceType);
                   }
                 }}
-                disabled={isAiThinking || isPaused || isChatPartial}
+                disabled={isPaused || isChatPartial}
               />
             </div>
             <div className={styles.boardContainer}>
@@ -258,7 +204,7 @@ export function MatchDetailPage() {
                 onBoardChange={handleBoardChange}
                 selectedHandPiece={selectedHandPiece}
                 onHandPieceDeselect={() => setSelectedHandPiece(null)}
-                disabled={isAiThinking || isPaused || isChatPartial}
+                disabled={isPaused || isChatPartial}
                 diffCells={diffCells}
               />
             </div>
@@ -274,7 +220,7 @@ export function MatchDetailPage() {
                     setSelectedHandPiece(pieceType);
                   }
                 }}
-                disabled={isAiThinking || isPaused || isChatPartial}
+                disabled={isPaused || isChatPartial}
               />
             </div>
           </Row>

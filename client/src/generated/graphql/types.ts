@@ -1832,13 +1832,6 @@ export type SendChatMessageMutation = { __typename?: 'mutation_root', sendChatMe
         | { __typename?: 'MarkdownContent', type: string, content: string }
       > } } };
 
-export type InsertMatchStateMutationVariables = Exact<{
-  matchState: MatchStatesInsertInput;
-}>;
-
-
-export type InsertMatchStateMutation = { __typename?: 'mutation_root', insertMatchStatesOne?: { __typename?: 'MatchStates', matchId: string, index: number, usiMove: string, sfen: string, thinkingTime?: number | null | undefined, createdAt: string } | null | undefined };
-
 export type EvaluateMatchStateMutationVariables = Exact<{
   input: EvaluateMatchStateInput;
 }>;
@@ -2057,22 +2050,6 @@ export const SendChatMessageDocument = gql`
 
 export function useSendChatMessageMutation() {
   return Urql.useMutation<SendChatMessageMutation, SendChatMessageMutationVariables>(SendChatMessageDocument);
-};
-export const InsertMatchStateDocument = gql`
-    mutation InsertMatchState($matchState: MatchStatesInsertInput!) {
-  insertMatchStatesOne(object: $matchState) {
-    matchId
-    index
-    usiMove
-    sfen
-    thinkingTime
-    createdAt
-  }
-}
-    `;
-
-export function useInsertMatchStateMutation() {
-  return Urql.useMutation<InsertMatchStateMutation, InsertMatchStateMutationVariables>(InsertMatchStateDocument);
 };
 export const EvaluateMatchStateDocument = gql`
     mutation EvaluateMatchState($input: EvaluateMatchStateInput!) {

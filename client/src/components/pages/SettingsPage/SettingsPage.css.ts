@@ -55,60 +55,6 @@ const styles = {
     fontSize: "0.875rem",
     color: "#b0b0b0",
   }),
-
-  select: style({
-    padding: "0.5rem 1rem",
-    fontSize: "0.875rem",
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    border: "1px solid rgba(212, 175, 55, 0.3)",
-    borderRadius: "0.375rem",
-    color: "#f5f5f5",
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-    ":hover": {
-      backgroundColor: "rgba(255, 255, 255, 0.08)",
-      borderColor: "rgba(212, 175, 55, 0.5)",
-    },
-    ":focus": {
-      outline: "none",
-      borderColor: "#d4af37",
-    },
-  }),
-
-  backButton: style({
-    padding: "0.75rem 1.5rem",
-    fontSize: "1rem",
-    fontWeight: "500",
-    background: "transparent",
-    color: "#d4af37",
-    border: "2px solid #d4af37",
-    borderRadius: "0.5rem",
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-    ":hover": {
-      backgroundColor: "rgba(212, 175, 55, 0.1)",
-    },
-  }),
-
-  saveButton: style({
-    padding: "0.75rem 2rem",
-    fontSize: "1rem",
-    fontWeight: "600",
-    background: "linear-gradient(135deg, #d4af37 0%, #f4e5a1 100%)",
-    color: "#1a1a1a",
-    border: "none",
-    borderRadius: "0.5rem",
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-    boxShadow: "0 4px 6px rgba(212, 175, 55, 0.4)",
-    ":hover": {
-      transform: "translateY(-2px)",
-      boxShadow: "0 6px 12px rgba(212, 175, 55, 0.6)",
-    },
-    ":active": {
-      transform: "translateY(0)",
-    },
-  }),
 };
 
 export default styles;

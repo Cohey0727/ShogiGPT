@@ -26,14 +26,16 @@ build:
 	cd {{client_dir}} && bun run build
 	cd {{server_dir}} && bun run build
 
-# Serve both packages
+# Start dev environment with Docker and mprocs (without hasura console)
 start:
-	#!/usr/bin/env bash
-	set -euo pipefail
-	trap 'trap - INT TERM EXIT; kill 0' INT TERM EXIT
-	(cd {{server_dir}} && bun run start) &
-	(cd {{client_dir}} && bun run start) &
-	wait
+	@echo "Starting Docker Compose services..."
+	@docker compose up -d
+	@echo "Waiting for services to be ready..."
+	@sleep 3
+	mprocs \
+		"docker compose logs -f" \
+		"cd {{server_dir}} && bun run dev" \
+		"cd {{client_dir}} && bun run dev"
 
 lint:
 	cd {{client_dir}} && bun run lint

@@ -187,17 +187,6 @@ mutation SendChatMessage($matchId: String!, $content: String!) {
   }
 }
 
-mutation InsertMatchState($matchState: MatchStatesInsertInput!) {
-  insertMatchStatesOne(object: $matchState) {
-    matchId
-    index
-    usiMove
-    sfen
-    thinkingTime
-    createdAt
-  }
-}
-
 mutation EvaluateMatchState($input: EvaluateMatchStateInput!) {
   evaluateMatchState(input: $input) {
     type

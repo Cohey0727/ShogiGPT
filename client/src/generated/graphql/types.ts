@@ -639,12 +639,12 @@ export type MatchState = {
   index: Scalars['Int']['output'];
   /** 対局ID */
   matchId: Scalars['String']['output'];
-  /** 指し手（USI形式） */
-  moveNotation?: Maybe<Scalars['String']['output']>;
   /** 盤面（SFEN形式） */
   sfen: Scalars['String']['output'];
   /** 消費時間（秒） */
   thinkingTime?: Maybe<Scalars['Int']['output']>;
+  /** 指し手（USI形式） */
+  usiMove?: Maybe<Scalars['String']['output']>;
 };
 
 /** columns and relationships of "match_states" */
@@ -658,9 +658,9 @@ export type MatchStates = {
   /** An object relationship */
   match: Matches;
   matchId: Scalars['String']['output'];
-  moveNotation: Scalars['String']['output'];
   sfen: Scalars['String']['output'];
   thinkingTime?: Maybe<Scalars['Int']['output']>;
+  usiMove: Scalars['String']['output'];
 };
 
 /** order by aggregate values of table "match_states" */
@@ -702,9 +702,9 @@ export type MatchStatesBoolExp = {
   index?: InputMaybe<IntComparisonExp>;
   match?: InputMaybe<MatchesBoolExp>;
   matchId?: InputMaybe<StringComparisonExp>;
-  moveNotation?: InputMaybe<StringComparisonExp>;
   sfen?: InputMaybe<StringComparisonExp>;
   thinkingTime?: InputMaybe<IntComparisonExp>;
+  usiMove?: InputMaybe<StringComparisonExp>;
 };
 
 /** unique or primary key constraints on table "match_states" */
@@ -728,9 +728,9 @@ export type MatchStatesInsertInput = {
   index?: InputMaybe<Scalars['Int']['input']>;
   match?: InputMaybe<MatchesObjRelInsertInput>;
   matchId?: InputMaybe<Scalars['String']['input']>;
-  moveNotation?: InputMaybe<Scalars['String']['input']>;
   sfen?: InputMaybe<Scalars['String']['input']>;
   thinkingTime?: InputMaybe<Scalars['Int']['input']>;
+  usiMove?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** order by max() on columns of table "match_states" */
@@ -739,9 +739,9 @@ export type MatchStatesMaxOrderBy = {
   evaluationId?: InputMaybe<OrderBy>;
   index?: InputMaybe<OrderBy>;
   matchId?: InputMaybe<OrderBy>;
-  moveNotation?: InputMaybe<OrderBy>;
   sfen?: InputMaybe<OrderBy>;
   thinkingTime?: InputMaybe<OrderBy>;
+  usiMove?: InputMaybe<OrderBy>;
 };
 
 /** order by min() on columns of table "match_states" */
@@ -750,9 +750,9 @@ export type MatchStatesMinOrderBy = {
   evaluationId?: InputMaybe<OrderBy>;
   index?: InputMaybe<OrderBy>;
   matchId?: InputMaybe<OrderBy>;
-  moveNotation?: InputMaybe<OrderBy>;
   sfen?: InputMaybe<OrderBy>;
   thinkingTime?: InputMaybe<OrderBy>;
+  usiMove?: InputMaybe<OrderBy>;
 };
 
 /** response of any mutation on the table "match_states" */
@@ -779,9 +779,9 @@ export type MatchStatesOrderBy = {
   index?: InputMaybe<OrderBy>;
   match?: InputMaybe<MatchesOrderBy>;
   matchId?: InputMaybe<OrderBy>;
-  moveNotation?: InputMaybe<OrderBy>;
   sfen?: InputMaybe<OrderBy>;
   thinkingTime?: InputMaybe<OrderBy>;
+  usiMove?: InputMaybe<OrderBy>;
 };
 
 /** primary key columns input for table: match_states */
@@ -801,11 +801,11 @@ export const MatchStatesSelectColumn = {
   /** column name */
   MatchId: 'matchId',
   /** column name */
-  MoveNotation: 'moveNotation',
-  /** column name */
   Sfen: 'sfen',
   /** column name */
-  ThinkingTime: 'thinkingTime'
+  ThinkingTime: 'thinkingTime',
+  /** column name */
+  UsiMove: 'usiMove'
 } as const;
 
 export type MatchStatesSelectColumn = typeof MatchStatesSelectColumn[keyof typeof MatchStatesSelectColumn];
@@ -815,9 +815,9 @@ export type MatchStatesSetInput = {
   evaluationId?: InputMaybe<Scalars['String']['input']>;
   index?: InputMaybe<Scalars['Int']['input']>;
   matchId?: InputMaybe<Scalars['String']['input']>;
-  moveNotation?: InputMaybe<Scalars['String']['input']>;
   sfen?: InputMaybe<Scalars['String']['input']>;
   thinkingTime?: InputMaybe<Scalars['Int']['input']>;
+  usiMove?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** order by stddev() on columns of table "match_states" */
@@ -852,9 +852,9 @@ export type MatchStatesStreamCursorValueInput = {
   evaluationId?: InputMaybe<Scalars['String']['input']>;
   index?: InputMaybe<Scalars['Int']['input']>;
   matchId?: InputMaybe<Scalars['String']['input']>;
-  moveNotation?: InputMaybe<Scalars['String']['input']>;
   sfen?: InputMaybe<Scalars['String']['input']>;
   thinkingTime?: InputMaybe<Scalars['Int']['input']>;
+  usiMove?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** order by sum() on columns of table "match_states" */
@@ -874,11 +874,11 @@ export const MatchStatesUpdateColumn = {
   /** column name */
   MatchId: 'matchId',
   /** column name */
-  MoveNotation: 'moveNotation',
-  /** column name */
   Sfen: 'sfen',
   /** column name */
-  ThinkingTime: 'thinkingTime'
+  ThinkingTime: 'thinkingTime',
+  /** column name */
+  UsiMove: 'usiMove'
 } as const;
 
 export type MatchStatesUpdateColumn = typeof MatchStatesUpdateColumn[keyof typeof MatchStatesUpdateColumn];
@@ -1777,14 +1777,14 @@ export type HealthQuery = { __typename?: 'query_root', health: { __typename?: 'H
 export type GetMatchesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMatchesQuery = { __typename?: 'query_root', matches: Array<{ __typename?: 'Matches', id: string, createdAt: string, updatedAt: string, status: 'ONGOING' | 'COMPLETED' | 'ABANDONED', playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI', matchStates: Array<{ __typename?: 'MatchStates', createdAt: string, matchId: string, index: number, moveNotation: string, sfen: string, thinkingTime?: number | null | undefined }>, chatMessages: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, matchId: string, role: 'USER' | 'ASSISTANT', contents: any, metadata?: string | null | undefined }> }> };
+export type GetMatchesQuery = { __typename?: 'query_root', matches: Array<{ __typename?: 'Matches', id: string, createdAt: string, updatedAt: string, status: 'ONGOING' | 'COMPLETED' | 'ABANDONED', playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI', matchStates: Array<{ __typename?: 'MatchStates', createdAt: string, matchId: string, index: number, usiMove: string, sfen: string, thinkingTime?: number | null | undefined }>, chatMessages: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, matchId: string, role: 'USER' | 'ASSISTANT', contents: any, metadata?: string | null | undefined }> }> };
 
 export type GetMatchQueryVariables = Exact<{
   matchId: Scalars['String']['input'];
 }>;
 
 
-export type GetMatchQuery = { __typename?: 'query_root', matchesByPk?: { __typename?: 'Matches', id: string, createdAt: string, updatedAt: string, status: 'ONGOING' | 'COMPLETED' | 'ABANDONED', playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI', matchStates: Array<{ __typename?: 'MatchStates', createdAt: string, matchId: string, index: number, moveNotation: string, sfen: string, thinkingTime?: number | null | undefined }> } | null | undefined };
+export type GetMatchQuery = { __typename?: 'query_root', matchesByPk?: { __typename?: 'Matches', id: string, createdAt: string, updatedAt: string, status: 'ONGOING' | 'COMPLETED' | 'ABANDONED', playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI', matchStates: Array<{ __typename?: 'MatchStates', createdAt: string, matchId: string, index: number, usiMove: string, sfen: string, thinkingTime?: number | null | undefined }> } | null | undefined };
 
 export type GetChatMessagesQueryVariables = Exact<{
   matchId: Scalars['String']['input'];
@@ -1805,7 +1805,7 @@ export type SubscribeMatchStatesSubscriptionVariables = Exact<{
 }>;
 
 
-export type SubscribeMatchStatesSubscription = { __typename?: 'subscription_root', matchStates: Array<{ __typename?: 'MatchStates', createdAt: string, matchId: string, index: number, moveNotation: string, sfen: string, thinkingTime?: number | null | undefined, evaluation?: { __typename?: 'Evaluations', id: string, sfen: string, engineName: string, variations: any, createdAt: string, updatedAt: string } | null | undefined }> };
+export type SubscribeMatchStatesSubscription = { __typename?: 'subscription_root', matchStates: Array<{ __typename?: 'MatchStates', createdAt: string, matchId: string, index: number, usiMove: string, sfen: string, thinkingTime?: number | null | undefined, evaluation?: { __typename?: 'Evaluations', id: string, sfen: string, engineName: string, variations: any, createdAt: string, updatedAt: string } | null | undefined }> };
 
 export type StartMatchMutationVariables = Exact<{
   id?: InputMaybe<Scalars['String']['input']>;
@@ -1837,7 +1837,7 @@ export type InsertMatchStateMutationVariables = Exact<{
 }>;
 
 
-export type InsertMatchStateMutation = { __typename?: 'mutation_root', insertMatchStatesOne?: { __typename?: 'MatchStates', matchId: string, index: number, moveNotation: string, sfen: string, thinkingTime?: number | null | undefined, createdAt: string } | null | undefined };
+export type InsertMatchStateMutation = { __typename?: 'mutation_root', insertMatchStatesOne?: { __typename?: 'MatchStates', matchId: string, index: number, usiMove: string, sfen: string, thinkingTime?: number | null | undefined, createdAt: string } | null | undefined };
 
 export type EvaluateMatchStateMutationVariables = Exact<{
   input: EvaluateMatchStateInput;
@@ -1874,7 +1874,7 @@ export const GetMatchesDocument = gql`
       createdAt
       matchId
       index
-      moveNotation
+      usiMove
       sfen
       thinkingTime
     }
@@ -1908,7 +1908,7 @@ export const GetMatchDocument = gql`
       createdAt
       matchId
       index
-      moveNotation
+      usiMove
       sfen
       thinkingTime
     }
@@ -1958,7 +1958,7 @@ export const SubscribeMatchStatesDocument = gql`
     createdAt
     matchId
     index
-    moveNotation
+    usiMove
     sfen
     thinkingTime
     evaluation {
@@ -2063,7 +2063,7 @@ export const InsertMatchStateDocument = gql`
   insertMatchStatesOne(object: $matchState) {
     matchId
     index
-    moveNotation
+    usiMove
     sfen
     thinkingTime
     createdAt

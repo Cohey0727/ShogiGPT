@@ -1015,9 +1015,9 @@ type MatchStates {
   """An object relationship"""
   match: Matches!
   matchId: String!
-  moveNotation: String!
   sfen: String!
   thinkingTime: Int
+  usiMove: String!
 }
 
 """
@@ -1068,9 +1068,9 @@ input MatchStatesBoolExp {
   index: IntComparisonExp
   match: MatchesBoolExp
   matchId: StringComparisonExp
-  moveNotation: StringComparisonExp
   sfen: StringComparisonExp
   thinkingTime: IntComparisonExp
+  usiMove: StringComparisonExp
 }
 
 """
@@ -1101,9 +1101,9 @@ input MatchStatesInsertInput {
   index: Int
   match: MatchesObjRelInsertInput
   matchId: String
-  moveNotation: String
   sfen: String
   thinkingTime: Int
+  usiMove: String
 }
 
 """
@@ -1114,9 +1114,9 @@ input MatchStatesMaxOrderBy {
   evaluationId: OrderBy
   index: OrderBy
   matchId: OrderBy
-  moveNotation: OrderBy
   sfen: OrderBy
   thinkingTime: OrderBy
+  usiMove: OrderBy
 }
 
 """
@@ -1127,9 +1127,9 @@ input MatchStatesMinOrderBy {
   evaluationId: OrderBy
   index: OrderBy
   matchId: OrderBy
-  moveNotation: OrderBy
   sfen: OrderBy
   thinkingTime: OrderBy
+  usiMove: OrderBy
 }
 
 """
@@ -1160,9 +1160,9 @@ input MatchStatesOrderBy {
   index: OrderBy
   match: MatchesOrderBy
   matchId: OrderBy
-  moveNotation: OrderBy
   sfen: OrderBy
   thinkingTime: OrderBy
+  usiMove: OrderBy
 }
 
 """primary key columns input for table: match_states"""
@@ -1188,13 +1188,13 @@ enum MatchStatesSelectColumn {
   matchId
 
   """column name"""
-  moveNotation
-
-  """column name"""
   sfen
 
   """column name"""
   thinkingTime
+
+  """column name"""
+  usiMove
 }
 
 """
@@ -1205,9 +1205,9 @@ input MatchStatesSetInput {
   evaluationId: String
   index: Int
   matchId: String
-  moveNotation: String
   sfen: String
   thinkingTime: Int
+  usiMove: String
 }
 
 """
@@ -1251,9 +1251,9 @@ input MatchStatesStreamCursorValueInput {
   evaluationId: String
   index: Int
   matchId: String
-  moveNotation: String
   sfen: String
   thinkingTime: Int
+  usiMove: String
 }
 
 """
@@ -1281,13 +1281,13 @@ enum MatchStatesUpdateColumn {
   matchId
 
   """column name"""
-  moveNotation
-
-  """column name"""
   sfen
 
   """column name"""
   thinkingTime
+
+  """column name"""
+  usiMove
 }
 
 input MatchStatesUpdates {

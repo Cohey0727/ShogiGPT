@@ -1,9 +1,32 @@
+import type { ChangeEvent } from "react";
+
 import { Button } from "../../atoms/Button";
 import { Col } from "../../atoms/Col";
 import { Row } from "../../atoms/Row";
+import { useLocalStorage } from "../../molecules/hooks/useLocalStorage";
 import styles from "./SettingsPage.css";
 
+/**
+ * AI煽りモードの種類
+ * - none: 煽りなし
+ * - situational: 戦況に応じて煽る
+ * - always: 常に煽る
+ */
+export type AiTauntMode = "none" | "situational" | "always";
+
+/** ローカルストレージのキー */
+const SETTINGS_KEY = "shogi-gpt-settings";
+
 export function SettingsPage() {
+  const [aiTauntMode, setAiTauntMode] = useLocalStorage<AiTauntMode>({
+    key: `${SETTINGS_KEY}.aiTauntMode`,
+    initialValue: "none",
+  });
+
+  const handleAiTauntModeChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setAiTauntMode(e.target.value as AiTauntMode);
+  };
+
   return (
     <Col gap="xl" className={styles.container}>
       <Col gap="sm" className={styles.header}>
@@ -45,6 +68,23 @@ export function SettingsPage() {
               <option>20分</option>
               <option>30分</option>
               <option>無制限</option>
+            </select>
+          </Row>
+          <Row justify="space-between" align="center" className={styles.settingRow}>
+            <Col gap="xs" className={styles.settingLabel}>
+              <span className={styles.settingName}>AI煽りモード</span>
+              <span className={styles.settingDescription}>
+                AIの煽りコメントを設定
+              </span>
+            </Col>
+            <select
+              className={styles.select}
+              value={aiTauntMode}
+              onChange={handleAiTauntModeChange}
+            >
+              <option value="none">煽りなし</option>
+              <option value="situational">戦況に応じて煽る</option>
+              <option value="always">常に煽る</option>
             </select>
           </Row>
         </Col>

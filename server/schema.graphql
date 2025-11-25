@@ -229,7 +229,7 @@ type MatchState {
   """
   指し手（USI形式）
   """
-  moveNotation: String
+  usiMove: String
   """
   盤面（SFEN形式）
   """

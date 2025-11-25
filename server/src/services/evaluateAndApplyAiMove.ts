@@ -151,7 +151,7 @@ export async function evaluateAndApplyAiMove(
           data: {
             matchId: matchState.matchId,
             index: aiMoveIndex,
-            moveNotation: evaluationResult.bestmove,
+            usiMove: evaluationResult.bestmove,
             sfen: aiSfen,
             thinkingTime: Math.floor(evaluationResult.timeMs / 1000),
           },

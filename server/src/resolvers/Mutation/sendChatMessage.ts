@@ -36,7 +36,6 @@ export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
   generateAndUpdateAiResponse({
     matchId,
     content,
-    userMessageId: userMessage.id,
     assistantMessageId: assistantMessage.id,
   });
 
@@ -67,11 +66,10 @@ export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
 async function generateAndUpdateAiResponse(params: {
   matchId: string;
   content: string;
-  userMessageId: string;
   assistantMessageId: string;
 }): Promise<void> {
   try {
-    const { matchId, content, userMessageId, assistantMessageId } = params;
+    const { matchId, content, assistantMessageId } = params;
 
     // 会話履歴を取得（最新3件、partial除外）
     const history = await db.chatMessage.findMany({
@@ -81,22 +79,20 @@ async function generateAndUpdateAiResponse(params: {
     });
 
     // DeepSeek APIで応答を生成
-    const conversationHistory = history
-      .filter((msg) => msg.id !== userMessageId)
-      .map((msg) => {
-        const contents = msg.contents as Array<{
-          type: string;
-          content: string;
-        }>;
-        const textContent = contents
-          .filter((c) => c.type === "markdown")
-          .map((c) => c.content)
-          .join("\n");
-        return {
-          role: msg.role.toLowerCase() as "user" | "assistant",
-          content: textContent,
-        };
-      });
+    const conversationHistory = history.map((msg) => {
+      const contents = msg.contents as Array<{
+        type: string;
+        content: string;
+      }>;
+      const textContent = contents
+        .filter((c) => c.type === "markdown")
+        .map((c) => c.content)
+        .join("\n");
+      return {
+        role: msg.role.toLowerCase() as "user" | "assistant",
+        content: textContent,
+      };
+    });
 
     // ツールマップを作成
     const tools = [

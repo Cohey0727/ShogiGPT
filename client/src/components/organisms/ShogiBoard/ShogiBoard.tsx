@@ -20,7 +20,7 @@ import styles from "./ShogiBoard.css";
 interface ShogiBoardProps {
   board: Board;
   currentPlayer: Player;
-  onBoardChange: (board: Board, moveNotation: string) => void;
+  onBoardChange: (board: Board, usiMove: string) => void;
   selectedHandPiece?: PieceType | null;
   onHandPieceDeselect?: () => void;
   disabled?: boolean;
@@ -110,7 +110,7 @@ export function ShogiBoard({
           }
 
           // USI形式の指し手を生成（駒打ち）
-          const moveNotation = dropToUsi(selectedHandPiece, { row, col });
+          const usiMove = dropToUsi(selectedHandPiece, { row, col });
 
           onBoardChange(
             {
@@ -119,7 +119,7 @@ export function ShogiBoard({
               senteHands: newCapturedBySente,
               goteHands: newCapturedByGote,
             },
-            moveNotation
+            usiMove
           );
 
           // 持ち駒の選択を解除
@@ -207,11 +207,7 @@ export function ShogiBoard({
 
             // USI形式の指し手を生成（駒の移動）
             const promoted = finalPiece.type !== piece.type;
-            const moveNotation = moveToUsi(
-              selectedPosition,
-              { row, col },
-              promoted
-            );
+            const usiMove = moveToUsi(selectedPosition, { row, col }, promoted);
 
             onBoardChange(
               {
@@ -220,7 +216,7 @@ export function ShogiBoard({
                 senteHands: newSenteHands,
                 goteHands: newGoteHands,
               },
-              moveNotation
+              usiMove
             );
           }
 

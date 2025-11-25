@@ -17,7 +17,7 @@ insert_permissions:
         - index
         - thinkingTime
         - matchId
-        - moveNotation
+        - usiMove
         - sfen
         - createdAt
     comment: ""
@@ -29,7 +29,7 @@ select_permissions:
         - index
         - thinkingTime
         - matchId
-        - moveNotation
+        - usiMove
         - sfen
         - createdAt
       filter: {}
@@ -42,7 +42,7 @@ update_permissions:
         - index
         - thinkingTime
         - matchId
-        - moveNotation
+        - usiMove
         - sfen
         - createdAt
       filter: {}

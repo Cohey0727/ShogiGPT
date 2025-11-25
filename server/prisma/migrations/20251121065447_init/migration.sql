@@ -26,7 +26,7 @@ CREATE TABLE "match_states" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "matchId" TEXT NOT NULL,
     "index" INTEGER NOT NULL,
-    "moveNotation" TEXT NOT NULL,
+    "usiMove" TEXT NOT NULL,
     "sfen" TEXT NOT NULL,
     "thinkingTime" INTEGER,
     "evaluationId" TEXT,

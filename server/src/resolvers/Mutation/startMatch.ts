@@ -33,7 +33,7 @@ export const startMatch: MutationResolvers["startMatch"] = async (
         create: {
           index: 0,
           sfen: initialSfen,
-          moveNotation: "0000", // USI標準のパス/無効手表記
+          usiMove: "0000", // USI標準のパス/無効手表記
           thinkingTime: null,
         },
       },

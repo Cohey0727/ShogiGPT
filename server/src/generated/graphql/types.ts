@@ -125,12 +125,12 @@ export type MatchState = {
   index: Scalars['Int']['output'];
   /** 対局ID */
   matchId: Scalars['String']['output'];
-  /** 指し手（USI形式） */
-  moveNotation?: Maybe<Scalars['String']['output']>;
   /** 盤面（SFEN形式） */
   sfen: Scalars['String']['output'];
   /** 消費時間（秒） */
   thinkingTime?: Maybe<Scalars['Int']['output']>;
+  /** 指し手（USI形式） */
+  usiMove?: Maybe<Scalars['String']['output']>;
 };
 
 /** メッセージコンテンツのUnion型 */
@@ -392,9 +392,9 @@ export type MatchStateResolvers<ContextType = any, ParentType extends ResolversP
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   index?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   matchId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  moveNotation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   sfen?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   thinkingTime?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  usiMove?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 }>;
 
 export type MessageContentResolvers<ContextType = any, ParentType extends ResolversParentTypes['MessageContent'] = ResolversParentTypes['MessageContent']> = ResolversObject<{

@@ -19,7 +19,7 @@ query GetMatches {
       createdAt
       matchId
       index
-      moveNotation
+      usiMove
       sfen
       thinkingTime
     }
@@ -48,7 +48,7 @@ query GetMatch($matchId: String!) {
       createdAt
       matchId
       index
-      moveNotation
+      usiMove
       sfen
       thinkingTime
     }
@@ -89,7 +89,7 @@ subscription SubscribeMatchStates($matchId: String!) {
     createdAt
     matchId
     index
-    moveNotation
+    usiMove
     sfen
     thinkingTime
     evaluation {
@@ -191,7 +191,7 @@ mutation InsertMatchState($matchState: MatchStatesInsertInput!) {
   insertMatchStatesOne(object: $matchState) {
     matchId
     index
-    moveNotation
+    usiMove
     sfen
     thinkingTime
     createdAt

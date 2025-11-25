@@ -116,7 +116,7 @@ export function MatchDetailPage() {
   >();
 
   const handleBoardChange = useCallback(
-    async (newBoard: Board, moveNotation: string) => {
+    async (newBoard: Board, usiMove: string) => {
       // 巻き戻し中は指し手を無効化
       if (viewingStateIndex !== null) {
         return;
@@ -136,7 +136,7 @@ export function MatchDetailPage() {
         matchState: {
           matchId,
           index: nextMoveIndex,
-          moveNotation,
+          usiMove,
           sfen: newSfen,
           thinkingTime: null,
         },

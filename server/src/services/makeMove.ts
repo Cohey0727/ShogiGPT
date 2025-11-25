@@ -94,7 +94,7 @@ async function execute(args: Args): Promise<Result> {
         matchId,
         index: latestState.index + 1,
         sfen: newSfen,
-        moveNotation: usiMove,
+        usiMove: usiMove,
       },
     });
 

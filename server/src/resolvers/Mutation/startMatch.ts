@@ -5,16 +5,12 @@ import { generateChatResponse } from "../../lib/deepseek";
 /**
  * 平手の初期盤面（SFEN形式）
  */
-const defaultSfen =
-  "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1";
+const defaultSfen = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1";
 
 /**
  * 対局を作成する
  */
-export const startMatch: MutationResolvers["startMatch"] = async (
-  _parent,
-  { input }
-) => {
+export const startMatch: MutationResolvers["startMatch"] = async (_parent, { input }) => {
   const { id, playerSente, playerGote, senteType, goteType, sfen } = input;
 
   // 初期盤面のSFEN（指定がない場合は平手の初期盤面）
@@ -75,10 +71,8 @@ async function generateGreetingMessage(params: {
     const { matchId, playerSente, playerGote, senteType, goteType } = params;
 
     // プレイヤー情報を構築
-    const senteInfo =
-      senteType === "AI" ? "AI" : playerSente ? `${playerSente}さん` : "先手";
-    const goteInfo =
-      goteType === "AI" ? "AI" : playerGote ? `${playerGote}さん` : "後手";
+    const senteInfo = senteType === "AI" ? "AI" : playerSente ? `${playerSente}さん` : "先手";
+    const goteInfo = goteType === "AI" ? "AI" : playerGote ? `${playerGote}さん` : "後手";
 
     // AIに挨拶メッセージを生成させる
     const greetingPrompt = `対局が始まりました。先手は${senteInfo}、後手は${goteInfo}です。対局開始の挨拶をしてください。簡潔に2〜3文で。最初の手の話とかするな。挨拶だけしろ。`;

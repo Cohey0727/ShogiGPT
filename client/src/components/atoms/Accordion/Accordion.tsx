@@ -3,24 +3,14 @@ import styles from "./Accordion.css";
 import clsx from "clsx";
 import { useId } from "react";
 
-interface AccordionProps
-  extends Omit<AccordionPrimitive.AccordionSingleProps, "type"> {
+interface AccordionProps extends Omit<AccordionPrimitive.AccordionSingleProps, "type"> {
   header: React.ReactNode;
 }
 
-export function Accordion({
-  header,
-  children,
-  className,
-  ...rest
-}: AccordionProps) {
+export function Accordion({ header, children, className, ...rest }: AccordionProps) {
   const value = useId();
   return (
-    <AccordionPrimitive.Root
-      {...rest}
-      type="single"
-      className={clsx(styles.root, className)}
-    >
+    <AccordionPrimitive.Root {...rest} type="single" className={clsx(styles.root, className)}>
       <AccordionItem value={value}>
         <AccordionPrimitive.Header className={styles.header}>
           <AccordionTrigger value={value}>{header}</AccordionTrigger>

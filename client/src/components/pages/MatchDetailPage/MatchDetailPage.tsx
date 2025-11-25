@@ -24,6 +24,12 @@ interface BoardState {
   previousBoard: Board | null;
 }
 
+/** 楽観的更新用の盤面状態 */
+interface OptimisticState {
+  board: Board;
+  moveIndex: number;
+}
+
 export function MatchDetailPage() {
   const params = useParams<{ matchId: string }>();
   const matchId = params.matchId;
@@ -57,9 +63,7 @@ export function MatchDetailPage() {
    * null: 最新の状態を表示中（対局進行中）
    * number: 過去の状態を表示中（対局停止中・巻き戻し中）
    */
-  const [viewingStateIndex, setViewingStateIndex] = useState<number | null>(
-    null
-  );
+  const [viewingStateIndex, setViewingStateIndex] = useState<number | null>(null);
 
   const isPaused = viewingStateIndex !== null;
 
@@ -105,18 +109,51 @@ export function MatchDetailPage() {
     return { board, moveIndex: currentState.index, previousBoard };
   }, [matchStatesData?.matchStates, viewingStateIndex]);
 
-  const [selectedHandPiece, setSelectedHandPiece] = useState<PieceType | null>(
-    null
-  );
+  const [selectedHandPiece, setSelectedHandPiece] = useState<PieceType | null>(null);
+
+  // 楽観的更新用の盤面状態
+  const [optimisticState, setOptimisticState] = useState<OptimisticState | null>(null);
+
+  // 表示用の盤面状態（楽観的更新を優先）
+  const displayBoardState = useMemo<BoardState>(() => {
+    // 巻き戻し中は常にサーバーの状態を使用
+    if (viewingStateIndex !== null) {
+      return boardState;
+    }
+
+    // サーバーの状態が楽観的更新に追いついたかチェック
+    const serverMoveIndex = boardState.moveIndex;
+    const isOptimisticValid = optimisticState && serverMoveIndex < optimisticState.moveIndex;
+
+    // 楽観的状態が有効であればそれを使用
+    if (isOptimisticValid) {
+      return {
+        board: optimisticState.board,
+        moveIndex: optimisticState.moveIndex,
+        previousBoard: boardState.board,
+      };
+    }
+
+    return boardState;
+  }, [boardState, optimisticState, viewingStateIndex]);
 
   const handleBoardChange = useCallback(
-    async (_newBoard: Board, usiMove: string) => {
+    async (newBoard: Board, usiMove: string) => {
       // 巻き戻し中は指し手を無効化
       if (viewingStateIndex !== null) {
         return;
       }
 
-      const { board } = boardState;
+      const { board, moveIndex } = boardState;
+      const nextTurn = board.turn === "SENTE" ? "GOTE" : "SENTE";
+      const nextMoveIndex = moveIndex + 1;
+
+      // 楽観的更新: 即座にUIを更新
+      const optimisticBoard: Board = { ...newBoard, turn: nextTurn };
+      setOptimisticState({
+        board: optimisticBoard,
+        moveIndex: nextMoveIndex,
+      });
 
       // USI形式を日本語に変換（例: "7g7f" → "7六歩(7七)"）
       const japaneseMove = formatMoveToJapanese(usiMove, board);
@@ -128,19 +165,19 @@ export function MatchDetailPage() {
         content: japaneseMove,
       });
     },
-    [boardState, matchId, sendChatMessage, viewingStateIndex]
+    [boardState, matchId, sendChatMessage, viewingStateIndex],
   );
 
   // 前の盤面との差分セルを計算
   const diffCells = useMemo(() => {
-    if (!boardState.previousBoard) {
+    if (!displayBoardState.previousBoard) {
       return [];
     }
-    return calculateDiffCells(boardState.previousBoard, boardState.board);
-  }, [boardState.previousBoard, boardState.board]);
+    return calculateDiffCells(displayBoardState.previousBoard, displayBoardState.board);
+  }, [displayBoardState.previousBoard, displayBoardState.board]);
 
   // 勝者を計算
-  const winner = useMemo(() => getWinner(boardState.board), [boardState.board]);
+  const winner = useMemo(() => getWinner(displayBoardState.board), [displayBoardState.board]);
 
   // 全ての対局状態
   const matchStates = matchStatesData?.matchStates || [];
@@ -162,15 +199,12 @@ export function MatchDetailPage() {
 
   return (
     <div className={styles.container}>
-      <ResizableContainer
-        direction="row"
-        storageKey="matchDetailPage:chatWidth"
-      >
+      <ResizableContainer direction="row" storageKey="matchDetailPage:chatWidth">
         <MatchChat matchId={matchId} disabled={isChatPartial} />
         <Col style={{ height: "100%", overflow: "hidden" }}>
           <StatusBar
-            currentTurn={boardState.board.turn}
-            matchStateIndex={boardState.moveIndex}
+            currentTurn={displayBoardState.board.turn}
+            matchStateIndex={displayBoardState.moveIndex}
             isAiThinking={isChatPartial}
             thinkingTimeMs={undefined}
             winner={winner}
@@ -185,12 +219,12 @@ export function MatchDetailPage() {
             <div className={styles.gotePieceStand}>
               <PieceStand
                 player="GOTE"
-                pieces={boardState.board.goteHands}
+                pieces={displayBoardState.board.goteHands}
                 selectedPieceType={
-                  boardState.board.turn === "GOTE" ? selectedHandPiece : null
+                  displayBoardState.board.turn === "GOTE" ? selectedHandPiece : null
                 }
                 onPieceSelect={(pieceType) => {
-                  if (boardState.board.turn === "GOTE") {
+                  if (displayBoardState.board.turn === "GOTE") {
                     setSelectedHandPiece(pieceType);
                   }
                 }}
@@ -199,8 +233,8 @@ export function MatchDetailPage() {
             </div>
             <div className={styles.boardContainer}>
               <ShogiBoard
-                board={boardState.board}
-                currentPlayer={boardState.board.turn}
+                board={displayBoardState.board}
+                currentPlayer={displayBoardState.board.turn}
                 onBoardChange={handleBoardChange}
                 selectedHandPiece={selectedHandPiece}
                 onHandPieceDeselect={() => setSelectedHandPiece(null)}
@@ -211,12 +245,12 @@ export function MatchDetailPage() {
             <div className={styles.sentePieceStand}>
               <PieceStand
                 player="SENTE"
-                pieces={boardState.board.senteHands}
+                pieces={displayBoardState.board.senteHands}
                 selectedPieceType={
-                  boardState.board.turn === "SENTE" ? selectedHandPiece : null
+                  displayBoardState.board.turn === "SENTE" ? selectedHandPiece : null
                 }
                 onPieceSelect={(pieceType) => {
-                  if (boardState.board.turn === "SENTE") {
+                  if (displayBoardState.board.turn === "SENTE") {
                     setSelectedHandPiece(pieceType);
                   }
                 }}

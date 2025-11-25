@@ -34,11 +34,7 @@ export function MessageBubble({
     <div className={isCurrentUser ? styles.messageOwn : styles.messageOther}>
       <div className={styles.messageSender}>{sender}</div>
       <div className={styles.messageContent}>
-        {message ? (
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{message}</ReactMarkdown>
-        ) : (
-          children
-        )}
+        {message ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{message}</ReactMarkdown> : children}
         {isPartial && <LoadingDots />}
       </div>
       <div className={styles.messageTime}>{timestamp}</div>

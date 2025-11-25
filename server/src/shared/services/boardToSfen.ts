@@ -48,9 +48,7 @@ export function boardToSfen(board: Board): string {
         // 駒を追加
         const pieceSfen = SFEN_PIECE_MAP[cell.type];
         const pieceChar =
-          cell.player === Player.Sente
-            ? pieceSfen.toUpperCase()
-            : pieceSfen.toLowerCase();
+          cell.player === Player.Sente ? pieceSfen.toUpperCase() : pieceSfen.toLowerCase();
         rowStr += pieceChar;
       }
     }
@@ -109,15 +107,7 @@ function countPieces(pieces: PieceType[]): Record<string, number> {
   const counts: Record<string, number> = {};
 
   // SFEN形式の順序: 飛車、角、金、銀、桂、香、歩
-  const order = [
-    PT.Rook,
-    PT.Bishop,
-    PT.Gold,
-    PT.Silver,
-    PT.Knight,
-    PT.Lance,
-    PT.Pawn,
-  ];
+  const order = [PT.Rook, PT.Bishop, PT.Gold, PT.Silver, PT.Knight, PT.Lance, PT.Pawn];
 
   for (const piece of pieces) {
     counts[piece] = (counts[piece] || 0) + 1;

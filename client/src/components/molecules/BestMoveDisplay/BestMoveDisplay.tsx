@@ -11,10 +11,7 @@ interface BestMoveDisplayProps {
 /**
  * スコアをフォーマット
  */
-function formatScore(
-  scoreCp?: number | null,
-  scoreMate?: number | null
-): string {
+function formatScore(scoreCp?: number | null, scoreMate?: number | null): string {
   if (scoreMate !== null && scoreMate !== undefined) {
     return `詰み${scoreMate}手`;
   }
@@ -45,9 +42,7 @@ export function BestMoveDisplay({ content }: BestMoveDisplayProps) {
           <Row className={styles.header} justify="space-between" align="center">
             <h3 className={styles.title}>盤面解析結果</h3>
             <Row className={styles.meta} justify="center" align="center">
-              <span className={styles.time}>
-                {(timeMs / 1000).toFixed(1)}秒
-              </span>
+              <span className={styles.time}>{(timeMs / 1000).toFixed(1)}秒</span>
             </Row>
           </Row>
         }
@@ -55,9 +50,7 @@ export function BestMoveDisplay({ content }: BestMoveDisplayProps) {
         <Col>
           <div className={styles.bestMove}>
             <span className={styles.label}>最善手:</span>
-            <span className={styles.move}>
-              {formatMoveToJapanese(bestmove, board)}
-            </span>
+            <span className={styles.move}>{formatMoveToJapanese(bestmove, board)}</span>
           </div>
 
           {variations.length > 0 && (
@@ -74,9 +67,7 @@ export function BestMoveDisplay({ content }: BestMoveDisplayProps) {
                       <span className={styles.score}>
                         {formatScore(variation.scoreCp, variation.scoreMate)}
                       </span>
-                      <span className={styles.depth}>
-                        深度: {variation.depth}
-                      </span>
+                      <span className={styles.depth}>深度: {variation.depth}</span>
                     </div>
                     {variation.pv && variation.pv.length > 0 && (
                       <div className={styles.pv}>

@@ -25,9 +25,7 @@ type RefsObject<T, K extends Key> = {
  * return <div ref={refs.foo} />;
  * ```
  */
-export function useRefs<T, K extends Key = Key>(
-  initialValue?: Record<K, T>
-): RefsObject<T, K> {
+export function useRefs<T, K extends Key = Key>(initialValue?: Record<K, T>): RefsObject<T, K> {
   const refs = useRef<Record<K, T>>(initialValue ?? ({} as Record<K, T>));
 
   return useMemo(() => {
@@ -42,7 +40,7 @@ export function useRefs<T, K extends Key = Key>(
           setter.current = refs.current[prop as K] ?? null;
           return setter as RefObject<T>;
         },
-      }
+      },
     ) as RefsObject<T, K>;
   }, []);
 }

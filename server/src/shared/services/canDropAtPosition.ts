@@ -8,11 +8,7 @@ import { Player, PieceType } from "../consts";
  * @param player プレイヤー
  * @returns 打てる場合はtrue
  */
-export function canDropAtPosition(
-  pieceType: PieceType,
-  row: number,
-  player: Player
-): boolean {
+export function canDropAtPosition(pieceType: PieceType, row: number, player: Player): boolean {
   // 先手の場合（上から下へ進む）
   if (player === Player.Sente) {
     // 歩と香車は1段目（row=0）に打てない

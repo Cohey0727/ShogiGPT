@@ -19,14 +19,14 @@ app.get("/", (c) =>
     message: "Shogi backend is running",
     graphqlEndpoint: "/graphql",
     docs: "https://github.com/kohei/shogi-gpt",
-  })
+  }),
 );
 
 app.get("/healthz", (c) =>
   c.json({
     status: "ok",
     timestamp: new Date().toISOString(),
-  })
+  }),
 );
 
 app.use(
@@ -34,7 +34,7 @@ app.use(
   graphqlServer({
     schema,
     graphiql: true,
-  })
+  }),
 );
 
 const port = Number.parseInt(Bun.env.PORT ?? "8787", 10);

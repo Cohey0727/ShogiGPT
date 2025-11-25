@@ -6,16 +6,11 @@ export const DialogTrigger = DialogPrimitive.Trigger;
 export const DialogPortal = DialogPrimitive.Portal;
 export const DialogClose = DialogPrimitive.Close;
 
-export const DialogOverlay = ({
-  ...props
-}: DialogPrimitive.DialogOverlayProps) => (
+export const DialogOverlay = ({ ...props }: DialogPrimitive.DialogOverlayProps) => (
   <DialogPrimitive.Overlay className={styles.overlay} {...props} />
 );
 
-export const DialogContent = ({
-  children,
-  ...props
-}: DialogPrimitive.DialogContentProps) => (
+export const DialogContent = ({ children, ...props }: DialogPrimitive.DialogContentProps) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content className={styles.content} {...props}>
@@ -31,8 +26,6 @@ export const DialogTitle = ({ ...props }: DialogPrimitive.DialogTitleProps) => (
   <DialogPrimitive.Title className={styles.title} {...props} />
 );
 
-export const DialogDescription = ({
-  ...props
-}: DialogPrimitive.DialogDescriptionProps) => (
+export const DialogDescription = ({ ...props }: DialogPrimitive.DialogDescriptionProps) => (
   <DialogPrimitive.Description className={styles.description} {...props} />
 );

@@ -4,7 +4,6 @@ const styles = {
   base: style({
     display: "flex",
     flexDirection: "column",
-    flex: "1 1 auto",
   }),
 
   align: {

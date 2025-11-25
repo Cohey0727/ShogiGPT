@@ -69,6 +69,7 @@ export const health: QueryResolvers["health"] = () => ({
 ```
 
 **ポイント**:
+
 - GraphQL Code Generatorで生成された型を使用
 - `import type` で型のみをインポート
 - named exportを使用
@@ -142,15 +143,13 @@ export interface Move {
  * @param currentPlayer - 現在の手番のプレイヤー（移動前の手番）
  * @returns 指し手情報、または解析できない場合はnull
  */
-export function analyzeMove(
-  diff: BoardDiff,
-  currentPlayer: Player
-): Move | null {
+export function analyzeMove(diff: BoardDiff, currentPlayer: Player): Move | null {
   // 実装
 }
 ```
 
 **ポイント**:
+
 - JSDocで関数とインターフェースを文書化
 - パラメータと戻り値を明確に説明
 - nullableな戻り値は明示的に型定義
@@ -398,10 +397,7 @@ import { Player } from "../shared/consts/shogi";
  * @param currentPlayer - 現在の手番のプレイヤー（移動前の手番）
  * @returns 指し手情報、または解析できない場合はnull
  */
-export function analyzeMove(
-  diff: BoardDiff,
-  currentPlayer: Player
-): Move | null {
+export function analyzeMove(diff: BoardDiff, currentPlayer: Player): Move | null {
   // 実装
 }
 ```
@@ -443,12 +439,9 @@ if (promoted) {
 失敗する可能性がある処理は、nullまたはundefinedを返す。
 
 ```ts
-export function analyzeMove(
-  diff: BoardDiff,
-  currentPlayer: Player
-): Move | null {
+export function analyzeMove(diff: BoardDiff, currentPlayer: Player): Move | null {
   if (cellDiffs.length === 0 || cellDiffs.length > 2) {
-    return null;  // 明示的に失敗を返す
+    return null; // 明示的に失敗を返す
   }
   // ...
 }
@@ -498,13 +491,11 @@ app.get("/healthz", (c) =>
   c.json({
     status: "ok",
     timestamp: new Date().toISOString(),
-  })
+  }),
 );
 
 // 必要に応じてステータスコードを明示
-app.post("/matches", (c) =>
-  c.json({ id: "123", created: true }, 201)
-);
+app.post("/matches", (c) => c.json({ id: "123", created: true }, 201));
 ```
 
 ### 3. 環境変数
@@ -554,10 +545,7 @@ bun run lint
 
 ```ts
 // ✅ 良い例
-const [user, matches] = await Promise.all([
-  fetchUser(userId),
-  fetchMatches(userId),
-]);
+const [user, matches] = await Promise.all([fetchUser(userId), fetchMatches(userId)]);
 
 // ❌ 悪い例（直列実行）
 const user = await fetchUser(userId);
@@ -598,6 +586,7 @@ describe("analyzeMove", () => {
 ```
 
 **type**:
+
 - `feat`: 新機能
 - `fix`: バグ修正
 - `refactor`: リファクタリング
@@ -607,6 +596,7 @@ describe("analyzeMove", () => {
 - `chore`: ビルド、設定など
 
 例:
+
 ```
 feat: 指し手解析機能を追加
 
@@ -649,6 +639,7 @@ if (!apiKey) {
 ## まとめ
 
 この規約に従うことで:
+
 - コードの一貫性が保たれる
 - 型安全性が向上する
 - チームメンバーがコードを理解しやすくなる

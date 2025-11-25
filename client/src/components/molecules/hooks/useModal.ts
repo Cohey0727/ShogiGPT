@@ -37,9 +37,7 @@ export const useModal = <T>() => {
   const controller = useMemo(
     () => ({
       open: () => {
-        const { promise, ...resolvers } = Promise.withResolvers<
-          T | undefined
-        >();
+        const { promise, ...resolvers } = Promise.withResolvers<T | undefined>();
         resolversRef.current = resolvers;
         setPromise(promise);
         return promise;
@@ -53,7 +51,7 @@ export const useModal = <T>() => {
         throw new Error(String(reason));
       },
     }),
-    []
+    [],
   );
   return [!!promise, controller] as const;
 };

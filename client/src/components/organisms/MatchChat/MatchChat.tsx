@@ -8,10 +8,8 @@ import {
   useSubscribeChatMessagesSubscription,
   useSendChatMessageMutation,
 } from "../../../generated/graphql/types";
-import {
-  MarkdownContentSchema,
-  BestMoveContentSchema,
-} from "../../../schemas/chatMessage";
+import { MarkdownContentSchema, BestMoveContentSchema } from "../../../schemas/chatMessage";
+import { usePromptSettings } from "../hooks";
 import styles from "./MatchChat.css";
 
 interface MatchChatProps {
@@ -32,6 +30,7 @@ export function MatchChat({ matchId, disabled = false }: MatchChatProps) {
   const [inputValue, setInputValue] = useState("");
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptSettings] = usePromptSettings();
 
   // メッセージ取得 - Subscriptionでリアルタイム更新
   const [{ data }] = useSubscribeChatMessagesSubscription({
@@ -40,16 +39,12 @@ export function MatchChat({ matchId, disabled = false }: MatchChatProps) {
 
   const [, sendChatMessage] = useSendChatMessageMutation();
 
-  const messages = useMemo(
-    () => data?.chatMessages || [],
-    [data?.chatMessages]
-  );
+  const messages = useMemo(() => data?.chatMessages || [], [data?.chatMessages]);
 
   // 新着メッセージがある場合は自動スクロール
   useEffect(() => {
     if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop =
-        messagesContainerRef.current.scrollHeight;
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -61,6 +56,7 @@ export function MatchChat({ matchId, disabled = false }: MatchChatProps) {
     await sendChatMessage({
       matchId,
       content: inputValue,
+      aiPersonality: promptSettings.aiPromptPersonality,
     });
     setInputValue("");
   };

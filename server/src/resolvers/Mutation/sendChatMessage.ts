@@ -6,10 +6,7 @@ import { getCandidateMoves } from "../../services/getCandidateMoves";
 import { makeMove } from "../../services/makeMove";
 import { createAiToolDefinition } from "../../services/aiFunctionCallingTool";
 
-export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (
-  _parent,
-  { input }
-) => {
+export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (_parent, { input }) => {
   const { matchId, content } = input;
 
   // ユーザーメッセージを作成
@@ -103,7 +100,7 @@ async function generateAndUpdateAiResponse(params: {
       tools.map((entry) => [
         entry.tool.name,
         { tool: entry.tool, needsResponse: entry.needsResponse },
-      ])
+      ]),
     );
 
     let shouldReturnResponse = true;
@@ -113,11 +110,7 @@ async function generateAndUpdateAiResponse(params: {
       userMessage: createChatContent(content, matchId),
       conversationHistory,
       tools: tools.map((entry) =>
-        createAiToolDefinition(
-          entry.tool.name,
-          entry.tool.description,
-          entry.tool.args
-        )
+        createAiToolDefinition(entry.tool.name, entry.tool.description, entry.tool.args),
       ),
       onToolCall: async (toolName, toolArgs) => {
         const toolEntry = toolMap.get(toolName);
@@ -161,8 +154,7 @@ async function generateAndUpdateAiResponse(params: {
         contents: [
           {
             type: "markdown",
-            content:
-              "申し訳ございません。AIの応答生成中にエラーが発生しました。",
+            content: "申し訳ございません。AIの応答生成中にエラーが発生しました。",
           },
         ],
         isPartial: false,

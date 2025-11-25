@@ -39,11 +39,7 @@ export function Drawer({ isOpen, onClose, children }: DrawerProps) {
     <>
       <div className={styles.overlay} onClick={onClose} />
       <aside className={`${styles.drawer} ${isOpen ? styles.open : ""}`}>
-        <Button
-          variant="ghost"
-          onClick={onClose}
-          aria-label="メニューを閉じる"
-        >
+        <Button variant="ghost" onClick={onClose} aria-label="メニューを閉じる">
           <Cross1Icon width={20} height={20} />
         </Button>
         <h2 className={styles.title}>ShogiGPT</h2>

@@ -89,10 +89,7 @@ async function execute(args: Args): Promise<Result> {
   };
 }
 
-export const getCandidateMoves: AiFunctionCallingTool<
-  typeof ArgsSchema,
-  Result
-> = {
+export const getCandidateMoves: AiFunctionCallingTool<typeof ArgsSchema, Result> = {
   name: "get_candidate_moves",
   description:
     "現在の局面における候補手と評価値を取得します。将棋に関する質問（候補手、次の手、局面評価など）には必ずこのツールを使用して正確な情報を取得してください。推測や想像で答えてはいけません。",

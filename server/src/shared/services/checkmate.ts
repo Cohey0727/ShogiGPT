@@ -23,11 +23,7 @@ function findKingPosition(board: Board, player: Player): Position | null {
 /**
  * 指定された位置が相手の駒に攻撃されているかチェック
  */
-function isPositionUnderAttack(
-  board: Board,
-  position: Position,
-  attackingPlayer: Player
-): boolean {
+function isPositionUnderAttack(board: Board, position: Position, attackingPlayer: Player): boolean {
   // 相手の全ての駒について、この位置に移動可能かチェック
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
@@ -38,11 +34,7 @@ function isPositionUnderAttack(
           col: col as BoardIndex,
         };
         const moves = getPossibleMoves(board, from);
-        if (
-          moves.some(
-            (move) => move.row === position.row && move.col === position.col
-          )
-        ) {
+        if (moves.some((move) => move.row === position.row && move.col === position.col)) {
           return true;
         }
       }
@@ -79,8 +71,7 @@ function simulateMove(board: Board, from: Position, to: Position): Board {
 
   // 駒を取る場合、持ち駒に追加
   if (capturedPiece && piece) {
-    const capturedArray =
-      piece.player === "SENTE" ? newBoard.senteHands : newBoard.goteHands;
+    const capturedArray = piece.player === "SENTE" ? newBoard.senteHands : newBoard.goteHands;
     capturedArray.push(capturedPiece.type);
   }
 
@@ -97,7 +88,7 @@ function simulateDrop(
   board: Board,
   pieceType: PieceType,
   position: Position,
-  player: Player
+  player: Player,
 ): Board {
   const newBoard: Board = {
     ...board,
@@ -107,8 +98,7 @@ function simulateDrop(
   };
 
   // 持ち駒から削除
-  const capturedArray =
-    player === "SENTE" ? newBoard.senteHands : newBoard.goteHands;
+  const capturedArray = player === "SENTE" ? newBoard.senteHands : newBoard.goteHands;
   const index = capturedArray.indexOf(pieceType);
   if (index > -1) {
     capturedArray.splice(index, 1);
@@ -158,8 +148,7 @@ export function isCheckmate(board: Board, player: Player): boolean {
   }
 
   // 持ち駒を打って王手を回避できるかチェック
-  const capturedPieces =
-    player === "SENTE" ? board.senteHands : board.goteHands;
+  const capturedPieces = player === "SENTE" ? board.senteHands : board.goteHands;
 
   if (capturedPieces.length > 0) {
     const uniquePieceTypes = new Set<PieceType>(capturedPieces);

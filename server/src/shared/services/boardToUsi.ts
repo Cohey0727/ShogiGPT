@@ -49,11 +49,7 @@ export function pieceTypeToUsi(pieceType: PieceType): string {
  * @param promoted 成ったかどうか
  * @returns USI形式の指し手（例：7g7f、7g7f+）
  */
-export function moveToUsi(
-  from: Position,
-  to: Position,
-  promoted: boolean = false
-): string {
+export function moveToUsi(from: Position, to: Position, promoted: boolean = false): string {
   const fromUsi = positionToUsi(from.row, from.col);
   const toUsi = positionToUsi(to.row, to.col);
   return `${fromUsi}${toUsi}${promoted ? "+" : ""}`;

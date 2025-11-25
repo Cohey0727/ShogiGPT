@@ -1,9 +1,4 @@
-import {
-  cacheExchange,
-  createClient,
-  fetchExchange,
-  subscriptionExchange,
-} from "urql";
+import { cacheExchange, createClient, fetchExchange, subscriptionExchange } from "urql";
 import { createClient as createWSClient } from "graphql-ws";
 
 /**
@@ -17,12 +12,10 @@ function complementUrl(url: string): string {
   }
 
   // 現在のプロトコルを取得（デフォルトはhttp）
-  const protocol =
-    typeof window !== "undefined" ? window.location.protocol : "http:";
+  const protocol = typeof window !== "undefined" ? window.location.protocol : "http:";
 
   // 現在のホスト名を取得（デフォルトはlocalhost）
-  const hostname =
-    typeof window !== "undefined" ? window.location.hostname : "localhost";
+  const hostname = typeof window !== "undefined" ? window.location.hostname : "localhost";
 
   // ポートとパスのみの場合（:で始まる）
   if (url.startsWith(":")) {
@@ -39,7 +32,7 @@ function complementUrl(url: string): string {
 }
 
 const GRAPHQL_ENDPOINT = complementUrl(
-  import.meta.env.VITE_GRAPHQL_ENDPOINT || "http://localhost:7777/v1/graphql"
+  import.meta.env.VITE_GRAPHQL_ENDPOINT || "http://localhost:7777/v1/graphql",
 );
 const GRAPHQL_WS_ENDPOINT = GRAPHQL_ENDPOINT.replace(/^http/, "ws");
 

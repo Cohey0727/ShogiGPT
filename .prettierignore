@@ -1,0 +1,12 @@
+# Generated files
+**/generated/**
+
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+build
+
+# Hasura schema
+hasura/schema.graphql

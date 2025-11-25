@@ -9,11 +9,7 @@ export const TooltipContent = ({
   sideOffset = 4,
   ...props
 }: TooltipPrimitive.TooltipContentProps) => (
-  <TooltipPrimitive.Content
-    sideOffset={sideOffset}
-    className={styles.content}
-    {...props}
-  >
+  <TooltipPrimitive.Content sideOffset={sideOffset} className={styles.content} {...props}>
     {props.children}
     <TooltipPrimitive.Arrow className={styles.arrow} />
   </TooltipPrimitive.Content>

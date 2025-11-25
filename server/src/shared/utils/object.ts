@@ -41,10 +41,7 @@ export function objectEntries<T extends object>(obj: T) {
  * const result = getFromPath(obj, 'a.b.c');  // 42
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getFromPath<T, R = any>(
-  obj: T,
-  path: PathOf<T>
-): R | undefined {
+export function getFromPath<T, R = any>(obj: T, path: PathOf<T>): R | undefined {
   const pathList = path.split(".");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let res: any = obj;
@@ -71,11 +68,7 @@ export function getFromPath<T, R = any>(
  * setFromPath(obj, 'a.b.c', 100);  // obj = { a: { b: { c: 100 } } } となる
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function setFromPath<T, R = any>(
-  obj: T,
-  path: PathOf<T>,
-  value: R
-): void {
+export function setFromPath<T, R = any>(obj: T, path: PathOf<T>, value: R): void {
   const pathList = path.split(".");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let current: any = obj;
@@ -86,11 +79,7 @@ export function setFromPath<T, R = any>(
       return;
     }
 
-    if (
-      typeof current[key] !== "object" ||
-      current[key] === null ||
-      current[key] === undefined
-    ) {
+    if (typeof current[key] !== "object" || current[key] === null || current[key] === undefined) {
       current[key] = {};
     }
 
@@ -108,7 +97,7 @@ export function setFromPath<T, R = any>(
  * @returns `value`がプリミティブ型であれば`true`、そうでなければ`false`を返します。
  */
 export function isPrimitive(
-  value: unknown
+  value: unknown,
 ): value is string | number | boolean | symbol | null | undefined {
   const type = typeof value;
   return value === null || (type !== "object" && type !== "function");

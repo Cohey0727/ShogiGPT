@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useLayoutEffect,
-  useState,
-  type Dispatch,
-  type SetStateAction,
-} from "react";
+import { useCallback, useLayoutEffect, useState, type Dispatch, type SetStateAction } from "react";
 
 import { getFromPath, setFromPath } from "../../../shared/utils";
 
@@ -23,12 +17,12 @@ type UseClientLocalStorageParams<T> = T extends undefined
 
 // オーバーロードシグネチャ(初期値が指定されている場合)
 export function useLocalStorage<T>(
-  params: UseClientLocalStorageParams<T>
+  params: UseClientLocalStorageParams<T>,
 ): [T, Dispatch<SetStateAction<T>>];
 
 // オーバーロードシグネチャ(初期値がオプショナルまたは、undefinedの場合)
 export function useLocalStorage<T>(
-  params: UseClientLocalStorageParams<T | undefined>
+  params: UseClientLocalStorageParams<T | undefined>,
 ): [T | undefined, Dispatch<SetStateAction<T>>];
 
 /**
@@ -94,10 +88,7 @@ export function useLocalStorage<T>({
         setInMemoryValue(newRootValue);
       } else {
         // キーがネストしている場合
-        const newValue = getFromPath(
-          newRootValue as object,
-          valuePath as never
-        );
+        const newValue = getFromPath(newRootValue as object, valuePath as never);
         setInMemoryValue(newValue);
       }
     };
@@ -113,8 +104,7 @@ export function useLocalStorage<T>({
 const splitLocalStorageKeys = (key: string) => {
   const keys = key.split(".");
   const rootKey = keys[0];
-  const valuePath =
-    keys.slice(1).length > 0 ? keys.slice(1).join(".") : undefined;
+  const valuePath = keys.slice(1).length > 0 ? keys.slice(1).join(".") : undefined;
   return [rootKey, valuePath] as const;
 };
 
@@ -128,9 +118,7 @@ function getLocalStorageValue<T>(key: string) {
     // キーがネストしている場合
     const rootData = localStorage.getItem(rootKey);
     const rooValue = rootData ? JSON.parse(rootData) : undefined;
-    return rooValue
-      ? (getFromPath(rooValue as object, valuePath as never) as T)
-      : undefined;
+    return rooValue ? (getFromPath(rooValue as object, valuePath as never) as T) : undefined;
   }
 }
 

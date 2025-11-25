@@ -69,9 +69,7 @@ export function sfenToBoard(sfen: string): Board {
         const pieceType = SFEN_TO_PIECE_TYPE[sfenKey];
 
         if (!pieceType) {
-          throw new Error(
-            `Invalid SFEN format: unknown promoted piece ${sfenKey}`
-          );
+          throw new Error(`Invalid SFEN format: unknown promoted piece ${sfenKey}`);
         }
 
         const player = /[A-Z]/.test(nextChar) ? Player.Sente : Player.Gote;
@@ -94,9 +92,7 @@ export function sfenToBoard(sfen: string): Board {
     }
 
     if (row.length !== 9) {
-      throw new Error(
-        `Invalid SFEN format: expected 9 columns, got ${row.length}`
-      );
+      throw new Error(`Invalid SFEN format: expected 9 columns, got ${row.length}`);
     }
 
     cells.push(row);

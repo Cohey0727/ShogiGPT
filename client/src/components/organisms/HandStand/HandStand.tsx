@@ -31,10 +31,13 @@ export function HandStand({
   const isGote = player === Player.Gote;
 
   // PieceType[] から { [key in PieceType]?: number } への変換
-  const pieceCounts = pieces.reduce((acc, piece) => {
-    acc[piece] = (acc[piece] || 0) + 1;
-    return acc;
-  }, {} as { [key in PieceType]?: number });
+  const pieceCounts = pieces.reduce(
+    (acc, piece) => {
+      acc[piece] = (acc[piece] || 0) + 1;
+      return acc;
+    },
+    {} as { [key in PieceType]?: number },
+  );
 
   return (
     <div
@@ -73,9 +76,7 @@ export function HandStand({
                       [styles.gote]: isGote,
                     })}
                   />
-                  {count > 1 && (
-                    <span className={styles.capturedPieceCount}>{count}</span>
-                  )}
+                  {count > 1 && <span className={styles.capturedPieceCount}>{count}</span>}
                 </>
               ) : (
                 // 空のスペースを確保

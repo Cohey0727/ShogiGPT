@@ -182,6 +182,8 @@ export type Query = {
 
 /** チャットメッセージ送信リクエスト */
 export type SendChatMessageInput = {
+  /** AIのパーソナリティ設定 (none, situational, always) */
+  aiPersonality?: InputMaybe<Scalars['String']['input']>;
   /** メッセージ内容 */
   content: Scalars['String']['input'];
   /** 対局ID */

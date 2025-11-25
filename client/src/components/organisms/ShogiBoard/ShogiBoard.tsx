@@ -1,17 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
 import { Player, pieceProperties } from "../../../shared/consts";
-import type {
-  Board,
-  BoardIndex,
-  Position,
-  PieceType,
-} from "../../../shared/consts";
-import {
-  getPossibleMoves,
-  canPromote,
-  getDropPositions,
-} from "../../../services";
+import type { Board, BoardIndex, Position, PieceType } from "../../../shared/consts";
+import { getPossibleMoves, canPromote, getDropPositions } from "../../../services";
 import { moveToUsi, dropToUsi } from "../../../shared/services";
 import { useModal } from "../../molecules/hooks";
 import { PromotionModal } from "../../molecules";
@@ -36,9 +27,7 @@ export function ShogiBoard({
   disabled = false,
   diffCells = [],
 }: ShogiBoardProps) {
-  const [selectedPosition, setSelectedPosition] = useState<Position | null>(
-    null
-  );
+  const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
   const [isPromotionModalOpen, promotionModalController] = useModal<boolean>();
   const [promotionState, setPromotionState] = useState<{
     pieceType: PieceType;
@@ -81,9 +70,7 @@ export function ShogiBoard({
 
       // 持ち駒を選択している場合
       if (selectedHandPiece) {
-        const isPossibleDrop = possibleMoves.some(
-          (move) => move.row === row && move.col === col
-        );
+        const isPossibleDrop = possibleMoves.some((move) => move.row === row && move.col === col);
 
         if (isPossibleDrop) {
           // 持ち駒を打つ
@@ -119,7 +106,7 @@ export function ShogiBoard({
               senteHands: newCapturedBySente,
               goteHands: newCapturedByGote,
             },
-            usiMove
+            usiMove,
           );
 
           // 持ち駒の選択を解除
@@ -142,9 +129,7 @@ export function ShogiBoard({
           setSelectedPosition(null);
         } else {
           // 別のマスをクリック -> 駒を移動（合法手の場合のみ）
-          const isPossibleMove = possibleMoves.some(
-            (move) => move.row === row && move.col === col
-          );
+          const isPossibleMove = possibleMoves.some((move) => move.row === row && move.col === col);
 
           if (isPossibleMove) {
             // 合法手の場合のみ移動を実行
@@ -193,8 +178,7 @@ export function ShogiBoard({
             if (handsPiece) {
               // 駒を取った場合、持ち駒に追加
               // 成り駒の場合は元の駒に戻す
-              const capturedType =
-                pieceProperties[handsPiece.type].unpromoted || handsPiece.type;
+              const capturedType = pieceProperties[handsPiece.type].unpromoted || handsPiece.type;
 
               if (piece.player === Player.Sente) {
                 // 先手が取った
@@ -216,7 +200,7 @@ export function ShogiBoard({
                 senteHands: newSenteHands,
                 goteHands: newGoteHands,
               },
-              usiMove
+              usiMove,
             );
           }
 
@@ -246,7 +230,7 @@ export function ShogiBoard({
       selectedHandPiece,
       onHandPieceDeselect,
       disabled,
-    ]
+    ],
   );
 
   return (
@@ -255,16 +239,13 @@ export function ShogiBoard({
         {board.cells.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
             const isSelected =
-              selectedPosition?.row === rowIndex &&
-              selectedPosition?.col === colIndex;
+              selectedPosition?.row === rowIndex && selectedPosition?.col === colIndex;
 
             const isPossibleMove = possibleMoves.some(
-              (move) => move.row === rowIndex && move.col === colIndex
+              (move) => move.row === rowIndex && move.col === colIndex,
             );
 
-            const isDiff = diffCells.some(
-              (diff) => diff.row === rowIndex && diff.col === colIndex
-            );
+            const isDiff = diffCells.some((diff) => diff.row === rowIndex && diff.col === colIndex);
 
             return (
               <div
@@ -274,12 +255,7 @@ export function ShogiBoard({
                   [styles.possibleMove]: isPossibleMove,
                   [styles.diff]: isDiff,
                 })}
-                onClick={() =>
-                  handleCellClick(
-                    rowIndex as BoardIndex,
-                    colIndex as BoardIndex
-                  )
-                }
+                onClick={() => handleCellClick(rowIndex as BoardIndex, colIndex as BoardIndex)}
               >
                 {cell && (
                   <img
@@ -292,7 +268,7 @@ export function ShogiBoard({
                 )}
               </div>
             );
-          })
+          }),
         )}
       </div>
       {isPromotionModalOpen && promotionState && (

@@ -39,10 +39,7 @@ export interface Move {
  * @param currentPlayer - 現在の手番のプレイヤー（移動前の手番）
  * @returns 指し手情報、または解析できない場合はnull
  */
-export function analyzeMove(
-  diff: BoardDiff,
-  currentPlayer: Player
-): Move | null {
+export function analyzeMove(diff: BoardDiff, currentPlayer: Player): Move | null {
   const { cellDiffs, capturedDiff } = diff;
 
   // cellDiffsが0または3つ以上の場合は不正
@@ -65,8 +62,7 @@ export function analyzeMove(
     }
 
     // 持ち駒から削除されているか確認
-    const playerCapturedDiff =
-      currentPlayer === "SENTE" ? capturedDiff.sente : capturedDiff.gote;
+    const playerCapturedDiff = currentPlayer === "SENTE" ? capturedDiff.sente : capturedDiff.gote;
 
     if (!playerCapturedDiff.removed.includes(diff.after.type)) {
       return null;
@@ -123,12 +119,10 @@ export function analyzeMove(
     captured = toDiff.before;
 
     // 持ち駒に追加されているか確認
-    const playerCapturedDiff =
-      currentPlayer === "SENTE" ? capturedDiff.sente : capturedDiff.gote;
+    const playerCapturedDiff = currentPlayer === "SENTE" ? capturedDiff.sente : capturedDiff.gote;
 
     // 取った駒が成り駒の場合、元の駒に戻して持ち駒に追加される
-    const capturedType =
-      pieceProperties[captured.type].unpromoted ?? captured.type;
+    const capturedType = pieceProperties[captured.type].unpromoted ?? captured.type;
 
     if (!playerCapturedDiff.added.includes(capturedType)) {
       return null;

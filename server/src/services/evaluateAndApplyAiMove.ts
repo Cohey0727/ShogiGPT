@@ -18,9 +18,7 @@ interface EvaluateAndApplyAiMoveParams {
  * 既に保存されたMatchStateに対して非同期で盤面評価を行い、
  * applyBestMoveがtrueの場合は最善手を適用する
  */
-export async function evaluateAndApplyAiMove(
-  params: EvaluateAndApplyAiMoveParams
-): Promise<void> {
+export async function evaluateAndApplyAiMove(params: EvaluateAndApplyAiMoveParams): Promise<void> {
   const { matchId, index, multipv = 5, thinkingTime, applyBestMove } = params;
 
   // 1. MatchStateを取得
@@ -53,11 +51,7 @@ export async function evaluateAndApplyAiMove(
 
   try {
     // 盤面を評価（キャッシュがあればそれを使用）
-    const evaluationResult = await evaluatePosition(
-      matchState.sfen,
-      multipv,
-      timeMs
-    );
+    const evaluationResult = await evaluatePosition(matchState.sfen, multipv, timeMs);
 
     // MatchStateに評価結果IDを保存
     await db.matchState.update({
@@ -140,10 +134,7 @@ export async function evaluateAndApplyAiMove(
     if (applyBestMove) {
       try {
         const currentBoard = sfenToBoard(matchState.sfen);
-        const newBoardWithAiMove = applyUsiMove(
-          currentBoard,
-          evaluationResult.bestmove
-        );
+        const newBoardWithAiMove = applyUsiMove(currentBoard, evaluationResult.bestmove);
         const aiMoveIndex = index + 1;
         const aiSfen = boardToSfen(newBoardWithAiMove);
 
@@ -157,9 +148,7 @@ export async function evaluateAndApplyAiMove(
           },
         });
 
-        console.log(
-          `✅ Applied best move and created MatchState at index ${aiMoveIndex}`
-        );
+        console.log(`✅ Applied best move and created MatchState at index ${aiMoveIndex}`);
       } catch (error) {
         console.error("⚠️ Failed to apply best move:", error);
         // エラーが発生しても評価結果は返す

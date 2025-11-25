@@ -16,13 +16,11 @@ const styles = {
     selectors: {
       "&:hover:not(:disabled)": {
         transform: "translateY(-2px)",
-        boxShadow:
-          "0 8px 16px rgba(255, 165, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3)",
+        boxShadow: "0 8px 16px rgba(255, 165, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3)",
       },
       "&:active:not(:disabled)": {
         transform: "translateY(0)",
-        boxShadow:
-          "0 2px 4px rgba(255, 165, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)",
+        boxShadow: "0 2px 4px rgba(255, 165, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)",
       },
     },
     ":disabled": {
@@ -33,15 +31,13 @@ const styles = {
 
   variant: {
     filled: style({
-      background:
-        "linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%)",
+      background: "linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%)",
       color: "#1a1a1a",
       fontWeight: "600",
       textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
       selectors: {
         "&:hover:not(:disabled)": {
-          background:
-            "linear-gradient(135deg, #FFED4E 0%, #FFB700 50%, #FF9500 100%)",
+          background: "linear-gradient(135deg, #FFED4E 0%, #FFB700 50%, #FF9500 100%)",
         },
       },
     }),

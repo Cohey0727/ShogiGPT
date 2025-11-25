@@ -15,5 +15,5 @@ createRoot(document.getElementById("root")!).render(
         </Provider>
       </Suspense>
     </ErrorBoundary>
-  </StrictMode>
+  </StrictMode>,
 );

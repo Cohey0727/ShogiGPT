@@ -11,11 +11,7 @@ import { isCheckmate } from "./checkmate";
  * @param player プレイヤー
  * @returns 打てる位置の配列
  */
-export function getDropPositions(
-  board: Board,
-  pieceType: PieceType,
-  player: Player
-): Position[] {
+export function getDropPositions(board: Board, pieceType: PieceType, player: Player): Position[] {
   const positions: Position[] = [];
 
   // 盤面全体をチェック
@@ -79,11 +75,7 @@ function hasDoublesPawn(board: Board, col: number, player: Player): boolean {
  * @param player プレイヤー
  * @returns 打ち歩詰めの場合はtrue
  */
-function isUchifuzume(
-  board: Board,
-  position: Position,
-  player: Player
-): boolean {
+function isUchifuzume(board: Board, position: Position, player: Player): boolean {
   // 歩を打った後の盤面をシミュレート
   const newBoard: Board = {
     ...board,
@@ -93,8 +85,7 @@ function isUchifuzume(
   };
 
   // 持ち駒から歩を削除
-  const capturedArray =
-    player === Player.Sente ? newBoard.senteHands : newBoard.goteHands;
+  const capturedArray = player === Player.Sente ? newBoard.senteHands : newBoard.goteHands;
   const index = capturedArray.indexOf(PieceType.Pawn);
   if (index > -1) {
     capturedArray.splice(index, 1);

@@ -28,9 +28,7 @@ export function SegmentButton<T extends string>({
         <button
           key={option.value}
           type="button"
-          className={`${styles.button} ${
-            value === option.value ? styles.selected : ""
-          }`}
+          className={`${styles.button} ${value === option.value ? styles.selected : ""}`}
           onClick={() => onChange(option.value)}
           disabled={disabled}
         >

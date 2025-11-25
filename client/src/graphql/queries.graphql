@@ -56,10 +56,7 @@ query GetMatch($matchId: String!) {
 }
 
 query GetChatMessages($matchId: String!) {
-  chatMessages(
-    where: { matchId: { _eq: $matchId } }
-    orderBy: { createdAt: ASC }
-  ) {
+  chatMessages(where: { matchId: { _eq: $matchId } }, orderBy: { createdAt: ASC }) {
     id
     createdAt
     matchId
@@ -70,10 +67,7 @@ query GetChatMessages($matchId: String!) {
 }
 
 subscription SubscribeChatMessages($matchId: String!) {
-  chatMessages(
-    where: { matchId: { _eq: $matchId } }
-    orderBy: { createdAt: ASC }
-  ) {
+  chatMessages(where: { matchId: { _eq: $matchId } }, orderBy: { createdAt: ASC }) {
     id
     createdAt
     matchId
@@ -130,8 +124,8 @@ mutation StartMatch(
   }
 }
 
-mutation SendChatMessage($matchId: String!, $content: String!) {
-  sendChatMessage(input: { matchId: $matchId, content: $content }) {
+mutation SendChatMessage($matchId: String!, $content: String!, $aiPersonality: String) {
+  sendChatMessage(input: { matchId: $matchId, content: $content, aiPersonality: $aiPersonality }) {
     userMessage {
       id
       matchId

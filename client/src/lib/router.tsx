@@ -24,10 +24,7 @@ export interface RouteConfigWithNotFound {
   notFound?: NotFoundRouteConfig;
 }
 
-export function renderRoutes(
-  routeConfigs: RouteConfig[],
-  parentPath?: string
-): JSX.Element[] {
+export function renderRoutes(routeConfigs: RouteConfig[], parentPath?: string): JSX.Element[] {
   const routeElements: JSX.Element[] = [];
 
   routeConfigs.forEach((route) => {
@@ -45,18 +42,12 @@ export function renderRoutes(
               <Switch>{renderRoutes(children, fullPath)}</Switch>
             </Component>
           )}
-        />
+        />,
       );
     } else {
       const { component } = route;
       const Component = component as ComponentType;
-      routeElements.push(
-        <Route
-          key={fullPath}
-          path={fullPath}
-          component={() => <Component />}
-        />
-      );
+      routeElements.push(<Route key={fullPath} path={fullPath} component={() => <Component />} />);
     }
   });
 

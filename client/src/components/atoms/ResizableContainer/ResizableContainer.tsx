@@ -74,8 +74,7 @@ export function ResizableContainer({
       if (!containerRef.current) return;
 
       const rect = containerRef.current.getBoundingClientRect();
-      const newSize =
-        direction === "row" ? e.clientX - rect.left : e.clientY - rect.top;
+      const newSize = direction === "row" ? e.clientX - rect.left : e.clientY - rect.top;
 
       const clampedSize = Math.max(minSize, Math.min(maxSize, newSize));
       setSize(clampedSize);
@@ -101,10 +100,7 @@ export function ResizableContainer({
   const isRow = direction === "row";
 
   return (
-    <div
-      ref={containerRef}
-      className={clsx(styles.container, isRow ? styles.row : styles.column)}
-    >
+    <div ref={containerRef} className={clsx(styles.container, isRow ? styles.row : styles.column)}>
       {children.map((child, index) => {
         const isFirst = index === 0;
         const isLast = index === children.length - 1;
@@ -125,7 +121,7 @@ export function ResizableContainer({
                 className={clsx(
                   styles.handle,
                   isRow ? styles.handleRow : styles.handleColumn,
-                  isResizing && styles.handleActive
+                  isResizing && styles.handleActive,
                 )}
                 onMouseDown={handleMouseDown}
               />

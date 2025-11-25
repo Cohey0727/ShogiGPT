@@ -1,9 +1,6 @@
 import { z } from "zod";
 
-export interface AiFunctionCallingTool<
-  TArgs extends z.ZodTypeAny,
-  TResult = unknown
-> {
+export interface AiFunctionCallingTool<TArgs extends z.ZodTypeAny, TResult = unknown> {
   name: string;
   description: string;
   args: TArgs;
@@ -17,15 +14,14 @@ export interface AiFunctionCallingTool<
 export function createAiToolDefinition<TArgs extends z.ZodTypeAny>(
   name: string,
   description: string,
-  argsSchema: TArgs
+  argsSchema: TArgs,
 ) {
   // Use Zod's built-in JSON Schema conversion
   const jsonSchema = z.toJSONSchema(argsSchema) as Record<string, unknown>;
 
   // Remove unsupported fields for OpenAI function calling
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { $schema, $defs, definitions, additionalProperties, ...cleanSchema } =
-    jsonSchema;
+  const { $schema, $defs, definitions, additionalProperties, ...cleanSchema } = jsonSchema;
 
   return {
     type: "function" as const,

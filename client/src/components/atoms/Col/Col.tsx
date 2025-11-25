@@ -37,7 +37,7 @@ export function Col({
         styles.align[align],
         styles.justify[justify],
         styles.gap[gap],
-        className
+        className,
       )}
       {...props}
     />

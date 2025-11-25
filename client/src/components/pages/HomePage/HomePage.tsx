@@ -11,9 +11,7 @@ export function HomePage() {
         <SparklingText as="h2" className={styles.title}>
           ShogiGPT
         </SparklingText>
-        <p className={styles.subtitle}>
-          ※ ShogiGPTは間違った手を指すことがあります。
-        </p>
+        <p className={styles.subtitle}>※ ShogiGPTは間違った手を指すことがあります。</p>
         <Row className={styles.buttonContainer} gap="md" justify="center">
           <Link href="/matches">
             <Button size="lg" className={styles.button}>

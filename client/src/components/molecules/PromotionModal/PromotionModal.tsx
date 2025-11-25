@@ -30,11 +30,7 @@ export function PromotionModal({
         <div className={styles.title}>成りますか？</div>
         <div className={styles.options}>
           <div className={styles.option} onClick={onSelectNormal}>
-            <img
-              src={properties.image}
-              alt={properties.name}
-              className={styles.pieceImage}
-            />
+            <img src={properties.image} alt={properties.name} className={styles.pieceImage} />
             <div className={styles.pieceLabel}>成らない</div>
           </div>
           <div className={styles.option} onClick={onSelectPromoted}>

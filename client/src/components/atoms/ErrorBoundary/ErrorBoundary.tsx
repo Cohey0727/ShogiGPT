@@ -1,11 +1,6 @@
 import { Component, type ReactNode } from "react";
 import { Link } from "wouter";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from "../Dialog/Dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "../Dialog/Dialog";
 import { Button } from "../Button/Button";
 import styles from "./ErrorBoundary.css";
 
@@ -22,10 +17,7 @@ interface ErrorBoundaryState {
 /**
  * ErrorBoundary component that catches JavaScript errors anywhere in the child component tree
  */
-export class ErrorBoundary extends Component<
-  ErrorBoundaryProps,
-  ErrorBoundaryState
-> {
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };

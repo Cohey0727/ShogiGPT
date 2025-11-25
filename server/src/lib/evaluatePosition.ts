@@ -38,7 +38,7 @@ export async function evaluatePosition(
   sfen: string,
   multipv: number,
   timeMs: number,
-  engineName: string = "Suisho5"
+  engineName: string = "Suisho5",
 ): Promise<EvaluationResult> {
   // エンジン名が指定されている場合、キャッシュをチェック
 
@@ -105,7 +105,7 @@ export async function evaluatePosition(
   const score =
     bestVariation?.scoreMate !== null && bestVariation?.scoreMate !== undefined
       ? 10000 * bestVariation.scoreMate
-      : bestVariation?.scoreCp ?? 0;
+      : (bestVariation?.scoreCp ?? 0);
 
   // API呼び出し後、保存前にもう一度キャッシュをチェック
   const existingEvaluation = await db.evaluation.findUnique({
@@ -113,10 +113,7 @@ export async function evaluatePosition(
   });
 
   if (existingEvaluation) {
-    console.log(
-      "✅ Evaluation already exists (race condition avoided):",
-      existingEvaluation.id
-    );
+    console.log("✅ Evaluation already exists (race condition avoided):", existingEvaluation.id);
     return {
       evaluation: existingEvaluation,
       bestmove: data.bestmove,

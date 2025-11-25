@@ -7,11 +7,7 @@ import { useLocalStorage } from "../../molecules/hooks/useLocalStorage";
 /**
  * AIプロンプトのパーソナリティ
  */
-export const aiPromptPersonalitySchema = z.enum([
-  "none",
-  "situational",
-  "always",
-]);
+export const aiPromptPersonalitySchema = z.enum(["none", "situational", "always"]);
 
 export type AiPromptPersonality = z.infer<typeof aiPromptPersonalitySchema>;
 
@@ -36,10 +32,7 @@ const DEFAULT_PROMPT_SETTINGS: PromptSettings = {
  * プロンプト設定を管理するカスタムフック
  * @returns [設定値, 設定更新関数]
  */
-export function usePromptSettings(): [
-  PromptSettings,
-  Dispatch<SetStateAction<PromptSettings>>
-] {
+export function usePromptSettings(): [PromptSettings, Dispatch<SetStateAction<PromptSettings>>] {
   const [rawSettings, setRawSettings] = useLocalStorage<PromptSettings>({
     key: PROMPT_SETTINGS_KEY,
     initialValue: DEFAULT_PROMPT_SETTINGS,

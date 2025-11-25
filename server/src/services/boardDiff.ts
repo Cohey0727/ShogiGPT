@@ -56,10 +56,7 @@ function arePiecesEqual(piece1: Cell, piece2: Cell): boolean {
 /**
  * 2つの配列の差分を計算
  */
-function getArrayDiff<T>(
-  before: T[],
-  after: T[]
-): { added: T[]; removed: T[] } {
+function getArrayDiff<T>(before: T[], after: T[]): { added: T[]; removed: T[] } {
   const beforeCopy = [...before];
   const afterCopy = [...after];
   const added: T[] = [];

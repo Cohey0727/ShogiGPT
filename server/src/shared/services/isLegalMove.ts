@@ -42,7 +42,7 @@ function isLegalNormalMove(board: Board, usiMove: string): boolean {
 
   // 指定位置が合法な移動先に含まれているか確認
   const isLegalDestination = legalMoves.some(
-    (pos) => pos.row === toPosition.row && pos.col === toPosition.col
+    (pos) => pos.row === toPosition.row && pos.col === toPosition.col,
   );
 
   if (!isLegalDestination) {
@@ -91,9 +91,7 @@ const usiPieceType: Record<string, PieceType> = {
 /**
  * USI形式の座標（例: "7g"）を行・列のインデックスに変換
  */
-function parsePosition(
-  pos: string
-): { row: BoardIndex; col: BoardIndex } | null {
+function parsePosition(pos: string): { row: BoardIndex; col: BoardIndex } | null {
   if (pos.length !== 2) {
     return null;
   }
@@ -162,12 +160,7 @@ function isPromotionZone(row: number, player: Player): boolean {
 /**
  * 移動後の盤面をシミュレート
  */
-function simulateMove(
-  board: Board,
-  from: Position,
-  to: Position,
-  promote: boolean
-): Board {
+function simulateMove(board: Board, from: Position, to: Position, promote: boolean): Board {
   // 盤面のディープコピー
   const newBoard: Board = {
     ...board,
@@ -208,8 +201,7 @@ function simulateMove(
 
     capturedPieceType = demotionMap[capturedPieceType] ?? capturedPieceType;
 
-    const capturedArray =
-      piece.player === Player.Sente ? newBoard.senteHands : newBoard.goteHands;
+    const capturedArray = piece.player === Player.Sente ? newBoard.senteHands : newBoard.goteHands;
     capturedArray.push(capturedPieceType);
   }
 
@@ -248,11 +240,7 @@ function simulateMove(
 /**
  * 持ち駒を打った後の盤面をシミュレート
  */
-function simulateDrop(
-  board: Board,
-  pieceType: PieceType,
-  position: Position
-): Board {
+function simulateDrop(board: Board, pieceType: PieceType, position: Position): Board {
   const newBoard: Board = {
     ...board,
     cells: board.cells.map((row) => [...row]),
@@ -262,8 +250,7 @@ function simulateDrop(
   };
 
   // 持ち駒から削除
-  const capturedArray =
-    board.turn === Player.Sente ? newBoard.senteHands : newBoard.goteHands;
+  const capturedArray = board.turn === Player.Sente ? newBoard.senteHands : newBoard.goteHands;
   const index = capturedArray.indexOf(pieceType);
   if (index > -1) {
     capturedArray.splice(index, 1);
@@ -317,8 +304,7 @@ function isLegalDrop(board: Board, usiMove: string): boolean {
   }
 
   // 持ち駒にその駒があるか確認
-  const capturedPieces =
-    board.turn === Player.Sente ? board.senteHands : board.goteHands;
+  const capturedPieces = board.turn === Player.Sente ? board.senteHands : board.goteHands;
   if (!capturedPieces.includes(pieceType)) {
     return false;
   }
@@ -339,7 +325,7 @@ function isLegalDrop(board: Board, usiMove: string): boolean {
 
   // 指定位置が合法な打ち位置に含まれているか確認
   const isLegalPosition = legalDropPositions.some(
-    (pos) => pos.row === toPosition.row && pos.col === toPosition.col
+    (pos) => pos.row === toPosition.row && pos.col === toPosition.col,
   );
 
   if (!isLegalPosition) {

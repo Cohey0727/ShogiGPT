@@ -23,8 +23,7 @@ const styles = {
     backgroundColor: "#2d2d2d",
     border: "1px solid rgba(212, 175, 55, 0.2)",
     borderRadius: "0.5rem",
-    boxShadow:
-      "0 10px 30px -3px rgba(0, 0, 0, 0.5), 0 4px 12px -2px rgba(0, 0, 0, 0.3)",
+    boxShadow: "0 10px 30px -3px rgba(0, 0, 0, 0.5), 0 4px 12px -2px rgba(0, 0, 0, 0.3)",
     position: "fixed",
     top: "50%",
     left: "50%",

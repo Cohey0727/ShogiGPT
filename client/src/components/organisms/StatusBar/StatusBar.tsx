@@ -27,16 +27,10 @@ export function StatusBar({
   onResume,
   onViewingIndexChange,
 }: StatusBarProps) {
-  const thinkingTimeSec = thinkingTimeMs
-    ? (thinkingTimeMs / 1000).toFixed(1)
-    : null;
+  const thinkingTimeSec = thinkingTimeMs ? (thinkingTimeMs / 1000).toFixed(1) : null;
 
-  const canGoPrevious =
-    isPaused && viewingStateIndex !== null && viewingStateIndex > 0;
-  const canGoNext =
-    isPaused &&
-    viewingStateIndex !== null &&
-    viewingStateIndex < totalStates - 1;
+  const canGoPrevious = isPaused && viewingStateIndex !== null && viewingStateIndex > 0;
+  const canGoNext = isPaused && viewingStateIndex !== null && viewingStateIndex < totalStates - 1;
 
   const handlePrevious = () => {
     if (viewingStateIndex !== null && viewingStateIndex > 0) {
@@ -62,20 +56,13 @@ export function StatusBar({
       </span>
       <div className={styles.controls}>
         {isPaused && (
-          <button
-            onClick={handlePrevious}
-            disabled={!canGoPrevious}
-            className={styles.button}
-          >
+          <button onClick={handlePrevious} disabled={!canGoPrevious} className={styles.button}>
             {`<<`}
           </button>
         )}
         <span>{matchStateIndex + 1}手目</span>
         {isPaused ? (
-          <button
-            onClick={() => onResume(viewingStateIndex ?? 0)}
-            className={styles.button}
-          >
+          <button onClick={() => onResume(viewingStateIndex ?? 0)} className={styles.button}>
             ⏵
           </button>
         ) : (
@@ -84,11 +71,7 @@ export function StatusBar({
           </button>
         )}
         {isPaused && (
-          <button
-            onClick={handleNext}
-            disabled={!canGoNext}
-            className={styles.button}
-          >
+          <button onClick={handleNext} disabled={!canGoNext} className={styles.button}>
             {`>>`}
           </button>
         )}

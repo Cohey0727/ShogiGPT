@@ -47,13 +47,9 @@ export function StartMatchDialog({ open, onClose }: StartMatchDialogProps) {
       const result = await startMatch({
         id: newMatchId,
         playerSente:
-          matchConfig.senteType === "HUMAN"
-            ? matchConfig.senteName || "あなた"
-            : "ShogiGPT",
+          matchConfig.senteType === "HUMAN" ? matchConfig.senteName || "あなた" : "ShogiGPT",
         playerGote:
-          matchConfig.goteType === "HUMAN"
-            ? matchConfig.goteName || "あなた"
-            : "ShogiGPT",
+          matchConfig.goteType === "HUMAN" ? matchConfig.goteName || "あなた" : "ShogiGPT",
         senteType: matchConfig.senteType,
         goteType: matchConfig.goteType,
       });
@@ -80,17 +76,13 @@ export function StartMatchDialog({ open, onClose }: StartMatchDialogProps) {
               <SegmentButton
                 options={options}
                 value={matchConfig.senteType}
-                onChange={(senteType) =>
-                  setMatchConfig({ ...matchConfig, senteType })
-                }
+                onChange={(senteType) => setMatchConfig({ ...matchConfig, senteType })}
               />
               <Input
                 type="text"
                 placeholder="名前を入力（省略可）"
                 value={matchConfig.senteName}
-                onChange={(e) =>
-                  setMatchConfig({ ...matchConfig, senteName: e.target.value })
-                }
+                onChange={(e) => setMatchConfig({ ...matchConfig, senteName: e.target.value })}
                 disabled={matchConfig.senteType !== "HUMAN"}
               />
             </Row>
@@ -102,17 +94,13 @@ export function StartMatchDialog({ open, onClose }: StartMatchDialogProps) {
               <SegmentButton
                 options={options}
                 value={matchConfig.goteType}
-                onChange={(goteType) =>
-                  setMatchConfig({ ...matchConfig, goteType })
-                }
+                onChange={(goteType) => setMatchConfig({ ...matchConfig, goteType })}
               />
               <Input
                 type="text"
                 placeholder="名前を入力（省略可）"
                 value={matchConfig.goteName}
-                onChange={(e) =>
-                  setMatchConfig({ ...matchConfig, goteName: e.target.value })
-                }
+                onChange={(e) => setMatchConfig({ ...matchConfig, goteName: e.target.value })}
                 disabled={matchConfig.goteType !== "HUMAN"}
               />
             </Row>
@@ -123,11 +111,7 @@ export function StartMatchDialog({ open, onClose }: StartMatchDialogProps) {
           <Button variant="outlined" onClick={onClose} disabled={fetching}>
             キャンセル
           </Button>
-          <Button
-            variant="filled"
-            onClick={handleStartMatch}
-            disabled={fetching}
-          >
+          <Button variant="filled" onClick={handleStartMatch} disabled={fetching}>
             {fetching ? "対局作成中..." : "対局開始"}
           </Button>
         </Row>

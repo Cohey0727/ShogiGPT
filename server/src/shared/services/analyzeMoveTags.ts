@@ -92,7 +92,7 @@ export function analyzeMoveTags(board: Board, usiMove: string): string[] {
 function findPositions(
   board: Board,
   player: Player,
-  pieceTypes: PieceType[]
+  pieceTypes: PieceType[],
 ): Array<{ row: number; col: number }> {
   const positions: Array<{ row: number; col: number }> = [];
   for (let row = 0; row < 9; row++) {
@@ -112,7 +112,7 @@ function findPositions(
 function getLineOpenRange(
   board: Board,
   position: { row: number; col: number },
-  direction: { row: number; col: number }
+  direction: { row: number; col: number },
 ) {
   let row = position.row + direction.row;
   let col = position.col + direction.col;
@@ -137,7 +137,7 @@ function isPositionUnderAttack(
   board: Board,
   row: number,
   col: number,
-  attackingPlayer: Player
+  attackingPlayer: Player,
 ): boolean {
   // 全ての相手駒をチェックして、その駒が指定位置を攻撃できるか確認
   for (let r = 0; r < 9; r++) {
@@ -146,15 +146,7 @@ function isPositionUnderAttack(
       if (!piece || piece.player !== attackingPlayer) continue;
 
       // 駒の種類に応じた移動可能範囲をチェック
-      const canAttack = canPieceAttackPosition(
-        piece.type,
-        r,
-        c,
-        row,
-        col,
-        attackingPlayer,
-        board
-      );
+      const canAttack = canPieceAttackPosition(piece.type, r, c, row, col, attackingPlayer, board);
       if (canAttack) return true;
     }
   }
@@ -171,7 +163,7 @@ function canPieceAttackPosition(
   toRow: number,
   toCol: number,
   player: Player,
-  board: Board
+  board: Board,
 ): boolean {
   const rowDiff = toRow - fromRow;
   const colDiff = toCol - fromCol;
@@ -183,11 +175,7 @@ function canPieceAttackPosition(
 
     case PieceType.Lance: {
       if (colDiff !== 0) return false;
-      if (
-        (player === "SENTE" && rowDiff <= 0) ||
-        (player === "GOTE" && rowDiff >= 0)
-      )
-        return false;
+      if ((player === "SENTE" && rowDiff <= 0) || (player === "GOTE" && rowDiff >= 0)) return false;
       // 間に駒がないかチェック
       const lanceStep = rowDiff > 0 ? 1 : -1;
       for (let r = fromRow + lanceStep; r !== toRow; r += lanceStep) {
@@ -352,7 +340,7 @@ function parseUsiMove(usiMove: string): MoveInfo {
 function analyzeCapture(
   board: Board,
   moveInfo: MoveInfo,
-  opponentPlayer: Player
+  opponentPlayer: Player,
 ): string | undefined {
   // 駒を取る
   if (moveInfo.from) {
@@ -400,7 +388,7 @@ function getFarthestReachableArea(
   board: Board,
   position: { row: number; col: number },
   direction: { row: number; col: number },
-  player: Player
+  player: Player,
 ): Area {
   let row = position.row;
   let col = position.col;
@@ -454,8 +442,7 @@ function analyzeBishopLine(board: Board, usiMove: string): string[] {
   ]);
   positions.forEach((position) => {
     const isMovingBishop =
-      moveInfo.from?.row === position.row &&
-      moveInfo.from?.col === position.col;
+      moveInfo.from?.row === position.row && moveInfo.from?.col === position.col;
     if (isMovingBishop) {
       return;
     }
@@ -465,12 +452,7 @@ function analyzeBishopLine(board: Board, usiMove: string): string[] {
         ? isPathClearAndOnLine(board, position, moveInfo.from, direction)
         : false;
 
-      const isOnLine = isPathClearAndOnLine(
-        boardAfter,
-        position,
-        moveInfo.to,
-        direction
-      );
+      const isOnLine = isPathClearAndOnLine(boardAfter, position, moveInfo.to, direction);
       if (!wasOnLine && !isOnLine) {
         // 角道上に関係のない移動の場合はスキップ
         continue;
@@ -481,17 +463,12 @@ function analyzeBishopLine(board: Board, usiMove: string): string[] {
       }
 
       // 角道が開通した場合、最遠到達エリアが変化したかチェック
-      const farthestBefore = getFarthestReachableArea(
-        board,
-        position,
-        direction,
-        currentPlayer
-      );
+      const farthestBefore = getFarthestReachableArea(board, position, direction, currentPlayer);
       const farthestAfter = getFarthestReachableArea(
         boardAfter,
         position,
         direction,
-        currentPlayer
+        currentPlayer,
       );
 
       if (farthestBefore === farthestAfter) {
@@ -512,8 +489,7 @@ function analyzeBishopLine(board: Board, usiMove: string): string[] {
   ]);
   opponentPositions.forEach((position) => {
     const isMovingBishop =
-      moveInfo.from?.row === position.row &&
-      moveInfo.from?.col === position.col;
+      moveInfo.from?.row === position.row && moveInfo.from?.col === position.col;
     if (isMovingBishop) {
       return;
     }
@@ -523,12 +499,7 @@ function analyzeBishopLine(board: Board, usiMove: string): string[] {
         ? isPathClearAndOnLine(board, position, moveInfo.from, direction)
         : false;
 
-      const isOnLine = isPathClearAndOnLine(
-        boardAfter,
-        position,
-        moveInfo.to,
-        direction
-      );
+      const isOnLine = isPathClearAndOnLine(boardAfter, position, moveInfo.to, direction);
       if (!wasOnLine && !isOnLine) {
         // 角道上に関係のない移動の場合はスキップ
         continue;
@@ -542,17 +513,12 @@ function analyzeBishopLine(board: Board, usiMove: string): string[] {
         results.push("角道を塞ぐ");
       } else {
         // 相手の角道が開通した場合、最遠到達エリアが変化したかチェック
-        const farthestBefore = getFarthestReachableArea(
-          board,
-          position,
-          direction,
-          opponentPlayer
-        );
+        const farthestBefore = getFarthestReachableArea(board, position, direction, opponentPlayer);
         const farthestAfter = getFarthestReachableArea(
           boardAfter,
           position,
           direction,
-          opponentPlayer
+          opponentPlayer,
         );
 
         if (farthestBefore !== farthestAfter) {
@@ -586,14 +552,9 @@ function analyzeRookLine(board: Board, usiMove: string): string[] {
   ];
 
   // 自分の飛車道
-  const positions = findPositions(board, currentPlayer, [
-    PieceType.Rook,
-    PieceType.PromotedRook,
-  ]);
+  const positions = findPositions(board, currentPlayer, [PieceType.Rook, PieceType.PromotedRook]);
   positions.forEach((position) => {
-    const isMovingRook =
-      moveInfo.from?.row === position.row &&
-      moveInfo.from?.col === position.col;
+    const isMovingRook = moveInfo.from?.row === position.row && moveInfo.from?.col === position.col;
 
     if (isMovingRook) {
       return;
@@ -604,12 +565,7 @@ function analyzeRookLine(board: Board, usiMove: string): string[] {
         ? isPathClearAndOnLine(board, position, moveInfo.from, direction)
         : false;
 
-      const isOnLine = isPathClearAndOnLine(
-        boardAfter,
-        position,
-        moveInfo.to,
-        direction
-      );
+      const isOnLine = isPathClearAndOnLine(boardAfter, position, moveInfo.to, direction);
 
       if (!wasOnLine && !isOnLine) {
         // 飛車道上に関係のない移動の場合はスキップ
@@ -642,9 +598,7 @@ function analyzeRookLine(board: Board, usiMove: string): string[] {
     PieceType.PromotedRook,
   ]);
   opponentPositions.forEach((position) => {
-    const isMovingRook =
-      moveInfo.from?.row === position.row &&
-      moveInfo.from?.col === position.col;
+    const isMovingRook = moveInfo.from?.row === position.row && moveInfo.from?.col === position.col;
     if (isMovingRook) {
       return;
     }
@@ -654,12 +608,7 @@ function analyzeRookLine(board: Board, usiMove: string): string[] {
         ? isPathClearAndOnLine(board, position, moveInfo.from, direction)
         : false;
 
-      const isOnLine = isPathClearAndOnLine(
-        boardAfter,
-        position,
-        moveInfo.to,
-        direction
-      );
+      const isOnLine = isPathClearAndOnLine(boardAfter, position, moveInfo.to, direction);
       if (!wasOnLine && !isOnLine) {
         // 飛車道上に関係のない移動の場合はスキップ
         continue;
@@ -698,7 +647,7 @@ function isPathClearAndOnLine(
   board: Board,
   origin: { row: number; col: number },
   destination: { row: number; col: number },
-  direction: { row: number; col: number }
+  direction: { row: number; col: number },
 ) {
   let row = origin.row + direction.row;
   let col = origin.col + direction.col;

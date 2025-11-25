@@ -18,10 +18,7 @@ import { getDropPositions } from "./dropPiece";
  * @param board 現在の盤面
  * @returns USI形式の指し手、変換できない場合はnull
  */
-export function japaneseToUsiMove(
-  japaneseMove: string,
-  board: Board
-): string | null {
+export function japaneseToUsiMove(japaneseMove: string, board: Board): string | null {
   // 空白を削除
   const move = japaneseMove.replace(/\s+/g, "");
 
@@ -30,9 +27,7 @@ export function japaneseToUsiMove(
   }
 
   // パターン1: 駒打ち（例: "5五金打", "55金打", "５五金打"）
-  const dropMatch = move.match(
-    /^([１-９1-9])([一二三四五六七八九1-9])(.+?)打$/
-  );
+  const dropMatch = move.match(/^([１-９1-9])([一二三四五六七八九1-9])(.+?)打$/);
   if (dropMatch) {
     const [, file, rank, pieceName] = dropMatch;
     const toPos = japanesePositionToUsi(`${file}${rank}`);
@@ -46,7 +41,7 @@ export function japaneseToUsiMove(
 
   // パターン2: 移動元指定あり（例: "7六歩(7七)", "２四角成(８八)"）
   const moveWithFromMatch = move.match(
-    /^([１-９1-9])([一二三四五六七八九])(.+?)(?:成|不成)?\(([１-９1-9])([一二三四五六七八九])\)$/
+    /^([１-９1-9])([一二三四五六七八九])(.+?)(?:成|不成)?\(([１-９1-9])([一二三四五六七八九])\)$/,
   );
   if (moveWithFromMatch) {
     const [, toFile, toRank, , fromFile, fromRank] = moveWithFromMatch;
@@ -65,9 +60,7 @@ export function japaneseToUsiMove(
   }
 
   // パターン3: 移動先のみ指定（例: "7六歩", "２四角成"）
-  const moveToMatch = move.match(
-    /^([１-９1-9])([一二三四五六七八九])(.+?)(成|不成)?$/
-  );
+  const moveToMatch = move.match(/^([１-９1-9])([一二三四五六七八九])(.+?)(成|不成)?$/);
   if (moveToMatch) {
     const [, toFile, toRank, pieceName, promotionFlag] = moveToMatch;
     const toPos = japanesePositionToUsi(`${toFile}${toRank}`);
@@ -88,14 +81,13 @@ export function japaneseToUsiMove(
     const pieceType = japaneseToPieceType[pieceName];
 
     // まず駒打ちを試す（持ち駒に該当する駒がある場合）
-    const capturedPieces =
-      board.turn === Player.Sente ? board.senteHands : board.goteHands;
+    const capturedPieces = board.turn === Player.Sente ? board.senteHands : board.goteHands;
     if (pieceType && capturedPieces.includes(pieceType)) {
       // 駒打ちの場合は成りはない
       if (!isPromotion) {
         const dropPositions = getDropPositions(board, pieceType, board.turn);
         const canDrop = dropPositions.some(
-          (pos) => pos.row === toIndex.row && pos.col === toIndex.col
+          (pos) => pos.row === toIndex.row && pos.col === toIndex.col,
         );
         if (canDrop) {
           const usiPiece = japaneseToUsiPiece[pieceName];
@@ -108,12 +100,7 @@ export function japaneseToUsiMove(
 
     // 駒打ちができない場合は、盤面から該当する駒を探す
     if (pieceType) {
-      const fromPositions = findPiecesCanMoveTo(
-        board,
-        pieceType,
-        board.turn,
-        toIndex
-      );
+      const fromPositions = findPiecesCanMoveTo(board, pieceType, board.turn, toIndex);
 
       if (fromPositions.length === 1) {
         const from = fromPositions[0];
@@ -248,7 +235,7 @@ function japanesePositionToUsi(jpPos: string): string | null {
 
   // 全角数字を半角に変換
   const normalizedPos = jpPos.replace(/[１-９]/g, (s) =>
-    String.fromCharCode(s.charCodeAt(0) - 0xfee0)
+    String.fromCharCode(s.charCodeAt(0) - 0xfee0),
   );
 
   // パターン1: 数字2桁の形式（例: "78", "55"）
@@ -292,7 +279,7 @@ function findPiecesCanMoveTo(
   board: Board,
   pieceType: PieceType,
   player: Player,
-  toPosition: Position
+  toPosition: Position,
 ): Position[] {
   const result: Position[] = [];
 
@@ -304,18 +291,12 @@ function findPiecesCanMoveTo(
         piece.player === player &&
         (piece.type === pieceType ||
           // 成り駒も考慮
-          (pieceType === PieceTypeEnum.Pawn &&
-            piece.type === PieceTypeEnum.PromotedPawn) ||
-          (pieceType === PieceTypeEnum.Lance &&
-            piece.type === PieceTypeEnum.PromotedLance) ||
-          (pieceType === PieceTypeEnum.Knight &&
-            piece.type === PieceTypeEnum.PromotedKnight) ||
-          (pieceType === PieceTypeEnum.Silver &&
-            piece.type === PieceTypeEnum.PromotedSilver) ||
-          (pieceType === PieceTypeEnum.Bishop &&
-            piece.type === PieceTypeEnum.PromotedBishop) ||
-          (pieceType === PieceTypeEnum.Rook &&
-            piece.type === PieceTypeEnum.PromotedRook))
+          (pieceType === PieceTypeEnum.Pawn && piece.type === PieceTypeEnum.PromotedPawn) ||
+          (pieceType === PieceTypeEnum.Lance && piece.type === PieceTypeEnum.PromotedLance) ||
+          (pieceType === PieceTypeEnum.Knight && piece.type === PieceTypeEnum.PromotedKnight) ||
+          (pieceType === PieceTypeEnum.Silver && piece.type === PieceTypeEnum.PromotedSilver) ||
+          (pieceType === PieceTypeEnum.Bishop && piece.type === PieceTypeEnum.PromotedBishop) ||
+          (pieceType === PieceTypeEnum.Rook && piece.type === PieceTypeEnum.PromotedRook))
       ) {
         const fromPosition: Position = {
           row: row as BoardIndex,
@@ -323,11 +304,7 @@ function findPiecesCanMoveTo(
         };
         const possibleMoves = getPossibleMoves(board, fromPosition);
 
-        if (
-          possibleMoves.some(
-            (pos) => pos.row === toPosition.row && pos.col === toPosition.col
-          )
-        ) {
+        if (possibleMoves.some((pos) => pos.row === toPosition.row && pos.col === toPosition.col)) {
           result.push(fromPosition);
         }
       }

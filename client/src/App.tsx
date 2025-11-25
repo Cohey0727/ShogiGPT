@@ -43,9 +43,7 @@ function App() {
   return (
     <Switch>
       {renderRoutes(routeConfig.routes)}
-      {routeConfig.notFound && (
-        <Route component={routeConfig.notFound.component} />
-      )}
+      {routeConfig.notFound && <Route component={routeConfig.notFound.component} />}
     </Switch>
   );
 }

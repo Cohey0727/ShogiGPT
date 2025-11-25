@@ -10,20 +10,10 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 /**
  * ボタンコンポーネント
  */
-export function Button({
-  variant = "filled",
-  size = "md",
-  className,
-  ...props
-}: ButtonProps) {
+export function Button({ variant = "filled", size = "md", className, ...props }: ButtonProps) {
   return (
     <button
-      className={clsx(
-        styles.base,
-        styles.variant[variant],
-        styles.size[size],
-        className
-      )}
+      className={clsx(styles.base, styles.variant[variant], styles.size[size], className)}
       {...props}
     />
   );

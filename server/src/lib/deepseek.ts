@@ -84,10 +84,7 @@ interface GenerateChatResponseOptions {
   userMessage: string;
   conversationHistory?: DeepSeekMessage[];
   tools?: DeepSeekTool[];
-  onToolCall?: (
-    toolName: string,
-    toolArgs: unknown
-  ) => Promise<string | Record<string, unknown>>;
+  onToolCall?: (toolName: string, toolArgs: unknown) => Promise<string | Record<string, unknown>>;
   maxIterations?: number;
 }
 
@@ -101,16 +98,14 @@ const chatSystemPrompt = `あなたは将棋の対局をサポートするAIア�
 
 ユーザーの質問に対して、親切で分かりやすく回答してください。`;
 
-export async function generateChatResponse(
-  options: GenerateChatResponseOptions
-): Promise<string>;
+export async function generateChatResponse(options: GenerateChatResponseOptions): Promise<string>;
 export async function generateChatResponse(
   userMessage: string,
-  conversationHistory?: DeepSeekMessage[]
+  conversationHistory?: DeepSeekMessage[],
 ): Promise<string>;
 export async function generateChatResponse(
   optionsOrMessage: GenerateChatResponseOptions | string,
-  conversationHistory: DeepSeekMessage[] = []
+  conversationHistory: DeepSeekMessage[] = [],
 ): Promise<string> {
   if (!DEEPSEEK_API_KEY) {
     throw new Error("DEEPSEEK_API_KEY is not set");
@@ -164,7 +159,7 @@ export async function generateChatResponse(
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(
-        `DeepSeek API error: ${response.status} ${response.statusText} - ${errorText}`
+        `DeepSeek API error: ${response.status} ${response.statusText} - ${errorText}`,
       );
     }
 
@@ -191,21 +186,14 @@ export async function generateChatResponse(
         const toolName = toolCall.function.name;
         const toolArgs = JSON.parse(toolCall.function.arguments);
 
-        console.log(
-          `🔧 Tool called: ${toolName} with args:`,
-          JSON.stringify(toolArgs, null, 2)
-        );
+        console.log(`🔧 Tool called: ${toolName} with args:`, JSON.stringify(toolArgs, null, 2));
 
         try {
           const toolResult = await onToolCall(toolName, toolArgs);
           const toolResultString =
-            typeof toolResult === "string"
-              ? toolResult
-              : JSON.stringify(toolResult, null, 2);
+            typeof toolResult === "string" ? toolResult : JSON.stringify(toolResult, null, 2);
 
-          console.log(
-            `✅ Tool result: ${toolResultString.substring(0, 200)}...`
-          );
+          console.log(`✅ Tool result: ${toolResultString.substring(0, 200)}...`);
 
           // ツール結果を履歴に追加
           messages.push({
@@ -220,9 +208,7 @@ export async function generateChatResponse(
             role: "tool",
             tool_call_id: toolCall.id,
             name: toolName,
-            content: `エラー: ${
-              error instanceof Error ? error.message : String(error)
-            }`,
+            content: `エラー: ${error instanceof Error ? error.message : String(error)}`,
           });
         }
       }
@@ -240,9 +226,7 @@ export async function generateChatResponse(
     return assistantMessage;
   }
 
-  throw new Error(
-    `Max iterations (${maxIterations}) reached in function calling loop`
-  );
+  throw new Error(`Max iterations (${maxIterations}) reached in function calling loop`);
 }
 
 /**
@@ -315,10 +299,7 @@ export async function generateBestMoveCommentary(params: {
   const topScore = variations[0]?.scoreCp ?? 0;
 
   // 評価値を100点満点に正規化（50点が互角、0点=後手めちゃくちゃ有利、100点=先手めちゃくちゃ有利）
-  const normalizedScore = Math.min(
-    100,
-    Math.max(0, Math.round(topScore / 20) + 50)
-  );
+  const normalizedScore = Math.min(100, Math.max(0, Math.round(topScore / 20) + 50));
 
   let situation = "";
   if (normalizedScore >= 45 && normalizedScore <= 55) {
@@ -423,9 +404,7 @@ ${strategyHint}
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(
-      `DeepSeek API error: ${response.status} ${response.statusText} - ${errorText}`
-    );
+    throw new Error(`DeepSeek API error: ${response.status} ${response.statusText} - ${errorText}`);
   }
 
   const data = (await response.json()) as DeepSeekResponse;

@@ -46,6 +46,7 @@ components/atoms/Button/
 #### 各ファイルの役割
 
 **`ComponentName.tsx`**
+
 - コンポーネントのロジックとJSXを記述
 - named exportを使用（default exportは使用しない）
 
@@ -58,6 +59,7 @@ export default function Button() { ... }
 ```
 
 **`ComponentName.css.ts`**
+
 - Vanilla Extractを使用したスタイル定義
 - default exportでスタイルをエクスポート
 
@@ -72,6 +74,7 @@ export default {
 ```
 
 **`index.ts`**
+
 - コンポーネントの再エクスポートのみ
 - 他のモジュールから簡潔にインポートできるようにする
 
@@ -82,20 +85,24 @@ export * from "./Button";
 ### 2. コンポーネント分類
 
 #### Atoms（基本コンポーネント）
+
 - 単一の責務を持つ最小単位のコンポーネント
 - 例: Button, Input, Checkbox, Tooltip, Separator
 
 #### Organisms（複合コンポーネント）
+
 - 複数のAtomsを組み合わせた複雑なコンポーネント
 - 独立した機能を持つ
 - 例: ShogiBoard, Header, Navigation
 
 #### Layouts（レイアウトコンポーネント）
+
 - ページ全体のレイアウトを定義
 - 子コンポーネントを配置する構造のみを提供
 - 例: RootLayout, DashboardLayout
 
 #### Pages（ページコンポーネント）
+
 - ルーティングに対応する各ページ
 - Organisms、Atoms、Layoutsを組み合わせて構成
 - 例: HomePage, MatchesPage, SettingsPage
@@ -113,11 +120,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: "sm" | "md" | "lg";
 }
 
-export const Button = ({
-  variant = "default",
-  size = "md",
-  ...props
-}: ButtonProps) => {
+export const Button = ({ variant = "default", size = "md", ...props }: ButtonProps) => {
   // ...
 };
 ```
@@ -156,11 +159,9 @@ export function Button({ className, ...props }: ButtonProps) {
 }
 
 // ❌ 悪い例
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (props, ref) => {
-    return <button ref={ref} {...props} />;
-  }
-);
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
+  return <button ref={ref} {...props} />;
+});
 ```
 
 ## TypeScript規約
@@ -262,6 +263,7 @@ export * from "./Input";
 ## ディレクトリ構造の詳細規約
 
 ### services/
+
 - ビジネスロジック、API呼び出し、データ変換などを配置
 - 純粋な関数として実装
 - コンポーネントからロジックを分離
@@ -274,6 +276,7 @@ export function calculatePossibleMoves(board: Board, position: Position) {
 ```
 
 ### utils/
+
 - 汎用的なヘルパー関数
 - プロジェクト固有ではない、再利用可能な関数
 
@@ -285,6 +288,7 @@ export function formatDate(date: Date): string {
 ```
 
 ### lib/
+
 - ライブラリの設定やラッパー
 - 外部ライブラリの初期化
 
@@ -348,6 +352,7 @@ export function checkPermission(user: User, resource: Resource): boolean {
 ```
 
 **type**:
+
 - `feat`: 新機能
 - `fix`: バグ修正
 - `refactor`: リファクタリング
@@ -357,6 +362,7 @@ export function checkPermission(user: User, resource: Resource): boolean {
 - `chore`: ビルド、設定など
 
 例:
+
 ```
 feat: 将棋盤コンポーネントに駒の移動機能を追加
 
@@ -388,6 +394,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 ## まとめ
 
 この規約に従うことで:
+
 - コードの一貫性が保たれる
 - チームメンバーがコードを理解しやすくなる
 - メンテナンス性が向上する

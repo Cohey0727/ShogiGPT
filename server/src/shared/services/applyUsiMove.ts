@@ -39,8 +39,7 @@ export function applyUsiMove(board: Board, usiMove: string): Board {
     const { row: toRow, col: toCol } = parsePosition(toPos);
 
     // 持ち駒から削除
-    const capturedPieces =
-      board.turn === "SENTE" ? newCapturedBySente : newCapturedByGote;
+    const capturedPieces = board.turn === "SENTE" ? newCapturedBySente : newCapturedByGote;
     const pieceIndex = capturedPieces.indexOf(pieceType);
 
     if (pieceIndex === -1) {

@@ -1212,6 +1212,8 @@ export type Query = {
 
 /** チャットメッセージ送信リクエスト */
 export type SendChatMessageInput = {
+  /** AIのパーソナリティ設定 (none, situational, always) */
+  aiPersonality?: InputMaybe<Scalars['String']['input']>;
   /** メッセージ内容 */
   content: Scalars['String']['input'];
   /** 対局ID */
@@ -1821,6 +1823,7 @@ export type StartMatchMutation = { __typename?: 'mutation_root', startMatch: { _
 export type SendChatMessageMutationVariables = Exact<{
   matchId: Scalars['String']['input'];
   content: Scalars['String']['input'];
+  aiPersonality?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -1990,8 +1993,10 @@ export function useStartMatchMutation() {
   return Urql.useMutation<StartMatchMutation, StartMatchMutationVariables>(StartMatchDocument);
 };
 export const SendChatMessageDocument = gql`
-    mutation SendChatMessage($matchId: String!, $content: String!) {
-  sendChatMessage(input: {matchId: $matchId, content: $content}) {
+    mutation SendChatMessage($matchId: String!, $content: String!, $aiPersonality: String) {
+  sendChatMessage(
+    input: {matchId: $matchId, content: $content, aiPersonality: $aiPersonality}
+  ) {
     userMessage {
       id
       matchId

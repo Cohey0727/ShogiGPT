@@ -27,11 +27,7 @@ export const MoveInfoSchema = z.object({
     .describe("詰みまでの手数（正の数=自分の勝ち、負の数=相手の勝ち）"),
   depth: z.number().describe("探索深度"),
   nodes: z.number().nullable().optional().describe("探索したノード数"),
-  pv: z
-    .array(z.string())
-    .nullable()
-    .optional()
-    .describe("予想読み筋（Principal Variation）"),
+  pv: z.array(z.string()).nullable().optional().describe("予想読み筋（Principal Variation）"),
 });
 
 export type MoveInfo = z.infer<typeof MoveInfoSchema>;

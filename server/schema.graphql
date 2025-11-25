@@ -100,6 +100,10 @@ input SendChatMessageInput {
   メッセージ内容
   """
   content: String!
+  """
+  AIのパーソナリティ設定 (none, situational, always)
+  """
+  aiPersonality: String
 }
 
 """

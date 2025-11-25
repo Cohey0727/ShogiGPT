@@ -30,7 +30,9 @@ export function japaneseToUsiMove(
   }
 
   // パターン1: 駒打ち（例: "5五金打", "55金打", "５五金打"）
-  const dropMatch = move.match(/^([１-９1-9])([一二三四五六七八九1-9])(.+?)打$/);
+  const dropMatch = move.match(
+    /^([１-９1-9])([一二三四五六七八九1-9])(.+?)打$/
+  );
   if (dropMatch) {
     const [, file, rank, pieceName] = dropMatch;
     const toPos = japanesePositionToUsi(`${file}${rank}`);
@@ -245,8 +247,9 @@ function japanesePositionToUsi(jpPos: string): string | null {
   }
 
   // 全角数字を半角に変換
-  const normalizedPos = jpPos
-    .replace(/[１-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0));
+  const normalizedPos = jpPos.replace(/[１-９]/g, (s) =>
+    String.fromCharCode(s.charCodeAt(0) - 0xfee0)
+  );
 
   // パターン1: 数字2桁の形式（例: "78", "55"）
   if (/^[1-9][1-9]$/.test(normalizedPos)) {

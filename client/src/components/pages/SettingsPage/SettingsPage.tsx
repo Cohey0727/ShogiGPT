@@ -1,31 +1,21 @@
-import type { ChangeEvent } from "react";
-
 import { Button } from "../../atoms/Button";
 import { Col } from "../../atoms/Col";
 import { Row } from "../../atoms/Row";
-import { useLocalStorage } from "../../molecules/hooks/useLocalStorage";
+import { Selector } from "../../atoms/Selector";
+import {
+  usePromptSettings,
+  type AiPromptPersonality,
+} from "../../organisms/hooks";
 import styles from "./SettingsPage.css";
 
-/**
- * AI煽りモードの種類
- * - none: 煽りなし
- * - situational: 戦況に応じて煽る
- * - always: 常に煽る
- */
-export type AiTauntMode = "none" | "situational" | "always";
-
-/** ローカルストレージのキー */
-const SETTINGS_KEY = "shogi-gpt-settings";
+const aiPersonalityOptions: { value: AiPromptPersonality; label: string }[] = [
+  { value: "none", label: "煽りなし" },
+  { value: "situational", label: "戦況に応じて煽る" },
+  { value: "always", label: "常に煽る" },
+];
 
 export function SettingsPage() {
-  const [aiTauntMode, setAiTauntMode] = useLocalStorage<AiTauntMode>({
-    key: `${SETTINGS_KEY}.aiTauntMode`,
-    initialValue: "none",
-  });
-
-  const handleAiTauntModeChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setAiTauntMode(e.target.value as AiTauntMode);
-  };
+  const [promptSettings, setPromptSettings] = usePromptSettings();
 
   return (
     <Col gap="xl" className={styles.container}>
@@ -42,7 +32,11 @@ export function SettingsPage() {
             <span>🎮</span>
             <span>ゲーム設定</span>
           </Row>
-          <Row justify="space-between" align="center" className={styles.settingRow}>
+          <Row
+            justify="space-between"
+            align="center"
+            className={styles.settingRow}
+          >
             <Col gap="xs" className={styles.settingLabel}>
               <span className={styles.settingName}>AI難易度</span>
               <span className={styles.settingDescription}>
@@ -56,7 +50,11 @@ export function SettingsPage() {
               <option>プロ</option>
             </select>
           </Row>
-          <Row justify="space-between" align="center" className={styles.settingRow}>
+          <Row
+            justify="space-between"
+            align="center"
+            className={styles.settingRow}
+          >
             <Col gap="xs" className={styles.settingLabel}>
               <span className={styles.settingName}>持ち時間</span>
               <span className={styles.settingDescription}>
@@ -70,22 +68,27 @@ export function SettingsPage() {
               <option>無制限</option>
             </select>
           </Row>
-          <Row justify="space-between" align="center" className={styles.settingRow}>
+          <Row
+            justify="space-between"
+            align="center"
+            className={styles.settingRow}
+          >
             <Col gap="xs" className={styles.settingLabel}>
-              <span className={styles.settingName}>AI煽りモード</span>
+              <span className={styles.settingName}>AIの性格</span>
               <span className={styles.settingDescription}>
-                AIの煽りコメントを設定
+                AIのコメントスタイルを設定
               </span>
             </Col>
-            <select
-              className={styles.select}
-              value={aiTauntMode}
-              onChange={handleAiTauntModeChange}
-            >
-              <option value="none">煽りなし</option>
-              <option value="situational">戦況に応じて煽る</option>
-              <option value="always">常に煽る</option>
-            </select>
+            <Selector
+              options={aiPersonalityOptions}
+              value={promptSettings.aiPromptPersonality}
+              onChange={(value) =>
+                setPromptSettings({
+                  ...promptSettings,
+                  aiPromptPersonality: value,
+                })
+              }
+            />
           </Row>
         </Col>
 
@@ -94,7 +97,11 @@ export function SettingsPage() {
             <span>🎨</span>
             <span>表示設定</span>
           </Row>
-          <Row justify="space-between" align="center" className={styles.settingRow}>
+          <Row
+            justify="space-between"
+            align="center"
+            className={styles.settingRow}
+          >
             <Col gap="xs" className={styles.settingLabel}>
               <span className={styles.settingName}>盤面テーマ</span>
               <span className={styles.settingDescription}>
@@ -107,7 +114,11 @@ export function SettingsPage() {
               <option>ダーク</option>
             </select>
           </Row>
-          <Row justify="space-between" align="center" className={styles.settingRow}>
+          <Row
+            justify="space-between"
+            align="center"
+            className={styles.settingRow}
+          >
             <Col gap="xs" className={styles.settingLabel}>
               <span className={styles.settingName}>駒のデザイン</span>
               <span className={styles.settingDescription}>
@@ -127,7 +138,11 @@ export function SettingsPage() {
             <span>🔔</span>
             <span>通知設定</span>
           </Row>
-          <Row justify="space-between" align="center" className={styles.settingRow}>
+          <Row
+            justify="space-between"
+            align="center"
+            className={styles.settingRow}
+          >
             <Col gap="xs" className={styles.settingLabel}>
               <span className={styles.settingName}>効果音</span>
               <span className={styles.settingDescription}>
@@ -139,7 +154,11 @@ export function SettingsPage() {
               <option>OFF</option>
             </select>
           </Row>
-          <Row justify="space-between" align="center" className={styles.settingRow}>
+          <Row
+            justify="space-between"
+            align="center"
+            className={styles.settingRow}
+          >
             <Col gap="xs" className={styles.settingLabel}>
               <span className={styles.settingName}>対局終了通知</span>
               <span className={styles.settingDescription}>

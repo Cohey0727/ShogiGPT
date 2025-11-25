@@ -9,6 +9,7 @@ export * from "./Input";
 export * from "./ResizableContainer";
 export * from "./Row";
 export * from "./SegmentButton";
+export * from "./Selector";
 export * from "./Separator";
 export * from "./Slider";
 export * from "./Switch";

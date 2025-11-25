@@ -1,6 +1,6 @@
 import { useParams } from "wouter";
 import { useState, useCallback, useMemo } from "react";
-import { ShogiBoard, MatchChat, PieceStand, StatusBar } from "../../organisms";
+import { ShogiBoard, MatchChat, PieceStand, StatusBar, usePromptSettings } from "../../organisms";
 import {
   useGetMatchQuery,
   useSubscribeMatchStatesSubscription,
@@ -53,6 +53,7 @@ export function MatchDetailPage() {
   });
 
   const [, sendChatMessage] = useSendChatMessageMutation();
+  const [promptSettings] = usePromptSettings();
 
   if (!match) {
     throw new Error("Match not found");
@@ -163,9 +164,10 @@ export function MatchDetailPage() {
       await sendChatMessage({
         matchId,
         content: japaneseMove,
+        aiPersonality: promptSettings.aiPersonality,
       });
     },
-    [boardState, matchId, sendChatMessage, viewingStateIndex],
+    [boardState, matchId, sendChatMessage, viewingStateIndex, promptSettings.aiPersonality],
   );
 
   // 前の盤面との差分セルを計算

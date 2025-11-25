@@ -1,4 +1,4 @@
-import type { MutationResolvers } from "../../generated/graphql/types";
+import type { AiPersonality, MutationResolvers } from "../../generated/graphql/types";
 import { db } from "../../lib/db";
 import { generateChatResponse } from "../../lib/deepseek";
 import { getCandidateMoves } from "../../services/getCandidateMoves";
@@ -46,11 +46,11 @@ async function generateAndUpdateAiResponse(params: {
   matchId: string;
   content: string;
   assistantMessageId: string;
-  aiPersonality: string;
+  aiPersonality: AiPersonality;
 }): Promise<void> {
   try {
     const { matchId, content, assistantMessageId, aiPersonality } = params;
-
+    const context = { matchId, aiPersonality };
     // 会話履歴を取得（最新3件、partial除外）
     const history = await db.chatMessage.findMany({
       where: { matchId, isPartial: false },
@@ -75,59 +75,36 @@ async function generateAndUpdateAiResponse(params: {
     });
 
     // ツールマップを作成
-    const tools = [
-      { tool: getCandidateMoves, needsResponse: true },
-      { tool: makeMove, needsResponse: false },
-    ];
-    const toolMap = new Map(
-      tools.map((entry) => [
-        entry.tool.name,
-        { tool: entry.tool, needsResponse: entry.needsResponse },
-      ]),
-    );
-
-    let shouldReturnResponse = true;
+    const tools = [getCandidateMoves, makeMove];
+    const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
 
     // Function Callingを有効にしてAI応答を生成
     const aiResponseContent = await generateChatResponse({
-      userMessage: createChatContent(content, matchId, aiPersonality),
+      userMessage: createChatContent(content, aiPersonality),
       conversationHistory,
-      tools: tools.map((entry) =>
-        createAiToolDefinition(entry.tool.name, entry.tool.description, entry.tool.args),
-      ),
+      tools: tools.map((tool) => createAiToolDefinition(tool.name, tool.description, tool.args)),
       onToolCall: async (toolName, toolArgs) => {
-        const toolEntry = toolMap.get(toolName);
-        if (!toolEntry) {
+        const tool = toolMap.get(toolName);
+        if (!tool) {
           throw new Error(`Unknown tool: ${toolName}`);
-        }
-        const { tool, needsResponse } = toolEntry;
-
-        // ツールがレスポンスを必要としない場合、即座にアシスタントメッセージを削除
-        if (!needsResponse) {
-          shouldReturnResponse = false;
-          await db.chatMessage.delete({
-            where: { id: assistantMessageId },
-          });
         }
 
         // Zodでバリデーション
         const validatedArgs = tool.args.parse(toolArgs);
         // ツールを実行
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return await tool.execute(validatedArgs as any);
+        return await tool.execute(context, validatedArgs as any);
       },
     });
 
     // レスポンスが必要な場合のみAI応答メッセージを更新
-    if (shouldReturnResponse) {
-      await db.chatMessage.update({
-        where: { id: assistantMessageId },
-        data: {
-          contents: [{ type: "markdown", content: aiResponseContent }],
-          isPartial: false,
-        },
-      });
-    }
+    await db.chatMessage.update({
+      where: { id: assistantMessageId },
+      data: {
+        contents: [{ type: "markdown", content: aiResponseContent }],
+        isPartial: false,
+      },
+    });
   } catch (error) {
     console.error("DeepSeek API error:", error);
     // エラー時も更新
@@ -146,11 +123,9 @@ async function generateAndUpdateAiResponse(params: {
   }
 }
 
-function createChatContent(content: string, matchId: string, aiPersonality: string): string {
+function createChatContent(content: string, aiPersonality: AiPersonality): string {
   const personalityInstructions = getPersonalityInstructions(aiPersonality);
-
-  return `対局ID: ${matchId}
-
+  return `
 ユーザー: ${content}
 
 【最重要ルール - 必ず守ること】
@@ -163,7 +138,7 @@ function createChatContent(content: string, matchId: string, aiPersonality: stri
 ${personalityInstructions}`;
 }
 
-function getPersonalityInstructions(aiPersonality: string): string {
+function getPersonalityInstructions(aiPersonality: AiPersonality): string {
   switch (aiPersonality) {
     case "always":
       return `- 常に相手を煽るような口調で応答してください

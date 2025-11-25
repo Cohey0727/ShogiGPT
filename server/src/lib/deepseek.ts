@@ -1,11 +1,6 @@
-import {
-  formatMoveToJapanese,
-  sfenToBoard,
-  applyUsiMove,
-  analyzeMoveTags,
-  analyzeMateTags,
-} from "../shared/services";
+import { formatMoveToJapanese, sfenToBoard, applyUsiMove } from "../shared/services";
 import type { Board } from "../shared/consts/shogi";
+import { analyzeMateTags, analyzeMoveTags } from "../services/analyzeMoveTags";
 
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
@@ -193,8 +188,6 @@ export async function generateChatResponse(
           const toolResultString =
             typeof toolResult === "string" ? toolResult : JSON.stringify(toolResult, null, 2);
 
-          console.log(`✅ Tool result: ${toolResultString.substring(0, 200)}...`);
-
           // ツール結果を履歴に追加
           messages.push({
             role: "tool",
@@ -266,17 +259,28 @@ export async function generateBestMoveCommentary(params: {
 
   if (topVariation?.pv && topVariation.pv.length > 0 && board) {
     try {
-      let currentBoard = board;
+      let beforeBoard = board;
+      const perspective = board.turn;
       const pvLines: string[] = [];
 
       // すべての読み筋を処理（indexが偶数=自分、奇数=相手）
       topVariation.pv.forEach((usiMove, index) => {
-        const moveLabel = formatMoveToJapanese(usiMove, currentBoard);
-        const player = index % 2 === 0 ? "自分" : "相手";
-
+        const moveLabel = formatMoveToJapanese(usiMove, beforeBoard);
+        const player = perspective === beforeBoard.turn ? "自分" : "相手";
+        const afterBoard = applyUsiMove(beforeBoard, usiMove);
         // 各手の戦術特徴を分析
-        const tacticalTags = analyzeMoveTags(currentBoard, usiMove);
-        const mateTags = analyzeMateTags(currentBoard, usiMove);
+        const tacticalTags = analyzeMoveTags({
+          beforeBoard,
+          afterBoard,
+          usiMove,
+          perspective,
+        });
+        const mateTags = analyzeMateTags({
+          beforeBoard,
+          afterBoard,
+          usiMove,
+          perspective,
+        });
         const allTags = [...mateTags, ...tacticalTags];
 
         // タグを含めて1手ごとに表示
@@ -285,7 +289,7 @@ export async function generateBestMoveCommentary(params: {
           moveDescription += ` [${allTags.join("、")}]`;
         }
 
-        currentBoard = applyUsiMove(currentBoard, usiMove);
+        beforeBoard = afterBoard;
         pvLines.push(moveDescription);
       });
       strategyHint = `${pvLines.join("\n")}`;
@@ -362,6 +366,7 @@ ${strategyHint}
 - ()カッコ内は、元々いた駒の位置です。
 - 上記の読み筋とタグの連携を重視してください。
 - 評価値の大きな変化がある場合は、その戦況変化を踏まえて解説してください
+- **絶対厳守**: 詰みがある場合は必ず詰みを最優先に話題の中心にしてください。勝利、敗北の宣言を必ず行うこと。
 - **絶対厳守**: 読み筋に含まれていない手を一切言及しないこと（想定される手、考えられる手なども一切言及禁止）
 - **絶対厳守**: タグに含まれていない用語は絶対に使わないこと（例: 「角道を開ける」というタグがない場合は「角道を開ける」という言葉を使わない）
 - 自分の手と相手の手を正確に区別すること
@@ -372,7 +377,7 @@ ${strategyHint}
 - 300文字以内、簡潔に`;
 
   const systemPrompt = `あなたは将棋の対局者です。対局中に自分の考えを語る時は、一人称で主観的に話します。「〜と思います」「〜したいです」「〜が気になります」など、対局者の心情や判断を自然に表現してください。 適当な解説ではなく、userの読み筋を適切に反映した、具体的で正確な解説を行ってください。`;
-
+  console.log(prompt);
   const messages: DeepSeekMessage[] = [
     {
       role: "system",
@@ -383,8 +388,6 @@ ${strategyHint}
       content: prompt,
     },
   ];
-
-  console.log("DeepSeek prompt:", prompt);
 
   const requestBody: DeepSeekRequest = {
     model: "deepseek-chat",

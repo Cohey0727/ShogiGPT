@@ -14,7 +14,7 @@ directive @cached(
 ) on QUERY
 
 """AIプロンプトのパーソナリティ設定"""
-enum AiPromptPersonality {
+enum AiPersonality {
   """常に煽る"""
   always
 
@@ -1830,7 +1830,7 @@ type query_root {
 """チャットメッセージ送信リクエスト"""
 input SendChatMessageInput {
   """AIのパーソナリティ設定"""
-  aiPersonality: AiPromptPersonality
+  aiPersonality: AiPersonality
 
   """メッセージ内容"""
   content: String!

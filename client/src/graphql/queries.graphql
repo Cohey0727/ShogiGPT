@@ -124,11 +124,7 @@ mutation StartMatch(
   }
 }
 
-mutation SendChatMessage(
-  $matchId: String!
-  $content: String!
-  $aiPersonality: AiPromptPersonality
-) {
+mutation SendChatMessage($matchId: String!, $content: String!, $aiPersonality: AiPersonality) {
   sendChatMessage(input: { matchId: $matchId, content: $content, aiPersonality: $aiPersonality }) {
     success
   }

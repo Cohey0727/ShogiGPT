@@ -1,11 +1,17 @@
+import { AiPersonality } from "./../generated/graphql/types";
 import { z } from "zod";
 
-export interface AiFunctionCallingTool<TArgs extends z.ZodTypeAny, TResult = unknown> {
+export interface AiFunctionCallingToolContext {
+  matchId: string;
+  aiPersonality: AiPersonality;
+}
+
+export type AiFunctionCallingTool<TArgs extends z.ZodTypeAny, TResult = unknown> = {
   name: string;
   description: string;
   args: TArgs;
-  execute: (args: z.infer<TArgs>) => Promise<TResult>;
-}
+  execute: (context: AiFunctionCallingToolContext, args: z.infer<TArgs>) => Promise<TResult>;
+};
 
 /**
  * Helper function to create an AI tool definition from Zod schema

@@ -56,7 +56,7 @@ export function MatchChat({ matchId, disabled = false }: MatchChatProps) {
     await sendChatMessage({
       matchId,
       content: inputValue,
-      aiPersonality: promptSettings.aiPromptPersonality,
+      aiPersonality: promptSettings.aiPersonality,
     });
     setInputValue("");
   };

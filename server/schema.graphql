@@ -21,7 +21,7 @@ scalar PlayerType
 """
 AIプロンプトのパーソナリティ設定
 """
-enum AiPromptPersonality {
+enum AiPersonality {
   """
   煽りなし
   """
@@ -121,7 +121,7 @@ input SendChatMessageInput {
   """
   AIのパーソナリティ設定
   """
-  aiPersonality: AiPromptPersonality
+  aiPersonality: AiPersonality
 }
 
 """

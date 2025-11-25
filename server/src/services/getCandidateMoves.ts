@@ -1,16 +1,12 @@
 import { z } from "zod";
-import type { AiFunctionCallingTool } from "./aiFunctionCallingTool";
+import type { AiFunctionCallingTool, AiFunctionCallingToolContext } from "./aiFunctionCallingTool";
 import { db } from "../lib/db";
 import { analyzePositionAnalyzePost } from "../generated/shogi-ai";
 import { formatMoveToJapanese, sfenToBoard } from "../shared/services";
 import type { Board } from "../shared/consts/shogi";
 import { sfenToAscii } from "../shared/services/sfenToAscii";
 
-const ArgsSchema = z.object({
-  matchId: z.string().describe("対局ID"),
-});
-
-type Args = z.infer<typeof ArgsSchema>;
+const ArgsSchema = z.object({});
 
 interface CandidateMove {
   move: string;
@@ -31,8 +27,8 @@ interface Result extends Record<string, unknown> {
 /**
  * 現在の局面の候補手を取得するツール
  */
-async function execute(args: Args): Promise<Result> {
-  const { matchId } = args;
+async function execute(context: AiFunctionCallingToolContext): Promise<Result> {
+  const { matchId } = context;
 
   // 最新の局面を取得
   const latestState = await db.matchState.findFirst({

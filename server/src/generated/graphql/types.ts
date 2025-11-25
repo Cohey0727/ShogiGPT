@@ -20,15 +20,16 @@ export type Scalars = {
 };
 
 /** AIプロンプトのパーソナリティ設定 */
-export enum AiPromptPersonality {
+export const AiPersonality = {
   /** 常に煽る */
-  Always = 'always',
+  Always: 'always',
   /** 煽りなし */
-  None = 'none',
+  None: 'none',
   /** 戦況に応じて煽る */
-  Situational = 'situational'
-}
+  Situational: 'situational'
+} as const;
 
+export type AiPersonality = typeof AiPersonality[keyof typeof AiPersonality];
 /** 最善手コンテンツ（盤面解析結果） */
 export type BestMoveContent = {
   __typename?: 'BestMoveContent';
@@ -193,7 +194,7 @@ export type Query = {
 /** チャットメッセージ送信リクエスト */
 export type SendChatMessageInput = {
   /** AIのパーソナリティ設定 */
-  aiPersonality?: InputMaybe<AiPromptPersonality>;
+  aiPersonality?: InputMaybe<AiPersonality>;
   /** メッセージ内容 */
   content: Scalars['String']['input'];
   /** 対局ID */
@@ -304,7 +305,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = Reso
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
-  AiPromptPersonality: AiPromptPersonality;
+  AiPersonality: AiPersonality;
   BestMoveContent: ResolverTypeWrapper<BestMoveContent>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   ChatMessage: ResolverTypeWrapper<Omit<ChatMessage, 'contents'> & { contents: Array<ResolversTypes['MessageContent']> }>;

@@ -1,10 +1,10 @@
 import { Col } from "../../atoms/Col";
 import { Row } from "../../atoms/Row";
 import { Selector } from "../../atoms/Selector";
-import { usePromptSettings, type AiPromptPersonality } from "../../organisms/hooks";
+import { usePromptSettings, type aiPersonality } from "../../organisms/hooks";
 import styles from "./SettingsPage.css";
 
-const aiPersonalityOptions: { value: AiPromptPersonality; label: string }[] = [
+const aiPersonalityOptions: { value: aiPersonality; label: string }[] = [
   { value: "none", label: "煽りなし" },
   { value: "situational", label: "戦況に応じて煽る" },
   { value: "always", label: "常に煽る" },
@@ -31,11 +31,11 @@ export function SettingsPage() {
             </Col>
             <Selector
               options={aiPersonalityOptions}
-              value={promptSettings.aiPromptPersonality}
+              value={promptSettings.aiPersonality}
               onChange={(value) =>
                 setPromptSettings({
                   ...promptSettings,
-                  aiPromptPersonality: value,
+                  aiPersonality: value,
                 })
               }
             />

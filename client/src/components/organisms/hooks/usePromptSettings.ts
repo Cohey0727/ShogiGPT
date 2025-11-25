@@ -7,25 +7,25 @@ import { useLocalStorage } from "../../molecules/hooks/useLocalStorage";
 /**
  * AIプロンプトのパーソナリティ
  */
-export const aiPromptPersonalitySchema = z.enum(["none", "situational", "always"]);
+export const AiPersonalitySchema = z.enum(["none", "situational", "always"]);
 
-export type AiPromptPersonality = z.infer<typeof aiPromptPersonalitySchema>;
+export type aiPersonality = z.infer<typeof AiPersonalitySchema>;
 
 /**
  * プロンプト設定全体のスキーマ
  */
-export const promptSettingsSchema = z.object({
-  aiPromptPersonality: aiPromptPersonalitySchema,
+export const PromptSettingsSchema = z.object({
+  aiPersonality: AiPersonalitySchema,
 });
 
-export type PromptSettings = z.infer<typeof promptSettingsSchema>;
+export type PromptSettings = z.infer<typeof PromptSettingsSchema>;
 
 /** ローカルストレージのキー */
 const PROMPT_SETTINGS_KEY = "shogi-gpt-prompt-settings";
 
 /** デフォルト設定 */
 const DEFAULT_PROMPT_SETTINGS: PromptSettings = {
-  aiPromptPersonality: "none",
+  aiPersonality: "none",
 };
 
 /**
@@ -39,7 +39,7 @@ export function usePromptSettings(): [PromptSettings, Dispatch<SetStateAction<Pr
   });
 
   const settings = useMemo(() => {
-    const result = promptSettingsSchema.safeParse(rawSettings);
+    const result = PromptSettingsSchema.safeParse(rawSettings);
     if (result.success) {
       return result.data;
     }

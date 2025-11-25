@@ -1,4 +1,3 @@
-export * from "./analyzeMoveTags";
 export * from "./applyUsiMove";
 export * from "./boardToSfen";
 export * from "./boardToUsi";

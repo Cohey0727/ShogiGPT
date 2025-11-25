@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { AiFunctionCallingTool } from "./aiFunctionCallingTool";
+import type { AiFunctionCallingTool, AiFunctionCallingToolContext } from "./aiFunctionCallingTool";
 import { db } from "../lib/db";
 import {
   sfenToBoard,
@@ -11,7 +11,6 @@ import {
 import { evaluateAndApplyAiMove } from "./evaluateAndApplyAiMove";
 
 const ArgsSchema = z.object({
-  matchId: z.string().describe("対局ID"),
   move: z
     .string()
     .describe('指し手（日本語形式）。例: "7六歩", "7六歩(7七)", "5五金打", "2四角成"'),
@@ -29,8 +28,10 @@ interface Result extends Record<string, unknown> {
 /**
  * 指定された指し手を実行するツール
  */
-async function execute(args: Args): Promise<Result> {
-  const { matchId, move } = args;
+async function execute(context: AiFunctionCallingToolContext, args: Args): Promise<Result> {
+  const { matchId } = context;
+  // moveは人間の指し手（日本語形式）
+  const { move } = args;
 
   try {
     // 最新の局面を取得
@@ -96,17 +97,12 @@ async function execute(args: Args): Promise<Result> {
       },
     });
 
-    console.log(`✅ User move applied: ${move} (${usiMove}) at index ${newState.index}`);
-
     // 次の手番がAIかどうかを判定
     const nextTurn = newBoard.turn; // applyUsiMoveで既に手番が切り替わっている
     const isAiTurn = nextTurn === "SENTE" ? match.senteType === "AI" : match.goteType === "AI";
 
     if (isAiTurn) {
-      console.log("🤖 Next turn is AI. Evaluating position...");
-
       try {
-        // 新しいサービスを呼び出してAIの評価と手を適用
         await evaluateAndApplyAiMove({
           matchId,
           index: newState.index,

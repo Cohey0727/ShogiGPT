@@ -66,11 +66,6 @@ export async function evaluatePosition(
     };
   }
 
-  // キャッシュがない場合は新規に評価
-  console.log("🔍 Analyzing position...");
-  console.log("  MultiPV:", multipv);
-  console.log("  Time:", timeMs, "ms");
-
   const { data, error } = await analyzePositionAnalyzePost({
     body: {
       sfen,
@@ -85,10 +80,6 @@ export async function evaluatePosition(
     console.error("❌ shogi-ai error:", error);
     throw new Error("Analysis failed");
   }
-
-  console.log("✅ Analysis complete:");
-  console.log("  Best move:", data.bestmove);
-  console.log("  Candidates:", data.variations.length);
 
   const variations = data.variations.map((v) => ({
     move: v.move,
@@ -113,7 +104,6 @@ export async function evaluatePosition(
   });
 
   if (existingEvaluation) {
-    console.log("✅ Evaluation already exists (race condition avoided):", existingEvaluation.id);
     return {
       evaluation: existingEvaluation,
       bestmove: data.bestmove,
@@ -132,7 +122,6 @@ export async function evaluatePosition(
       variations,
     },
   });
-  console.log("💾 Saved evaluation to Evaluation table:", evaluation.id);
 
   return {
     evaluation,

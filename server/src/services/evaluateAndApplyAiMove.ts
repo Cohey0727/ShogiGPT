@@ -44,8 +44,6 @@ export async function evaluateAndApplyAiMove(params: EvaluateAndApplyAiMoveParam
     },
   });
 
-  console.log("💭 Thinking message created:", thinkingMessage.id);
-
   // 3. 盤面を評価
   const timeMs = thinkingTime ? thinkingTime * 1000 : 10000;
 
@@ -60,7 +58,6 @@ export async function evaluateAndApplyAiMove(params: EvaluateAndApplyAiMoveParam
       },
       data: { evaluationId: evaluationResult.evaluation.id },
     });
-    console.log("💾 Linked evaluation to MatchState");
 
     // 現在の評価値を取得
     const currentEvaluation = evaluationResult.variations[0]?.scoreCp ?? null;
@@ -85,11 +82,9 @@ export async function evaluateAndApplyAiMove(params: EvaluateAndApplyAiMoveParam
         }>;
         previousEvaluation = prevVariations[0]?.scoreCp ?? null;
       }
-      console.log("📊 Previous evaluation:", previousEvaluation);
     }
 
     // 4. DEEPSEEKで人間らしい解説を生成
-    console.log("💬 Generating commentary with DEEPSEEK...");
     let commentary = "";
     try {
       commentary = await generateBestMoveCommentary({

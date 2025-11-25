@@ -24,7 +24,7 @@ export type Scalars = {
 };
 
 /** AIプロンプトのパーソナリティ設定 */
-export const AiPromptPersonality = {
+export const AiPersonality = {
   /** 常に煽る */
   Always: 'always',
   /** 煽りなし */
@@ -33,7 +33,7 @@ export const AiPromptPersonality = {
   Situational: 'situational'
 } as const;
 
-export type AiPromptPersonality = typeof AiPromptPersonality[keyof typeof AiPromptPersonality];
+export type AiPersonality = typeof AiPersonality[keyof typeof AiPersonality];
 /** 最善手コンテンツ（盤面解析結果） */
 export type BestMoveContent = {
   __typename?: 'BestMoveContent';
@@ -1224,7 +1224,7 @@ export type Query = {
 /** チャットメッセージ送信リクエスト */
 export type SendChatMessageInput = {
   /** AIのパーソナリティ設定 */
-  aiPersonality?: InputMaybe<AiPromptPersonality>;
+  aiPersonality?: InputMaybe<AiPersonality>;
   /** メッセージ内容 */
   content: Scalars['String']['input'];
   /** 対局ID */
@@ -1832,7 +1832,7 @@ export type StartMatchMutation = { __typename?: 'mutation_root', startMatch: { _
 export type SendChatMessageMutationVariables = Exact<{
   matchId: Scalars['String']['input'];
   content: Scalars['String']['input'];
-  aiPersonality?: InputMaybe<AiPromptPersonality>;
+  aiPersonality?: InputMaybe<AiPersonality>;
 }>;
 
 
@@ -1996,7 +1996,7 @@ export function useStartMatchMutation() {
   return Urql.useMutation<StartMatchMutation, StartMatchMutationVariables>(StartMatchDocument);
 };
 export const SendChatMessageDocument = gql`
-    mutation SendChatMessage($matchId: String!, $content: String!, $aiPersonality: AiPromptPersonality) {
+    mutation SendChatMessage($matchId: String!, $content: String!, $aiPersonality: AiPersonality) {
   sendChatMessage(
     input: {matchId: $matchId, content: $content, aiPersonality: $aiPersonality}
   ) {

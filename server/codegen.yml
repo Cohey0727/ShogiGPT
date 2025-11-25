@@ -9,6 +9,7 @@ generates:
     config:
       useIndexSignature: true
       useTypeImports: true
+      enumsAsConst: true
       maybeValue: T | null | undefined
       scalars:
         PlayerType: "'HUMAN' | 'AI'"

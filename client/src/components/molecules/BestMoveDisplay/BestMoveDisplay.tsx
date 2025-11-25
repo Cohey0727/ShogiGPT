@@ -1,14 +1,8 @@
 import type { BestMoveContent } from "../../../generated/graphql/types";
 import { formatMoveToJapanese, sfenToBoard } from "../../../shared/services";
 import type { Board } from "../../../shared/consts";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "../../atoms/Accordion";
+import { Row, Accordion, Col } from "../../atoms";
 import styles from "./BestMoveDisplay.css";
-import { Row } from "../../atoms";
 
 interface BestMoveDisplayProps {
   content: BestMoveContent;
@@ -45,66 +39,62 @@ export function BestMoveDisplay({ content }: BestMoveDisplayProps) {
 
   return (
     <div className={styles.container}>
-      <Accordion type="single" collapsible>
-        <AccordionItem value="analysis">
-          <AccordionTrigger className={styles.accordionTrigger}>
-            <Row
-              className={styles.header}
-              justify="space-between"
-              align="center"
-            >
-              <h3 className={styles.title}>盤面解析結果</h3>
-              <Row className={styles.meta} justify="center" align="center">
-                <span className={styles.time}>
-                  {(timeMs / 1000).toFixed(1)}秒
-                </span>
-              </Row>
-            </Row>
-          </AccordionTrigger>
-          <AccordionContent>
-            <div className={styles.bestMove}>
-              <span className={styles.label}>最善手:</span>
-              <span className={styles.move}>
-                {formatMoveToJapanese(bestmove, board)}
+      <Accordion
+        collapsible
+        header={
+          <Row className={styles.header} justify="space-between" align="center">
+            <h3 className={styles.title}>盤面解析結果</h3>
+            <Row className={styles.meta} justify="center" align="center">
+              <span className={styles.time}>
+                {(timeMs / 1000).toFixed(1)}秒
               </span>
-            </div>
+            </Row>
+          </Row>
+        }
+      >
+        <Col>
+          <div className={styles.bestMove}>
+            <span className={styles.label}>最善手:</span>
+            <span className={styles.move}>
+              {formatMoveToJapanese(bestmove, board)}
+            </span>
+          </div>
 
-            {variations.length > 0 && (
-              <div className={styles.variations}>
-                <h4 className={styles.variationsTitle}>候補手:</h4>
-                <div className={styles.variationsList}>
-                  {variations.map((variation, index) => (
-                    <div key={index} className={styles.variation}>
-                      <div className={styles.variationHeader}>
-                        <span className={styles.rank}>{index + 1}.</span>
-                        <span className={styles.variationMove}>
-                          {formatMoveToJapanese(variation.move, board)}
-                        </span>
-                        <span className={styles.score}>
-                          {formatScore(variation.scoreCp, variation.scoreMate)}
-                        </span>
-                        <span className={styles.depth}>
-                          深度: {variation.depth}
+          {variations.length > 0 && (
+            <div className={styles.variations}>
+              <h4 className={styles.variationsTitle}>候補手:</h4>
+              <div className={styles.variationsList}>
+                {variations.map((variation, index) => (
+                  <div key={index} className={styles.variation}>
+                    <div className={styles.variationHeader}>
+                      <span className={styles.rank}>{index + 1}.</span>
+                      <span className={styles.variationMove}>
+                        {formatMoveToJapanese(variation.move, board)}
+                      </span>
+                      <span className={styles.score}>
+                        {formatScore(variation.scoreCp, variation.scoreMate)}
+                      </span>
+                      <span className={styles.depth}>
+                        深度: {variation.depth}
+                      </span>
+                    </div>
+                    {variation.pv && variation.pv.length > 0 && (
+                      <div className={styles.pv}>
+                        <span className={styles.pvLabel}>読み筋</span>
+                        <span className={styles.pvMoves}>
+                          {variation.pv
+                            .slice(0, 5)
+                            .map((m) => formatMoveToJapanese(m, board))
+                            .join(" → ")}
                         </span>
                       </div>
-                      {variation.pv && variation.pv.length > 0 && (
-                        <div className={styles.pv}>
-                          <span className={styles.pvLabel}>読み筋</span>
-                          <span className={styles.pvMoves}>
-                            {variation.pv
-                              .slice(0, 5)
-                              .map((m) => formatMoveToJapanese(m, board))
-                              .join(" → ")}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            )}
-          </AccordionContent>
-        </AccordionItem>
+            </div>
+          )}
+        </Col>
       </Accordion>
     </div>
   );

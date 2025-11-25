@@ -1,5 +1,40 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import styles from "./Accordion.css";
+import clsx from "clsx";
+import { useId } from "react";
+
+interface AccordionProps
+  extends Omit<AccordionPrimitive.AccordionSingleProps, "type"> {
+  header: React.ReactNode;
+}
+
+export function Accordion({
+  header,
+  children,
+  className,
+  ...rest
+}: AccordionProps) {
+  const value = useId();
+  return (
+    <AccordionPrimitive.Root
+      {...rest}
+      type="single"
+      className={clsx(styles.root, className)}
+    >
+      <AccordionItem value={value}>
+        <AccordionPrimitive.Header className={styles.header}>
+          <AccordionTrigger value={value}>{header}</AccordionTrigger>
+        </AccordionPrimitive.Header>
+        <AccordionContent>{children}</AccordionContent>
+        <AccordionTrigger value={value}>
+          <div className={styles.chevronContainer}>
+            <ChevronIcon />
+          </div>
+        </AccordionTrigger>
+      </AccordionItem>
+    </AccordionPrimitive.Root>
+  );
+}
 
 /**
  * シェブロンアイコンコンポーネント
@@ -24,31 +59,24 @@ function ChevronIcon() {
   );
 }
 
-export const Accordion = AccordionPrimitive.Root;
-
-export function AccordionItem(props: AccordionPrimitive.AccordionItemProps) {
+function AccordionItem(props: AccordionPrimitive.AccordionItemProps) {
   return <AccordionPrimitive.Item className={styles.item} {...props} />;
 }
 
-export function AccordionTrigger(props: AccordionPrimitive.AccordionTriggerProps) {
+function AccordionTrigger(props: AccordionPrimitive.AccordionTriggerProps) {
   const { children, ...rest } = props;
   return (
-    <AccordionPrimitive.Header className={styles.header}>
-      <AccordionPrimitive.Trigger className={styles.trigger} {...rest}>
-        {children}
-        <div className={styles.chevronContainer}>
-          <ChevronIcon />
-        </div>
-      </AccordionPrimitive.Trigger>
-    </AccordionPrimitive.Header>
+    <AccordionPrimitive.Trigger className={styles.trigger} {...rest}>
+      {children}
+    </AccordionPrimitive.Trigger>
   );
 }
 
-export function AccordionContent(props: AccordionPrimitive.AccordionContentProps) {
+function AccordionContent(props: AccordionPrimitive.AccordionContentProps) {
   const { children, ...rest } = props;
   return (
     <AccordionPrimitive.Content className={styles.content} {...rest}>
-      <div className={styles.contentText}>{children}</div>
+      {children}
     </AccordionPrimitive.Content>
   );
 }

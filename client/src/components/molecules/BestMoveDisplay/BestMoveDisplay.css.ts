@@ -5,21 +5,6 @@ export default {
     marginTop: "12px",
   }),
 
-  accordionTrigger: style({
-    padding: "0.5rem",
-    backgroundColor: "transparent",
-    border: "none",
-    width: "100%",
-    cursor: "pointer",
-    transition: "background-color 0.2s ease",
-    color: "#f5f5f5",
-    selectors: {
-      "&:hover": {
-        backgroundColor: "rgba(212, 175, 55, 0.1)",
-      },
-    },
-  }),
-
   header: style({
     display: "flex",
     justifyContent: "space-between",

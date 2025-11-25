@@ -13,8 +13,6 @@ const slideUp = keyframes({
 const styles = {
   root: style({
     borderRadius: "0.375rem",
-    backgroundColor: "white",
-    border: "1px solid #e5e7eb",
   }),
 
   item: style({
@@ -32,34 +30,39 @@ const styles = {
         position: "relative",
         zIndex: 1,
       },
+      '&[data-state="closed"]:hover': {
+        backgroundColor: "rgba(0, 0, 0, 0.2)",
+      },
     },
   }),
 
   header: style({
     display: "flex",
-  }),
-
-  trigger: style({
-    all: "unset",
-    fontFamily: "inherit",
-    backgroundColor: "transparent",
     padding: "1rem",
-    flex: 1,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    fontSize: "0.9375rem",
     lineHeight: "1",
-    cursor: "pointer",
     selectors: {
-      "&:hover": {
-        backgroundColor: "#f9fafb",
+      '[data-state="open"] &:hover': {
+        backgroundColor: "rgba(0, 0, 0, 0.2)",
       },
       "&:focus": {
         outline: "none",
         boxShadow: "0 0 0 2px rgba(59, 130, 246, 0.3)",
       },
     },
+  }),
+
+  trigger: style({
+    all: "unset",
+    fontFamily: "inherit",
+    backgroundColor: "transparent",
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "0.9375rem",
+    cursor: "pointer",
+    width: "100%",
   }),
 
   content: style({
@@ -76,10 +79,6 @@ const styles = {
     },
   }),
 
-  contentText: style({
-    padding: "1rem",
-  }),
-
   chevronContainer: style({
     display: "flex",
     justifyContent: "center",
@@ -89,6 +88,8 @@ const styles = {
   chevron: style({
     transition: "transform 300ms cubic-bezier(0.87, 0, 0.13, 1)",
     color: "#6b7280",
+    marginTop: "4px",
+    marginBottom: "4px",
     selectors: {
       '[data-state="open"] &': {
         transform: "rotate(180deg)",

@@ -6,10 +6,11 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  DialogDescription,
   Button,
   Row,
   SegmentButton,
+  Input,
+  Col,
 } from "../../atoms";
 import styles from "./StartMatchDialog.css";
 
@@ -21,6 +22,8 @@ const options = [
 export interface MatchConfig {
   senteType: "HUMAN" | "AI";
   goteType: "HUMAN" | "AI";
+  senteName: string;
+  goteName: string;
 }
 
 interface StartMatchDialogProps {
@@ -34,6 +37,8 @@ export function StartMatchDialog({ open, onClose }: StartMatchDialogProps) {
   const [matchConfig, setMatchConfig] = useState<MatchConfig>({
     senteType: "HUMAN",
     goteType: "AI",
+    senteName: "",
+    goteName: "",
   });
 
   const handleStartMatch = async () => {
@@ -41,8 +46,14 @@ export function StartMatchDialog({ open, onClose }: StartMatchDialogProps) {
       const newMatchId = createId();
       const result = await startMatch({
         id: newMatchId,
-        playerSente: matchConfig.senteType === "HUMAN" ? "あなた" : "ShogiGPT",
-        playerGote: matchConfig.goteType === "HUMAN" ? "あなた" : "ShogiGPT",
+        playerSente:
+          matchConfig.senteType === "HUMAN"
+            ? matchConfig.senteName || "あなた"
+            : "ShogiGPT",
+        playerGote:
+          matchConfig.goteType === "HUMAN"
+            ? matchConfig.goteName || "あなた"
+            : "ShogiGPT",
         senteType: matchConfig.senteType,
         goteType: matchConfig.goteType,
       });
@@ -62,12 +73,10 @@ export function StartMatchDialog({ open, onClose }: StartMatchDialogProps) {
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogTitle>新規対局を開始</DialogTitle>
-        <DialogDescription>プレイヤーを選択してください</DialogDescription>
-
-        <div className={styles.form}>
+        <Col className={styles.form}>
           <div className={styles.field}>
             <label className={styles.label}>先手</label>
-            <Row justify="center">
+            <Row gap="sm" align="center">
               <SegmentButton
                 options={options}
                 value={matchConfig.senteType}
@@ -75,12 +84,21 @@ export function StartMatchDialog({ open, onClose }: StartMatchDialogProps) {
                   setMatchConfig({ ...matchConfig, senteType })
                 }
               />
+              <Input
+                type="text"
+                placeholder="名前を入力（省略可）"
+                value={matchConfig.senteName}
+                onChange={(e) =>
+                  setMatchConfig({ ...matchConfig, senteName: e.target.value })
+                }
+                disabled={matchConfig.senteType !== "HUMAN"}
+              />
             </Row>
           </div>
 
-          <div>
+          <div className={styles.field}>
             <label className={styles.label}>後手</label>
-            <Row justify="center">
+            <Row gap="sm" align="center">
               <SegmentButton
                 options={options}
                 value={matchConfig.goteType}
@@ -88,9 +106,18 @@ export function StartMatchDialog({ open, onClose }: StartMatchDialogProps) {
                   setMatchConfig({ ...matchConfig, goteType })
                 }
               />
+              <Input
+                type="text"
+                placeholder="名前を入力（省略可）"
+                value={matchConfig.goteName}
+                onChange={(e) =>
+                  setMatchConfig({ ...matchConfig, goteName: e.target.value })
+                }
+                disabled={matchConfig.goteType !== "HUMAN"}
+              />
             </Row>
           </div>
-        </div>
+        </Col>
 
         <Row gap="sm" justify="end">
           <Button variant="outlined" onClick={onClose} disabled={fetching}>

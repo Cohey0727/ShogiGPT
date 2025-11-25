@@ -2,12 +2,12 @@ table:
   name: match_states
   schema: public
 object_relationships:
-  - name: match
-    using:
-      foreign_key_constraint_on: matchId
   - name: evaluation
     using:
       foreign_key_constraint_on: evaluationId
+  - name: match
+    using:
+      foreign_key_constraint_on: matchId
 insert_permissions:
   - role: anonymous
     permission:

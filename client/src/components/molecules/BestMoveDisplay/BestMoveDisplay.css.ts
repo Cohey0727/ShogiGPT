@@ -137,6 +137,8 @@ export default {
     fontWeight: "500",
     color: "#d4af37",
     writingMode: "vertical-rl",
+    position: "relative",
+    left: "-4px",
   }),
 
   pvMoves: style({

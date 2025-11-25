@@ -32,7 +32,7 @@ function formatScore(
 }
 
 export function BestMoveDisplay({ content }: BestMoveDisplayProps) {
-  const { bestmove, variations, timeMs, engineName, sfen } = content;
+  const { bestmove, variations, timeMs, sfen } = content;
 
   // 盤面情報を取得（駒名を表示するため）
   let board: Board | undefined;
@@ -55,7 +55,6 @@ export function BestMoveDisplay({ content }: BestMoveDisplayProps) {
             >
               <h3 className={styles.title}>盤面解析結果</h3>
               <Row className={styles.meta} justify="center" align="center">
-                <span className={styles.engine}>{engineName}</span>
                 <span className={styles.time}>
                   {(timeMs / 1000).toFixed(1)}秒
                 </span>

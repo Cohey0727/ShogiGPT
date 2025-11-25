@@ -10,7 +10,7 @@ const styles = {
     border: "2px solid #333",
     outline: "none",
     backgroundColor: "#1a1a1a",
-    color: "#FFD700",
+    color: "#fff",
     selectors: {
       "&:hover:not(:disabled)": {
         borderColor: "#FFA500",

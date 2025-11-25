@@ -1,4 +1,4 @@
-import { style, keyframes } from "@vanilla-extract/css";
+import { style, keyframes, globalStyle } from "@vanilla-extract/css";
 
 const slideDown = keyframes({
   from: { height: 0 },
@@ -38,7 +38,6 @@ const styles = {
 
   header: style({
     display: "flex",
-    padding: "1rem",
     lineHeight: "1",
     selectors: {
       '[data-state="open"] &:hover': {
@@ -97,5 +96,9 @@ const styles = {
     },
   }),
 };
+
+globalStyle(`${styles.header} ${styles.trigger}`, {
+  padding: "1rem",
+});
 
 export default styles;

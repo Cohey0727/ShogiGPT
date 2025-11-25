@@ -1,50 +1,54 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
-import { forwardRef } from "react";
 import styles from "./Accordion.css";
+
+/**
+ * シェブロンアイコンコンポーネント
+ */
+function ChevronIcon() {
+  return (
+    <svg
+      className={styles.chevron}
+      width="15"
+      height="15"
+      viewBox="0 0 15 15"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z"
+        fill="currentColor"
+        fillRule="evenodd"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+}
 
 export const Accordion = AccordionPrimitive.Root;
 
-export const AccordionItem = forwardRef<
-  React.ComponentRef<typeof AccordionPrimitive.Item>,
-  AccordionPrimitive.AccordionItemProps
->(({ ...props }, ref) => (
-  <AccordionPrimitive.Item ref={ref} className={styles.item} {...props} />
-));
-AccordionItem.displayName = "AccordionItem";
+export function AccordionItem(props: AccordionPrimitive.AccordionItemProps) {
+  return <AccordionPrimitive.Item className={styles.item} {...props} />;
+}
 
-export const AccordionTrigger = forwardRef<
-  React.ComponentRef<typeof AccordionPrimitive.Trigger>,
-  AccordionPrimitive.AccordionTriggerProps
->(({ children, ...props }, ref) => (
-  <AccordionPrimitive.Header className={styles.header}>
-    <AccordionPrimitive.Trigger ref={ref} className={styles.trigger} {...props}>
-      {children}
-      <svg
-        className={styles.chevron}
-        width="15"
-        height="15"
-        viewBox="0 0 15 15"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z"
-          fill="currentColor"
-          fillRule="evenodd"
-          clipRule="evenodd"
-        />
-      </svg>
-    </AccordionPrimitive.Trigger>
-  </AccordionPrimitive.Header>
-));
-AccordionTrigger.displayName = "AccordionTrigger";
+export function AccordionTrigger(props: AccordionPrimitive.AccordionTriggerProps) {
+  const { children, ...rest } = props;
+  return (
+    <AccordionPrimitive.Header className={styles.header}>
+      <AccordionPrimitive.Trigger className={styles.trigger} {...rest}>
+        {children}
+        <div className={styles.chevronContainer}>
+          <ChevronIcon />
+        </div>
+      </AccordionPrimitive.Trigger>
+    </AccordionPrimitive.Header>
+  );
+}
 
-export const AccordionContent = forwardRef<
-  React.ComponentRef<typeof AccordionPrimitive.Content>,
-  AccordionPrimitive.AccordionContentProps
->(({ children, ...props }, ref) => (
-  <AccordionPrimitive.Content ref={ref} className={styles.content} {...props}>
-    <div className={styles.contentText}>{children}</div>
-  </AccordionPrimitive.Content>
-));
-AccordionContent.displayName = "AccordionContent";
+export function AccordionContent(props: AccordionPrimitive.AccordionContentProps) {
+  const { children, ...rest } = props;
+  return (
+    <AccordionPrimitive.Content className={styles.content} {...rest}>
+      <div className={styles.contentText}>{children}</div>
+    </AccordionPrimitive.Content>
+  );
+}

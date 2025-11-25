@@ -80,8 +80,15 @@ const styles = {
     padding: "1rem",
   }),
 
+  chevronContainer: style({
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  }),
+
   chevron: style({
     transition: "transform 300ms cubic-bezier(0.87, 0, 0.13, 1)",
+    color: "#6b7280",
     selectors: {
       '[data-state="open"] &': {
         transform: "rotate(180deg)",

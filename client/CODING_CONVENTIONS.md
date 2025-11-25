@@ -113,13 +113,13 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: "sm" | "md" | "lg";
 }
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = "default", size = "md", ...props }, ref) => {
-    // ...
-  }
-);
-
-Button.displayName = "Button";
+export const Button = ({
+  variant = "default",
+  size = "md",
+  ...props
+}: ButtonProps) => {
+  // ...
+};
 ```
 
 ### 4. Props設計
@@ -145,18 +145,22 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 ```
 
-### 5. forwardRefの使用
+### 5. forwardRefの禁止
 
-DOM要素を扱うコンポーネントには `forwardRef` を使用し、refを受け取れるようにする。
+React 19では`forwardRef`は不要です。`ref`は通常のpropsとして渡されるため、`...props`で自動的に受け取れます。
 
 ```tsx
+// ✅ 良い例
+export function Button({ className, ...props }: ButtonProps) {
+  return <button className={className} {...props} />;
+}
+
+// ❌ 悪い例
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (props, ref) => {
     return <button ref={ref} {...props} />;
   }
 );
-
-Button.displayName = "Button";
 ```
 
 ## TypeScript規約
@@ -171,10 +175,9 @@ Button.displayName = "Button";
 ```tsx
 // ✅ 良い例
 import type { ButtonHTMLAttributes } from "react";
-import { forwardRef } from "react";
 
 // ❌ 悪い例
-import { ButtonHTMLAttributes, forwardRef } from "react";
+import { ButtonHTMLAttributes } from "react";
 ```
 
 ### 2. 型の配置
@@ -232,7 +235,7 @@ className={`${styles.base} ${styles.variant[variant]} ${className || ""}`}
 
 ```tsx
 // 1. React関連
-import { forwardRef, type ButtonHTMLAttributes } from "react";
+import { type ButtonHTMLAttributes } from "react";
 
 // 2. 外部ライブラリ
 import { someLibrary } from "some-library";

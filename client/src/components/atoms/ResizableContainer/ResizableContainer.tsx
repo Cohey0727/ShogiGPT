@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Fragment } from "react";
 import type { ReactElement } from "react";
 import { clsx } from "clsx";
 import styles from "./ResizableContainer.css";
@@ -109,23 +109,19 @@ export function ResizableContainer({
         const isFirst = index === 0;
         const isLast = index === children.length - 1;
         return (
-          <>
+          <Fragment key={index}>
             {isFirst ? (
               <div
-                key={index}
                 className={styles.panel}
                 style={isRow ? { width: `${size}px` } : { height: `${size}px` }}
               >
                 {child}
               </div>
             ) : (
-              <div key={index} className={styles.panel}>
-                {child}
-              </div>
+              <div className={styles.panel}>{child}</div>
             )}
             {!isLast && (
               <div
-                key={`handle-${index}`}
                 className={clsx(
                   styles.handle,
                   isRow ? styles.handleRow : styles.handleColumn,
@@ -134,7 +130,7 @@ export function ResizableContainer({
                 onMouseDown={handleMouseDown}
               />
             )}
-          </>
+          </Fragment>
         );
       })}
     </div>

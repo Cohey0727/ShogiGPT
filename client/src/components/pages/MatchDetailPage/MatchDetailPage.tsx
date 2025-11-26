@@ -160,7 +160,7 @@ export function MatchDetailPage() {
       const japaneseMove = formatMoveToJapanese(usiMove, board);
 
       // チャット経由で指し手を送信
-      // サーバーのAIがmakeMoveツールを呼び出して盤面を更新
+      // サーバーのAIがmoveAndEvaluateツールを呼び出して盤面を更新
       await sendChatMessage({
         matchId,
         content: japaneseMove,

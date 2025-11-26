@@ -32,7 +32,7 @@ model Match {
 
 /// 局面情報（ある時点での盤面状態と、そこに至った指し手）
 model MatchState {
-  createdAt    DateTime    @default(now())
+  createdAt    DateTime @default(now())
   /// 紐づく対局ID
   matchId      String
   /// 局面番号（何手目か、0から開始。0は初期局面）
@@ -44,13 +44,9 @@ model MatchState {
   sfen         String
   /// 消費時間（秒、オプション）
   thinkingTime Int?
-  /// 評価結果ID（オプション）
-  evaluationId String?
-  match        Match       @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  evaluation   Evaluation? @relation(fields: [evaluationId], references: [id], onDelete: SetNull)
+  match        Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
 
   @@id([matchId, index])
-  @@index([evaluationId])
   @@map("match_states")
 }
 
@@ -97,21 +93,20 @@ enum MessageRole {
 /// 評価結果キャッシュ
 model Evaluation {
   /// 評価結果ID
-  id          String       @id @default(cuid())
+  id         String   @id @default(cuid())
   /// 作成日時
-  createdAt   DateTime     @default(now())
+  createdAt  DateTime @default(now())
   /// 更新日時
-  updatedAt   DateTime     @updatedAt
+  updatedAt  DateTime @updatedAt
   /// 局面（SFEN形式）
-  sfen        String
+  sfen       String
   /// 使用したエンジン名
-  engineName  String
+  engineName String
   /// 評価スコア（最善手の評価値）
-  score       Int
+  score      Int
   /// 候補手のバリエーション（JSON形式）
   /// 形式: [{ "move": "7g7f", "score": 100, "pv": ["7g7f", "3c3d"], ... }, ...]
-  variations  Json
-  matchStates MatchState[]
+  variations Json
 
   @@unique([sfen, engineName])
   @@index([sfen])

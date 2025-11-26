@@ -343,24 +343,6 @@ type Evaluations {
   createdAt: timestamp!
   engineName: String!
   id: String!
-
-  """An array relationship"""
-  matchStates(
-    """distinct select on columns"""
-    distinctOn: [MatchStatesSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [MatchStatesOrderBy!]
-
-    """filter the rows returned"""
-    where: MatchStatesBoolExp
-  ): [MatchStates!]!
   sfen: String!
   updatedAt: timestamp!
   variations(
@@ -384,7 +366,6 @@ input EvaluationsBoolExp {
   createdAt: TimestampComparisonExp
   engineName: StringComparisonExp
   id: StringComparisonExp
-  matchStates: MatchStatesBoolExp
   sfen: StringComparisonExp
   updatedAt: TimestampComparisonExp
   variations: JsonbComparisonExp
@@ -434,7 +415,6 @@ input EvaluationsInsertInput {
   createdAt: timestamp
   engineName: String
   id: String
-  matchStates: MatchStatesArrRelInsertInput
   sfen: String
   updatedAt: timestamp
   variations: jsonb
@@ -452,16 +432,6 @@ type EvaluationsMutationResponse {
 }
 
 """
-input type for inserting object relation for remote table "evaluations"
-"""
-input EvaluationsObjRelInsertInput {
-  data: EvaluationsInsertInput!
-
-  """upsert condition"""
-  onConflict: EvaluationsOnConflict
-}
-
-"""
 on_conflict condition type for table "evaluations"
 """
 input EvaluationsOnConflict {
@@ -475,7 +445,6 @@ input EvaluationsOrderBy {
   createdAt: OrderBy
   engineName: OrderBy
   id: OrderBy
-  matchStatesAggregate: MatchStatesAggregateOrderBy
   sfen: OrderBy
   updatedAt: OrderBy
   variations: OrderBy
@@ -935,10 +904,6 @@ columns and relationships of "match_states"
 """
 type MatchStates {
   createdAt: timestamp!
-
-  """An object relationship"""
-  evaluation: Evaluations
-  evaluationId: String
   index: Int!
 
   """An object relationship"""
@@ -992,8 +957,6 @@ input MatchStatesBoolExp {
   _not: MatchStatesBoolExp
   _or: [MatchStatesBoolExp!]
   createdAt: TimestampComparisonExp
-  evaluation: EvaluationsBoolExp
-  evaluationId: StringComparisonExp
   index: IntComparisonExp
   match: MatchesBoolExp
   matchId: StringComparisonExp
@@ -1025,8 +988,6 @@ input type for inserting data into table "match_states"
 """
 input MatchStatesInsertInput {
   createdAt: timestamp
-  evaluation: EvaluationsObjRelInsertInput
-  evaluationId: String
   index: Int
   match: MatchesObjRelInsertInput
   matchId: String
@@ -1040,7 +1001,6 @@ order by max() on columns of table "match_states"
 """
 input MatchStatesMaxOrderBy {
   createdAt: OrderBy
-  evaluationId: OrderBy
   index: OrderBy
   matchId: OrderBy
   sfen: OrderBy
@@ -1053,7 +1013,6 @@ order by min() on columns of table "match_states"
 """
 input MatchStatesMinOrderBy {
   createdAt: OrderBy
-  evaluationId: OrderBy
   index: OrderBy
   matchId: OrderBy
   sfen: OrderBy
@@ -1084,8 +1043,6 @@ input MatchStatesOnConflict {
 """Ordering options when selecting data from "match_states"."""
 input MatchStatesOrderBy {
   createdAt: OrderBy
-  evaluation: EvaluationsOrderBy
-  evaluationId: OrderBy
   index: OrderBy
   match: MatchesOrderBy
   matchId: OrderBy
@@ -1108,9 +1065,6 @@ enum MatchStatesSelectColumn {
   createdAt
 
   """column name"""
-  evaluationId
-
-  """column name"""
   index
 
   """column name"""
@@ -1131,7 +1085,6 @@ input type for updating data in table "match_states"
 """
 input MatchStatesSetInput {
   createdAt: timestamp
-  evaluationId: String
   index: Int
   matchId: String
   sfen: String
@@ -1177,7 +1130,6 @@ input MatchStatesStreamCursorInput {
 """Initial value of the column from where the streaming should start"""
 input MatchStatesStreamCursorValueInput {
   createdAt: timestamp
-  evaluationId: String
   index: Int
   matchId: String
   sfen: String
@@ -1199,9 +1151,6 @@ update columns of table "match_states"
 enum MatchStatesUpdateColumn {
   """column name"""
   createdAt
-
-  """column name"""
-  evaluationId
 
   """column name"""
   index

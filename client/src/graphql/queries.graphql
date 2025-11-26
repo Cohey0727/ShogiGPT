@@ -86,14 +86,6 @@ subscription SubscribeMatchStates($matchId: String!) {
     usiMove
     sfen
     thinkingTime
-    evaluation {
-      id
-      sfen
-      engineName
-      variations
-      createdAt
-      updatedAt
-    }
   }
 }
 

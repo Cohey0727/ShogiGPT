@@ -2,9 +2,6 @@ table:
   name: match_states
   schema: public
 object_relationships:
-  - name: evaluation
-    using:
-      foreign_key_constraint_on: evaluationId
   - name: match
     using:
       foreign_key_constraint_on: matchId
@@ -13,7 +10,6 @@ insert_permissions:
     permission:
       check: {}
       columns:
-        - evaluationId
         - index
         - thinkingTime
         - matchId
@@ -25,7 +21,6 @@ select_permissions:
   - role: anonymous
     permission:
       columns:
-        - evaluationId
         - index
         - thinkingTime
         - matchId
@@ -38,7 +33,6 @@ update_permissions:
   - role: anonymous
     permission:
       columns:
-        - evaluationId
         - index
         - thinkingTime
         - matchId

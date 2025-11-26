@@ -29,7 +29,6 @@ CREATE TABLE "match_states" (
     "usiMove" TEXT NOT NULL,
     "sfen" TEXT NOT NULL,
     "thinkingTime" INTEGER,
-    "evaluationId" TEXT,
 
     CONSTRAINT "match_states_pkey" PRIMARY KEY ("matchId","index")
 );
@@ -67,9 +66,6 @@ CREATE INDEX "matches_createdAt_idx" ON "matches"("createdAt");
 CREATE INDEX "matches_status_idx" ON "matches"("status");
 
 -- CreateIndex
-CREATE INDEX "match_states_evaluationId_idx" ON "match_states"("evaluationId");
-
--- CreateIndex
 CREATE INDEX "chat_messages_matchId_idx" ON "chat_messages"("matchId");
 
 -- CreateIndex
@@ -86,9 +82,6 @@ CREATE UNIQUE INDEX "evaluations_sfen_engineName_key" ON "evaluations"("sfen", "
 
 -- AddForeignKey
 ALTER TABLE "match_states" ADD CONSTRAINT "match_states_matchId_fkey" FOREIGN KEY ("matchId") REFERENCES "matches"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "match_states" ADD CONSTRAINT "match_states_evaluationId_fkey" FOREIGN KEY ("evaluationId") REFERENCES "evaluations"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "chat_messages" ADD CONSTRAINT "chat_messages_matchId_fkey" FOREIGN KEY ("matchId") REFERENCES "matches"("id") ON DELETE CASCADE ON UPDATE CASCADE;

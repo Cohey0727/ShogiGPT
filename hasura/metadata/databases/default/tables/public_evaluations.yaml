@@ -1,14 +1,6 @@
 table:
   name: evaluations
   schema: public
-array_relationships:
-  - name: matchStates
-    using:
-      foreign_key_constraint_on:
-        column: evaluationId
-        table:
-          name: match_states
-          schema: public
 insert_permissions:
   - role: anonymous
     permission:

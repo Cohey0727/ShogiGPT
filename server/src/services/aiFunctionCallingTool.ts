@@ -1,10 +1,19 @@
-import { AiPersonality } from "./../generated/graphql/types";
+import type { AiPersonality } from "./../generated/graphql/types";
+import type { MessageContent } from "../shared/schemas";
 import { z } from "zod";
 
 export interface AiFunctionCallingToolContext {
   matchId: string;
   chatMessageId: string;
   aiPersonality: AiPersonality;
+  /**
+   * メッセージコンテンツを溜めておき、最後の更新で一緒に反映する
+   */
+  appendMessageContent: (content: MessageContent) => void;
+  /**
+   * AI応答生成完了時に実行するコールバックを登録する
+   */
+  appendCallbacks: (callback: () => Promise<void>) => void;
 }
 
 export type AiFunctionCallingTool<TArgs extends z.ZodTypeAny, TResult = unknown> = {

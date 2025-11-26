@@ -1,9 +1,10 @@
 import type { AiPersonality, MutationResolvers } from "../../generated/graphql/types";
 import { db } from "../../lib/db";
 import { generateChatResponse } from "../../lib/deepseek";
-import { moveAndEvaluate } from "../../services/moveAndEvaluate";
 import type { AiFunctionCallingToolContext } from "../../services/aiFunctionCallingTool";
 import { createAiToolDefinition } from "../../services/aiFunctionCallingTool";
+import { moveAndEvaluate } from "../../services/moveAndEvaluate";
+import { shogiChatSystemPrompt } from "../../services/shogiChatConfig";
 import type { MessageContent } from "../../shared/schemas";
 
 export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (_parent, { input }) => {
@@ -71,13 +72,6 @@ async function generateAndUpdateAiResponse(params: {
       pendingCallbacks.push(callback);
     };
 
-    const context: AiFunctionCallingToolContext = {
-      matchId,
-      aiPersonality,
-      chatMessageId: assistantMessageId,
-      appendMessageContent,
-      appendCallbacks,
-    };
     // 会話履歴を取得（最新3件、partial除外）
     const history = await db.chatMessage.findMany({
       where: { matchId, isPartial: false, role: "USER" },
@@ -108,6 +102,7 @@ async function generateAndUpdateAiResponse(params: {
     // Function Callingを有効にしてAI応答を生成
     const aiResponseContent = await generateChatResponse({
       userMessage: createChatContent(content, aiPersonality),
+      systemPrompt: shogiChatSystemPrompt,
       conversationHistory,
       tools: tools.map(createAiToolDefinition),
       onToolCall: async (toolName, toolArgs) => {
@@ -115,6 +110,15 @@ async function generateAndUpdateAiResponse(params: {
         if (!tool) {
           throw new Error(`Unknown tool: ${toolName}`);
         }
+
+        // ツール実行用のコンテキストを作成
+        const context: AiFunctionCallingToolContext = {
+          matchId,
+          aiPersonality,
+          chatMessageId: assistantMessageId,
+          appendMessageContent,
+          appendCallbacks,
+        };
 
         // Zodでバリデーション
         const validatedArgs = tool.args.parse(toolArgs);
@@ -164,7 +168,6 @@ function createChatContent(content: string, aiPersonality: AiPersonality): strin
 
 【最重要ルール - 必ず守ること】
 重要な原則：
-- ユーザーが指し手を指示した場合は、必ずmove_and_evaluateツールで実際に盤面を更新してください
 - 将棋に関する質問や指示には、必ず利用可能なツールを使用してください
 - ハルシネーションしないでください。適当な将棋用語を使ったり、根拠のない情報を提供したりしないでください
 - ツールを使わずに推測や想像で候補手を答えることは禁止です

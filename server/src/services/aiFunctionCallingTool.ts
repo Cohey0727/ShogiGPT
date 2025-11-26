@@ -7,7 +7,7 @@ export interface AiFunctionCallingToolContext {
   chatMessageId: string;
   aiPersonality: AiPersonality;
   /**
-   * メッセージコンテンツを溜めておき、最後の更新で一緒に反映する
+   * メッセージコンテンツを溜めておける
    */
   appendMessageContent: (content: MessageContent) => void;
   /**

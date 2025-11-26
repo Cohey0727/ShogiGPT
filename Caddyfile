@@ -1,0 +1,8 @@
+:8080 {
+	handle /v1/graphql* {
+		reverse_proxy localhost:7777
+	}
+	handle {
+		reverse_proxy localhost:4173
+	}
+}

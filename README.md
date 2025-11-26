@@ -94,3 +94,40 @@ shogi-gpt/
 | `just lint` | クライアントとサーバーのコードをリント |
 | `just codegen` | GraphQLスキーマから型定義を生成 |
 | `just db-reset` | データベースを完全にリセット（**警告**: すべてのデータを削除） |
+| `just ngrok` | ngrokトンネルを起動してサービスを外部公開 |
+
+## 外部公開（ngrok + Caddy）
+
+ローカル開発環境を外部に公開したい場合は、ngrokとCaddyを使用します。
+ngrok Free Tierでは1つのURLしか使えないため、Caddyでパスベースのルーティングを行います。
+
+### セットアップ
+
+1. ngrokをインストール
+   ```bash
+   brew install ngrok
+   ```
+
+2. [ngrokダッシュボード](https://dashboard.ngrok.com/get-started/your-authtoken)でアカウントを作成し、認証トークンを取得
+
+3. `ngrok.yml`の`authtoken`を取得したトークンに更新
+   ```yaml
+   authtoken: your_token_here
+   ```
+
+4. Caddyをインストール
+   ```bash
+   brew install caddy
+   ```
+
+### 起動方法
+
+```bash
+just ngrok
+```
+
+### ルーティング
+
+ngrokの1つのURLから以下のようにルーティングされます：
+- `https://xxx.ngrok-free.app/v1/graphql*` → Hasura (localhost:7777)
+- `https://xxx.ngrok-free.app/*` → Client (localhost:3030)

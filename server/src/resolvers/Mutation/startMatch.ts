@@ -1,6 +1,7 @@
 import type { MutationResolvers } from "../../generated/graphql/types";
 import { db } from "../../lib/db";
 import { generateChatResponse } from "../../lib/deepseek";
+import { shogiGreetingSystemPrompt } from "../../services/shogiChatConfig";
 
 /**
  * 平手の初期盤面（SFEN形式）
@@ -77,7 +78,10 @@ async function generateGreetingMessage(params: {
     // AIに挨拶メッセージを生成させる
     const greetingPrompt = `対局が始まりました。先手は${senteInfo}、後手は${goteInfo}です。対局開始の挨拶をしてください。簡潔に2〜3文で。最初の手の話とかするな。挨拶だけしろ。`;
 
-    const greetingContent = await generateChatResponse(greetingPrompt);
+    const greetingContent = await generateChatResponse({
+      userMessage: greetingPrompt,
+      systemPrompt: shogiGreetingSystemPrompt,
+    });
 
     // 挨拶メッセージをデータベースに保存
     await db.chatMessage.create({

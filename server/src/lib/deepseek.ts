@@ -1,7 +1,20 @@
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
 
-interface DeepSeekMessage {
+/**
+ * DeepSeekMessage[] かどうかを判定
+ */
+const isMessagesArray = (result: unknown): result is DeepSeekMessage[] =>
+  Array.isArray(result) &&
+  result.length > 0 &&
+  typeof result[0] === "object" &&
+  result[0] !== null &&
+  "role" in result[0];
+
+/**
+ * DeepSeek APIのメッセージ型
+ */
+export interface DeepSeekMessage {
   role: "user" | "assistant" | "system" | "tool";
   content: string;
   tool_calls?: Array<{
@@ -64,39 +77,39 @@ interface DeepSeekResponse {
 
 interface GenerateChatResponseOptions {
   userMessage: string;
+  systemPrompt: string;
   conversationHistory?: DeepSeekMessage[];
   tools?: DeepSeekTool[];
-  onToolCall?: (toolName: string, toolArgs: unknown) => Promise<string | Record<string, unknown>>;
+  /**
+   * ツール呼び出し時のコールバック
+   *
+   * @param toolName - 呼び出されたツール名
+   * @param toolArgs - ツールの引数
+   * @param messages - 現在のメッセージ履歴（読み取り専用として扱う）
+   * @returns ツール結果（string/object）または DeepSeekMessage[] でメッセージを上書き
+   */
+  onToolCall?: (
+    toolName: string,
+    toolArgs: unknown,
+    messages: DeepSeekMessage[],
+  ) => Promise<string | Record<string, unknown> | DeepSeekMessage[]>;
   maxIterations?: number;
 }
 
-const chatSystemPrompt = `あなたは将棋の対局をサポートするAIアシスタントです。
-
-重要な原則：
-1. 将棋に関する質問や指示には、必ず利用可能なツールを使用してください
-2. ツールを使わずに推測や想像で候補手を答えることは禁止です
-3. 「角道を開ける」「美濃囲い」など、将棋用語を使う場合は、ツールの結果で得た情報に基づいて正確に使用してください
-4. ユーザーが指し手を指示した場合は、必ずmove_and_evaluateツールで実際に盤面を更新してください
-5. 挨拶や雑談など、将棋に関係ない会話には自然に応答してください（ツール不要）
-
-ユーザーの質問に対して、親切で分かりやすく回答してください。`;
-
-export async function generateChatResponse(
-  optionsOrMessage: GenerateChatResponseOptions | string,
-  conversationHistory: DeepSeekMessage[] = [],
-): Promise<string> {
+/**
+ * DeepSeek APIを使用してチャット応答を生成する
+ *
+ * @param options - チャット応答生成のオプション
+ * @returns 生成されたAI応答テキスト
+ */
+export async function generateChatResponse(options: GenerateChatResponseOptions): Promise<string> {
   if (!DEEPSEEK_API_KEY) {
     throw new Error("DEEPSEEK_API_KEY is not set");
   }
 
-  // オーバーロード対応：引数の正規化
-  const options: GenerateChatResponseOptions =
-    typeof optionsOrMessage === "string"
-      ? { userMessage: optionsOrMessage, conversationHistory }
-      : optionsOrMessage;
-
   const {
     userMessage,
+    systemPrompt,
     conversationHistory: history = [],
     tools = [],
     onToolCall,
@@ -106,7 +119,7 @@ export async function generateChatResponse(
   const messages: DeepSeekMessage[] = [
     {
       role: "system",
-      content: chatSystemPrompt,
+      content: systemPrompt,
     },
     ...history,
     {
@@ -117,6 +130,7 @@ export async function generateChatResponse(
 
   // Function Callingのループ（最大maxIterations回）
   for (let iteration = 0; iteration < maxIterations; iteration++) {
+    console.log(`🧠 DeepSeek API call, iteration ${iteration + 1}`);
     const requestBody: DeepSeekRequest = {
       model: "deepseek-chat",
       messages,
@@ -124,6 +138,7 @@ export async function generateChatResponse(
       max_tokens: 1500,
       ...(tools.length > 0 ? { tools, tool_choice: "auto" } : {}),
     };
+    console.log("📨 Request body:", JSON.stringify(messages));
 
     const response = await fetch(DEEPSEEK_API_URL, {
       method: "POST",
@@ -167,17 +182,25 @@ export async function generateChatResponse(
         console.log(`🔧 Tool called: ${toolName} with args:`, JSON.stringify(toolArgs, null, 2));
 
         try {
-          const toolResult = await onToolCall(toolName, toolArgs);
-          const toolResultString =
-            typeof toolResult === "string" ? toolResult : JSON.stringify(toolResult, null, 2);
+          const toolResult = await onToolCall(toolName, toolArgs, messages);
 
-          // ツール結果を履歴に追加
-          messages.push({
-            role: "tool",
-            tool_call_id: toolCall.id,
-            name: toolName,
-            content: toolResultString,
-          });
+          if (isMessagesArray(toolResult)) {
+            // DeepSeekMessage[] の場合、メッセージを上書き
+            messages.length = 0;
+            messages.push(...toolResult);
+          } else {
+            // string | jsonの場合
+            const toolResultString =
+              typeof toolResult === "string" ? toolResult : JSON.stringify(toolResult, null, 2);
+
+            // ツール結果を履歴に追加
+            messages.push({
+              role: "tool",
+              tool_call_id: toolCall.id,
+              name: toolName,
+              content: toolResultString,
+            });
+          }
         } catch (error) {
           console.error(`❌ Tool execution failed:`, error);
           messages.push({

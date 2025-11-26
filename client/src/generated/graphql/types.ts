@@ -324,36 +324,6 @@ export const CursorOrdering = {
 } as const;
 
 export type CursorOrdering = typeof CursorOrdering[keyof typeof CursorOrdering];
-/** 対局状態評価リクエスト */
-export type EvaluateMatchStateInput = {
-  /** 最善手を盤面に反映するかどうか */
-  applyBestMove?: InputMaybe<Scalars['Boolean']['input']>;
-  /** 局面番号 */
-  index: Scalars['Int']['input'];
-  /** 対局ID */
-  matchId: Scalars['String']['input'];
-  /** 候補手の数（MultiPV、デフォルト: 3） */
-  multipv?: InputMaybe<Scalars['Int']['input']>;
-  /** 消費時間（秒） */
-  thinkingTime?: InputMaybe<Scalars['Int']['input']>;
-};
-
-/** 対局状態評価結果 */
-export type EvaluateMatchStateResult = {
-  __typename?: 'EvaluateMatchStateResult';
-  /** 最善手（USI形式） */
-  bestmove: Scalars['String']['output'];
-  /** エンジン名 */
-  engineName: Scalars['String']['output'];
-  /** SFEN形式の盤面情報 */
-  sfen: Scalars['String']['output'];
-  /** 思考時間（ミリ秒） */
-  timeMs: Scalars['Int']['output'];
-  type: Scalars['String']['output'];
-  /** 候補手リスト（MultiPV） */
-  variations: Array<MoveVariation>;
-};
-
 /** columns and relationships of "evaluations" */
 export type Evaluations = {
   __typename?: 'Evaluations';
@@ -1166,14 +1136,8 @@ export type MoveVariation = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  evaluateMatchState: EvaluateMatchStateResult;
   sendChatMessage: SendChatMessageResult;
   startMatch: Match;
-};
-
-
-export type MutationEvaluateMatchStateArgs = {
-  input: EvaluateMatchStateInput;
 };
 
 
@@ -1319,7 +1283,6 @@ export type Mutation_Root = {
   deleteMatches?: Maybe<MatchesMutationResponse>;
   /** delete single row from the table: "matches" */
   deleteMatchesByPk?: Maybe<Matches>;
-  evaluateMatchState: EvaluateMatchStateResult;
   /** insert data into the table: "chat_messages" */
   insertChatMessages?: Maybe<ChatMessagesMutationResponse>;
   /** insert a single row into the table: "chat_messages" */
@@ -1411,12 +1374,6 @@ export type Mutation_RootDeleteMatchesArgs = {
 /** mutation root */
 export type Mutation_RootDeleteMatchesByPkArgs = {
   id: Scalars['String']['input'];
-};
-
-
-/** mutation root */
-export type Mutation_RootEvaluateMatchStateArgs = {
-  input: EvaluateMatchStateInput;
 };
 
 
@@ -1838,13 +1795,6 @@ export type SendChatMessageMutationVariables = Exact<{
 
 export type SendChatMessageMutation = { __typename?: 'mutation_root', sendChatMessage: { __typename?: 'SendChatMessageResult', success: boolean } };
 
-export type EvaluateMatchStateMutationVariables = Exact<{
-  input: EvaluateMatchStateInput;
-}>;
-
-
-export type EvaluateMatchStateMutation = { __typename?: 'mutation_root', evaluateMatchState: { __typename?: 'EvaluateMatchStateResult', type: string, bestmove: string, timeMs: number, engineName: string, variations: Array<{ __typename?: 'MoveVariation', move: string, scoreCp?: number | null | undefined, scoreMate?: number | null | undefined, depth: number, nodes?: number | null | undefined, pv?: Array<string> | null | undefined }> } };
-
 
 export const HealthDocument = gql`
     query Health {
@@ -2007,26 +1957,4 @@ export const SendChatMessageDocument = gql`
 
 export function useSendChatMessageMutation() {
   return Urql.useMutation<SendChatMessageMutation, SendChatMessageMutationVariables>(SendChatMessageDocument);
-};
-export const EvaluateMatchStateDocument = gql`
-    mutation EvaluateMatchState($input: EvaluateMatchStateInput!) {
-  evaluateMatchState(input: $input) {
-    type
-    bestmove
-    variations {
-      move
-      scoreCp
-      scoreMate
-      depth
-      nodes
-      pv
-    }
-    timeMs
-    engineName
-  }
-}
-    `;
-
-export function useEvaluateMatchStateMutation() {
-  return Urql.useMutation<EvaluateMatchStateMutation, EvaluateMatchStateMutationVariables>(EvaluateMatchStateDocument);
 };

@@ -63,36 +63,6 @@ export type ChatMessage = {
   role: Scalars['String']['output'];
 };
 
-/** 対局状態評価リクエスト */
-export type EvaluateMatchStateInput = {
-  /** 最善手を盤面に反映するかどうか */
-  applyBestMove?: InputMaybe<Scalars['Boolean']['input']>;
-  /** 局面番号 */
-  index: Scalars['Int']['input'];
-  /** 対局ID */
-  matchId: Scalars['String']['input'];
-  /** 候補手の数（MultiPV、デフォルト: 3） */
-  multipv?: InputMaybe<Scalars['Int']['input']>;
-  /** 消費時間（秒） */
-  thinkingTime?: InputMaybe<Scalars['Int']['input']>;
-};
-
-/** 対局状態評価結果 */
-export type EvaluateMatchStateResult = {
-  __typename?: 'EvaluateMatchStateResult';
-  /** 最善手（USI形式） */
-  bestmove: Scalars['String']['output'];
-  /** エンジン名 */
-  engineName: Scalars['String']['output'];
-  /** SFEN形式の盤面情報 */
-  sfen: Scalars['String']['output'];
-  /** 思考時間（ミリ秒） */
-  timeMs: Scalars['Int']['output'];
-  type: Scalars['String']['output'];
-  /** 候補手リスト（MultiPV） */
-  variations: Array<MoveVariation>;
-};
-
 export type Health = {
   __typename?: 'Health';
   status: Scalars['String']['output'];
@@ -166,14 +136,8 @@ export type MoveVariation = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  evaluateMatchState: EvaluateMatchStateResult;
   sendChatMessage: SendChatMessageResult;
   startMatch: Match;
-};
-
-
-export type MutationEvaluateMatchStateArgs = {
-  input: EvaluateMatchStateInput;
 };
 
 
@@ -309,8 +273,6 @@ export type ResolversTypes = ResolversObject<{
   BestMoveContent: ResolverTypeWrapper<BestMoveContent>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   ChatMessage: ResolverTypeWrapper<Omit<ChatMessage, 'contents'> & { contents: Array<ResolversTypes['MessageContent']> }>;
-  EvaluateMatchStateInput: EvaluateMatchStateInput;
-  EvaluateMatchStateResult: ResolverTypeWrapper<EvaluateMatchStateResult>;
   Health: ResolverTypeWrapper<Health>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   MarkdownContent: ResolverTypeWrapper<MarkdownContent>;
@@ -332,8 +294,6 @@ export type ResolversParentTypes = ResolversObject<{
   BestMoveContent: BestMoveContent;
   Boolean: Scalars['Boolean']['output'];
   ChatMessage: Omit<ChatMessage, 'contents'> & { contents: Array<ResolversParentTypes['MessageContent']> };
-  EvaluateMatchStateInput: EvaluateMatchStateInput;
-  EvaluateMatchStateResult: EvaluateMatchStateResult;
   Health: Health;
   Int: Scalars['Int']['output'];
   MarkdownContent: MarkdownContent;
@@ -367,15 +327,6 @@ export type ChatMessageResolvers<ContextType = any, ParentType extends Resolvers
   isPartial?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   matchId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   role?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-}>;
-
-export type EvaluateMatchStateResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['EvaluateMatchStateResult'] = ResolversParentTypes['EvaluateMatchStateResult']> = ResolversObject<{
-  bestmove?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  engineName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  sfen?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  timeMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  variations?: Resolver<Array<ResolversTypes['MoveVariation']>, ParentType, ContextType>;
 }>;
 
 export type HealthResolvers<ContextType = any, ParentType extends ResolversParentTypes['Health'] = ResolversParentTypes['Health']> = ResolversObject<{
@@ -423,7 +374,6 @@ export type MoveVariationResolvers<ContextType = any, ParentType extends Resolve
 }>;
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  evaluateMatchState?: Resolver<ResolversTypes['EvaluateMatchStateResult'], ParentType, ContextType, RequireFields<MutationEvaluateMatchStateArgs, 'input'>>;
   sendChatMessage?: Resolver<ResolversTypes['SendChatMessageResult'], ParentType, ContextType, RequireFields<MutationSendChatMessageArgs, 'input'>>;
   startMatch?: Resolver<ResolversTypes['Match'], ParentType, ContextType, RequireFields<MutationStartMatchArgs, 'input'>>;
 }>;
@@ -443,7 +393,6 @@ export type SendChatMessageResultResolvers<ContextType = any, ParentType extends
 export type Resolvers<ContextType = any> = ResolversObject<{
   BestMoveContent?: BestMoveContentResolvers<ContextType>;
   ChatMessage?: ChatMessageResolvers<ContextType>;
-  EvaluateMatchStateResult?: EvaluateMatchStateResultResolvers<ContextType>;
   Health?: HealthResolvers<ContextType>;
   MarkdownContent?: MarkdownContentResolvers<ContextType>;
   Match?: MatchResolvers<ContextType>;

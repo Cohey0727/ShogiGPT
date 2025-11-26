@@ -336,43 +336,6 @@ enum CursorOrdering {
   DESC
 }
 
-"""対局状態評価リクエスト"""
-input EvaluateMatchStateInput {
-  """最善手を盤面に反映するかどうか"""
-  applyBestMove: Boolean
-
-  """局面番号"""
-  index: Int!
-
-  """対局ID"""
-  matchId: String!
-
-  """候補手の数（MultiPV、デフォルト: 3）"""
-  multipv: Int
-
-  """消費時間（秒）"""
-  thinkingTime: Int
-}
-
-"""対局状態評価結果"""
-type EvaluateMatchStateResult {
-  """最善手（USI形式）"""
-  bestmove: String!
-
-  """エンジン名"""
-  engineName: String!
-
-  """SFEN形式の盤面情報"""
-  sfen: String!
-
-  """思考時間（ミリ秒）"""
-  timeMs: Int!
-  type: String!
-
-  """候補手リスト（MultiPV）"""
-  variations: [MoveVariation!]!
-}
-
 """
 columns and relationships of "evaluations"
 """
@@ -1325,27 +1288,6 @@ input MessageRoleComparisonExp {
   _nin: [MessageRole!]
 }
 
-"""1つの候補手情報"""
-type MoveVariation {
-  """探索深さ"""
-  depth: Int!
-
-  """指し手（USI形式）"""
-  move: String!
-
-  """探索ノード数"""
-  nodes: Int
-
-  """読み筋（PV）"""
-  pv: [String!]
-
-  """評価値（センチポーン）"""
-  scoreCp: Int
-
-  """詰みまでの手数（プライ数）"""
-  scoreMate: Int
-}
-
 """mutation root"""
 type mutation_root {
   """
@@ -1399,7 +1341,6 @@ type mutation_root {
   delete single row from the table: "matches"
   """
   deleteMatchesByPk(id: String!): Matches
-  evaluateMatchState(input: EvaluateMatchStateInput!): EvaluateMatchStateResult!
 
   """
   insert data into the table: "chat_messages"

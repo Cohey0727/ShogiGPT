@@ -129,20 +129,3 @@ mutation SendChatMessage($matchId: String!, $content: String!, $aiPersonality: A
     success
   }
 }
-
-mutation EvaluateMatchState($input: EvaluateMatchStateInput!) {
-  evaluateMatchState(input: $input) {
-    type
-    bestmove
-    variations {
-      move
-      scoreCp
-      scoreMate
-      depth
-      nodes
-      pv
-    }
-    timeMs
-    engineName
-  }
-}

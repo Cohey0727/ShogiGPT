@@ -50,7 +50,7 @@ async function generateAndUpdateAiResponse(params: {
 }): Promise<void> {
   try {
     const { matchId, content, assistantMessageId, aiPersonality } = params;
-    const context = { matchId, aiPersonality };
+    const context = { matchId, aiPersonality, chatMessageId: assistantMessageId };
     // 会話履歴を取得（最新3件、partial除外）
     const history = await db.chatMessage.findMany({
       where: { matchId, isPartial: false },
@@ -82,7 +82,7 @@ async function generateAndUpdateAiResponse(params: {
     const aiResponseContent = await generateChatResponse({
       userMessage: createChatContent(content, aiPersonality),
       conversationHistory,
-      tools: tools.map((tool) => createAiToolDefinition(tool.name, tool.description, tool.args)),
+      tools: tools.map(createAiToolDefinition),
       onToolCall: async (toolName, toolArgs) => {
         const tool = toolMap.get(toolName);
         if (!tool) {
@@ -97,7 +97,6 @@ async function generateAndUpdateAiResponse(params: {
       },
     });
 
-    // レスポンスが必要な場合のみAI応答メッセージを更新
     await db.chatMessage.update({
       where: { id: assistantMessageId },
       data: {

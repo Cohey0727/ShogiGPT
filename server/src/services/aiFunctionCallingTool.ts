@@ -3,6 +3,7 @@ import { z } from "zod";
 
 export interface AiFunctionCallingToolContext {
   matchId: string;
+  chatMessageId: string;
   aiPersonality: AiPersonality;
 }
 
@@ -18,12 +19,10 @@ export type AiFunctionCallingTool<TArgs extends z.ZodTypeAny, TResult = unknown>
  * Uses Zod's built-in toJSONSchema and reformats for OpenAI compatibility
  */
 export function createAiToolDefinition<TArgs extends z.ZodTypeAny>(
-  name: string,
-  description: string,
-  argsSchema: TArgs,
+  tool: AiFunctionCallingTool<TArgs, unknown>,
 ) {
   // Use Zod's built-in JSON Schema conversion
-  const jsonSchema = z.toJSONSchema(argsSchema) as Record<string, unknown>;
+  const jsonSchema = z.toJSONSchema(tool.args) as Record<string, unknown>;
 
   // Remove unsupported fields for OpenAI function calling
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -32,8 +31,8 @@ export function createAiToolDefinition<TArgs extends z.ZodTypeAny>(
   return {
     type: "function" as const,
     function: {
-      name,
-      description,
+      name: tool.name,
+      description: tool.description,
       parameters: cleanSchema,
     },
   };

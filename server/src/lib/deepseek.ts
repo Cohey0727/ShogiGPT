@@ -93,11 +93,6 @@ const chatSystemPrompt = `あなたは将棋の対局をサポートするAIア�
 
 ユーザーの質問に対して、親切で分かりやすく回答してください。`;
 
-export async function generateChatResponse(options: GenerateChatResponseOptions): Promise<string>;
-export async function generateChatResponse(
-  userMessage: string,
-  conversationHistory?: DeepSeekMessage[],
-): Promise<string>;
 export async function generateChatResponse(
   optionsOrMessage: GenerateChatResponseOptions | string,
   conversationHistory: DeepSeekMessage[] = [],

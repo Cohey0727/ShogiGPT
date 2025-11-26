@@ -7,6 +7,7 @@ import {
   isLegalMove,
   applyUsiMove,
   boardToSfen,
+  formatMoveToJapanese,
 } from "../shared/services";
 import { evaluateAndApplyAiMove } from "./evaluateAndApplyAiMove";
 
@@ -18,17 +19,10 @@ const ArgsSchema = z.object({
 
 type Args = z.infer<typeof ArgsSchema>;
 
-interface Result extends Record<string, unknown> {
-  success: boolean;
-  message: string;
-  usiMove?: string;
-  newSfen?: string;
-}
-
 /**
  * 指定された指し手を実行するツール
  */
-async function execute(context: AiFunctionCallingToolContext, args: Args): Promise<Result> {
+async function execute(context: AiFunctionCallingToolContext, args: Args): Promise<string> {
   const { matchId } = context;
   // moveは人間の指し手（日本語形式）
   const { move } = args;
@@ -41,10 +35,7 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
     });
 
     if (!latestState) {
-      return {
-        success: false,
-        message: `対局ID ${matchId} の局面が見つかりません`,
-      };
+      return `エラー: 対局の局面が見つかりません`;
     }
 
     // 対局情報を取得
@@ -53,10 +44,7 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
     });
 
     if (!match) {
-      return {
-        success: false,
-        message: `対局ID ${matchId} が見つかりません`,
-      };
+      return `エラー: 対局が見つかりません`;
     }
 
     // SFENから盤面を生成
@@ -66,19 +54,12 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
     const usiMove = japaneseToUsiMove(move, board);
 
     if (!usiMove) {
-      return {
-        success: false,
-        message: `指し手「${move}」を解析できませんでした。正しい形式で指定してください。`,
-      };
+      return `エラー: 指し手「${move}」を解析できませんでした。正しい形式で指定してください。`;
     }
 
     // 合法手かチェック
     if (!isLegalMove(board, usiMove)) {
-      return {
-        success: false,
-        message: `指し手「${move}」(${usiMove})は合法手ではありません。`,
-        usiMove,
-      };
+      return `エラー: 指し手「${move}」は合法手ではありません。`;
     }
 
     // 指し手を適用
@@ -96,6 +77,9 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
         usiMove: usiMove,
       },
     });
+
+    // ユーザーの手を日本語で整形
+    const userMoveJapanese = formatMoveToJapanese(usiMove, board);
 
     // 次の手番がAIかどうかを判定
     const nextTurn = newBoard.turn; // applyUsiMoveで既に手番が切り替わっている
@@ -117,43 +101,29 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
           orderBy: { index: "desc" },
         });
 
-        return {
-          success: true,
-          message: `指し手「${move}」を実行しました。AIが手を指しました。`,
-          usiMove,
-          newSfen: aiState?.sfen ?? newSfen,
-        };
+        if (aiState?.usiMove) {
+          // AIの手を日本語で整形
+          const aiMoveJapanese = formatMoveToJapanese(aiState.usiMove, newBoard);
+          return `ユーザーの手: ${userMoveJapanese}に対して、こちらの手: ${aiMoveJapanese}`;
+        }
+
+        return `ユーザーの手: ${userMoveJapanese}\nAIの手: （取得できませんでした）`;
       } catch (error) {
         console.error("⚠️ Failed to evaluate position or apply AI move:", error);
-
-        // ユーザーの手は成功したので、success: trueを返す
-        return {
-          success: true,
-          message: `指し手「${move}」を実行しましたが、AIの思考中にエラーが発生しました。`,
-          usiMove,
-          newSfen,
-        };
+        return `ユーザーの手: ${userMoveJapanese}\nAIの思考中にエラーが発生しました。`;
       }
     }
 
-    return {
-      success: true,
-      message: `指し手「${move}」を実行しました。`,
-      usiMove,
-      newSfen,
-    };
+    return `ユーザーの手: ${userMoveJapanese}`;
   } catch (error) {
     console.error("makeMove error:", error);
-    return {
-      success: false,
-      message: `指し手の実行中にエラーが発生しました: ${
-        error instanceof Error ? error.message : "不明なエラー"
-      }`,
-    };
+    return `エラー: 指し手の実行中にエラーが発生しました: ${
+      error instanceof Error ? error.message : "不明なエラー"
+    }`;
   }
 }
 
-export const makeMove: AiFunctionCallingTool<typeof ArgsSchema, Result> = {
+export const makeMove: AiFunctionCallingTool<typeof ArgsSchema, string> = {
   name: "make_move",
   description:
     '指定された指し手を実行します。ユーザーが指し手を指示した場合（「〇〇に△△を進めて」「〇〇歩」など）、必ずこのツールを使用してください。直接「了解しました」などと答えずに、このツールで実際に盤面を更新してください。日本語形式の指し手（例: "7六歩", "5五金打", "2四角成"）を受け取り、合法性をチェックして盤面に適用します。',

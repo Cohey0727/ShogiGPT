@@ -5,7 +5,6 @@ type Query {
 type Mutation {
   sendChatMessage(input: SendChatMessageInput!): SendChatMessageResult!
   startMatch(input: StartMatchInput!): Match!
-  evaluateMatchState(input: EvaluateMatchStateInput!): EvaluateMatchStateResult!
 }
 
 type Health {
@@ -260,57 +259,4 @@ type MatchState {
   作成日時
   """
   createdAt: String!
-}
-
-"""
-対局状態評価リクエスト
-"""
-input EvaluateMatchStateInput {
-  """
-  対局ID
-  """
-  matchId: String!
-  """
-  局面番号
-  """
-  index: Int!
-  """
-  消費時間（秒）
-  """
-  thinkingTime: Int
-  """
-  候補手の数（MultiPV、デフォルト: 3）
-  """
-  multipv: Int
-  """
-  最善手を盤面に反映するかどうか
-  """
-  applyBestMove: Boolean
-}
-
-"""
-対局状態評価結果
-"""
-type EvaluateMatchStateResult {
-  type: String!
-  """
-  最善手（USI形式）
-  """
-  bestmove: String!
-  """
-  候補手リスト（MultiPV）
-  """
-  variations: [MoveVariation!]!
-  """
-  思考時間（ミリ秒）
-  """
-  timeMs: Int!
-  """
-  エンジン名
-  """
-  engineName: String!
-  """
-  SFEN形式の盤面情報
-  """
-  sfen: String!
 }

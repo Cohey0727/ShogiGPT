@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type {
-  InlineFunctionCallingTool,
   AiFunctionCallingToolContext,
+  HandoffFunctionCallingTool,
 } from "./aiFunctionCallingTool";
 import { db } from "../lib/db";
 import {
@@ -30,10 +30,7 @@ type Args = z.infer<typeof ArgsSchema>;
  * 指定された指し手を実行するツール
  * AIターンの場合は undefined を返して handoff を示す
  */
-async function execute(
-  context: AiFunctionCallingToolContext,
-  args: Args,
-): Promise<string | undefined> {
+async function execute(context: AiFunctionCallingToolContext, args: Args): Promise<void> {
   const { matchId } = context;
   // moveは人間の指し手（日本語形式）
   const { move } = args;
@@ -46,7 +43,7 @@ async function execute(
     });
 
     if (!latestState) {
-      return `エラー: 対局の局面が見つかりません`;
+      return;
     }
 
     // 対局情報を取得
@@ -55,7 +52,7 @@ async function execute(
     });
 
     if (!match) {
-      return `エラー: 対局が見つかりません`;
+      return;
     }
 
     // SFENから盤面を生成
@@ -65,12 +62,12 @@ async function execute(
     const usiMove = japaneseToUsiMove(move, board);
 
     if (!usiMove) {
-      return `エラー: 指し手「${move}」を解析できませんでした。正しい形式で指定してください。`;
+      return;
     }
 
     // 合法手かチェック
     if (!isLegalMove(board, usiMove)) {
-      return `エラー: 指し手「${move}」は合法手ではありません。`;
+      return;
     }
 
     // ユーザーの手を指す前の局面を評価（キャッシュがあれば使用される）
@@ -121,7 +118,7 @@ async function execute(
       moveQuality = evaluateMoveQuality(evalLoss, candidateRank);
     } else {
       // 候補手にない場合は新しい局面を評価して損失を計算
-      const afterEvalResult = await evaluatePosition(newSfen, 1, 5000);
+      const afterEvalResult = await evaluatePosition(newSfen, 5, 5000);
       const afterScore = afterEvalResult.variations[0]?.scoreCp ?? 0;
       // 手番が変わったので符号を反転
       evalLoss = beforeScore - -afterScore;
@@ -174,17 +171,10 @@ async function execute(
           variations: evaluationResult.variations,
         });
 
-        const lines = [
-          `**あなたはこの評価を自分の思考の一部のように使いなさい。**`,
-          `【相手の手の評価】`,
-          userMoveEvaluation,
-          ``,
-          `相手の手: ${userMoveJapanese}`,
-          `こちらの手: ${aiMoveJapanese}`,
-          ``,
-          promptBody,
-        ];
+        const lines = [`相手の手: ${userMoveJapanese}`, ``, promptBody];
         const promptText = lines.join("\n");
+
+        console.log(promptText);
         const res = await generateChatResponse({
           userMessage: promptText,
           systemPrompt: shogiChatSystemPrompt,
@@ -205,7 +195,6 @@ async function execute(
               thinkingTime: Math.floor(evaluationResult.timeMs / 1000),
             },
           }),
-
           db.chatMessage.update({
             where: { id: context.chatMessageId },
             data: {
@@ -217,26 +206,12 @@ async function execute(
         ];
 
         await Promise.all(promises);
-        return;
       } catch (error) {
         console.error("⚠️ Failed to evaluate position or apply AI move:", error);
-        return `ユーザーの手: ${userMoveJapanese}\nAIの思考中にエラーが発生しました。`;
       }
     }
-
-    // AIターンでない場合はユーザーの手の評価を返す（Inline）
-    const lines = [
-      `【あなたの手の評価】`,
-      userMoveEvaluation,
-      ``,
-      `あなたの手: ${userMoveJapanese}`,
-    ];
-    return lines.join("\n");
   } catch (error) {
     console.error("moveAndEvaluate error:", error);
-    return `エラー: 指し手の実行中にエラーが発生しました: ${
-      error instanceof Error ? error.message : "不明なエラー"
-    }`;
   }
 }
 
@@ -245,8 +220,8 @@ const description = `指定された指し手を実行し評価します。ユ�
 またその結果、ユーザーの手の評価情報（評価損失、手の質、候補手順位など）を含む文字列を返します。
 `;
 
-export const moveAndEvaluate: InlineFunctionCallingTool<typeof ArgsSchema> = {
-  type: "inline",
+export const moveAndEvaluate: HandoffFunctionCallingTool<typeof ArgsSchema> = {
+  type: "handoff",
   name: "move_and_evaluate",
   description: description,
   args: ArgsSchema,

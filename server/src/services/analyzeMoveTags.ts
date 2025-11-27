@@ -15,16 +15,15 @@ export interface AnalyzeMoveTagsArgs {
 export function analyzeMateTags(args: AnalyzeMoveTagsArgs): string[] {
   const { beforeBoard, afterBoard, perspective } = args;
   const isMyselfMove = perspective === beforeBoard.turn;
-  const currentPlayer = beforeBoard.turn;
-  const opponentPlayer = currentPlayer === "SENTE" ? "GOTE" : "SENTE";
+  const opponentPlayer = perspective === "SENTE" ? "GOTE" : "SENTE";
   const tags: string[] = [];
 
   try {
     // 手を指す前に王手されているかチェック
-    const wasInCheck = isInCheck(beforeBoard, currentPlayer);
+    const wasInCheck = isInCheck(beforeBoard, perspective);
 
     // 手を指した後に王手されているかチェック
-    const isStillInCheck = isInCheck(afterBoard, currentPlayer);
+    const isStillInCheck = isInCheck(afterBoard, perspective);
 
     // 王手をかわす・回避の判定
     if (wasInCheck && !isStillInCheck) {
@@ -63,8 +62,8 @@ export function analyzeMateTags(args: AnalyzeMoveTagsArgs): string[] {
  * 指し手の戦術的特徴を分析
  */
 export function analyzeMoveTags(args: AnalyzeMoveTagsArgs): string[] {
-  const { beforeBoard, afterBoard } = args;
-  const opponentPlayer = beforeBoard.turn === "SENTE" ? "GOTE" : "SENTE";
+  const { afterBoard, perspective } = args;
+  const opponentPlayer = perspective === "SENTE" ? "GOTE" : "SENTE";
   const features: string[] = [];
 
   try {
@@ -344,9 +343,9 @@ function parseUsiMove(usiMove: string): MoveInfo {
  * 駒の取り合いを分析
  */
 function analyzeCapture(args: AnalyzeMoveTagsArgs): string | undefined {
-  const { beforeBoard, usiMove } = args;
+  const { beforeBoard, usiMove, perspective } = args;
   const moveInfo = parseUsiMove(usiMove);
-  const opponentPlayer = beforeBoard.turn === "SENTE" ? "GOTE" : "SENTE";
+  const opponentPlayer = perspective === "SENTE" ? "GOTE" : "SENTE";
 
   // 駒を取る
   if (moveInfo.from) {
@@ -430,8 +429,7 @@ function analyzeBishopLine(args: AnalyzeMoveTagsArgs): string[] {
   const results: string[] = [];
 
   const moveInfo = parseUsiMove(usiMove);
-  const currentPlayer = beforeBoard.turn;
-  const opponentPlayer = currentPlayer === "SENTE" ? "GOTE" : "SENTE";
+  const opponentPlayer = perspective === "SENTE" ? "GOTE" : "SENTE";
 
   const directions = [
     { row: -1, col: -1 },
@@ -441,7 +439,7 @@ function analyzeBishopLine(args: AnalyzeMoveTagsArgs): string[] {
   ];
 
   // 自分の角道
-  const positions = findPositions(beforeBoard, currentPlayer, [
+  const positions = findPositions(beforeBoard, perspective, [
     PieceType.Bishop,
     PieceType.PromotedBishop,
   ]);
@@ -472,14 +470,9 @@ function analyzeBishopLine(args: AnalyzeMoveTagsArgs): string[] {
         beforeBoard,
         position,
         direction,
-        currentPlayer,
+        perspective,
       );
-      const farthestAfter = getFarthestReachableArea(
-        afterBoard,
-        position,
-        direction,
-        currentPlayer,
-      );
+      const farthestAfter = getFarthestReachableArea(afterBoard, position, direction, perspective);
 
       if (farthestBefore === farthestAfter) {
         continue;
@@ -562,8 +555,7 @@ function analyzeRookLine(args: AnalyzeMoveTagsArgs): string[] {
   const results: string[] = [];
 
   const moveInfo = parseUsiMove(usiMove);
-  const currentPlayer = beforeBoard.turn;
-  const opponentPlayer = currentPlayer === "SENTE" ? "GOTE" : "SENTE";
+  const opponentPlayer = perspective === "SENTE" ? "GOTE" : "SENTE";
 
   const directions = [
     { row: -1, col: 0 },
@@ -573,7 +565,7 @@ function analyzeRookLine(args: AnalyzeMoveTagsArgs): string[] {
   ];
 
   // 自分の飛車道
-  const positions = findPositions(beforeBoard, currentPlayer, [
+  const positions = findPositions(beforeBoard, perspective, [
     PieceType.Rook,
     PieceType.PromotedRook,
   ]);

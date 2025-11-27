@@ -7,7 +7,7 @@
     "dev": "nodemon --watch src --ext ts,graphql --exec 'bun src/index.ts'",
     "start": "bun src/index.ts",
     "build": "tsc -p tsconfig.json",
-    "lint": "tsc -b --noEmit && eslint . && prettier --write .",
+    "lint": "tsc -b --noEmit && eslint . && prettier --write . --log-level warn",
     "codegen": "bunx prisma generate && bun run codegen:graphql && bun run codegen:shogi",
     "codegen:graphql": "graphql-codegen --config codegen.yml",
     "codegen:shogi": "openapi-ts -i openapi.json -o src/generated/shogi-ai -c @hey-api/client-fetch",

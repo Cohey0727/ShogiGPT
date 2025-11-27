@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "tsc -b --noEmit && eslint . && prettier --write .",
+    "lint": "tsc -b --noEmit && eslint . && prettier --write . --log-level warn",
     "start": "vite preview",
     "codegen": "graphql-codegen --config codegen.yml"
   },

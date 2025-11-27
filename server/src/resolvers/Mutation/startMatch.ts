@@ -83,12 +83,25 @@ async function generateGreetingMessage(params: {
       systemPrompt: shogiGreetingSystemPrompt,
     });
 
+    if (greetingContent.type === "handoff") {
+      // ここでは発生しないはずだが、一応チェック
+      await db.chatMessage.create({
+        data: {
+          matchId,
+          role: "ASSISTANT",
+          contents: [{ type: "markdown", content: "よろしくお願いします。" }],
+          isPartial: false,
+        },
+      });
+      return;
+    }
+
     // 挨拶メッセージをデータベースに保存
     await db.chatMessage.create({
       data: {
         matchId,
         role: "ASSISTANT",
-        contents: [{ type: "markdown", content: greetingContent }],
+        contents: [{ type: "markdown", content: greetingContent.message }],
         isPartial: false,
       },
     });

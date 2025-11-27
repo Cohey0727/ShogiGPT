@@ -34,7 +34,7 @@ export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (_par
   generateAndUpdateAiResponse({
     matchId,
     content,
-    assistantMessageId: assistantMessage.id,
+    chatMessageId: assistantMessage.id,
     aiPersonality: aiPersonality ?? "none",
   });
 
@@ -47,30 +47,11 @@ export const sendChatMessage: MutationResolvers["sendChatMessage"] = async (_par
 async function generateAndUpdateAiResponse(params: {
   matchId: string;
   content: string;
-  assistantMessageId: string;
+  chatMessageId: string;
   aiPersonality: AiPersonality;
 }): Promise<void> {
   try {
-    const { matchId, content, assistantMessageId, aiPersonality } = params;
-
-    // 溜めておくコンテンツの配列
-    const pendingContents: MessageContent[] = [];
-    // 完了時に実行するコールバックの配列
-    const pendingCallbacks: Array<() => Promise<void>> = [];
-
-    /**
-     * メッセージコンテンツを溜めておき、最後の更新で一緒に反映する
-     */
-    const appendMessageContent = (messageContent: MessageContent): void => {
-      pendingContents.push(messageContent);
-    };
-
-    /**
-     * AI応答生成完了時に実行するコールバックを登録する
-     */
-    const appendCallbacks = (callback: () => Promise<void>): void => {
-      pendingCallbacks.push(callback);
-    };
+    const { matchId, content, chatMessageId, aiPersonality } = params;
 
     // 会話履歴を取得（最新3件、partial除外）
     const history = await db.chatMessage.findMany({
@@ -100,7 +81,7 @@ async function generateAndUpdateAiResponse(params: {
     const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
 
     // Function Callingを有効にしてAI応答を生成
-    const aiResponseContent = await generateChatResponse({
+    const result = await generateChatResponse({
       userMessage: createChatContent(content, aiPersonality),
       systemPrompt: shogiChatSystemPrompt,
       conversationHistory,
@@ -115,40 +96,41 @@ async function generateAndUpdateAiResponse(params: {
         const context: AiFunctionCallingToolContext = {
           matchId,
           aiPersonality,
-          chatMessageId: assistantMessageId,
-          appendMessageContent,
-          appendCallbacks,
+          chatMessageId,
         };
 
         // Zodでバリデーション
         const validatedArgs = tool.args.parse(toolArgs);
-        // ツールを実行
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return await tool.execute(context, validatedArgs as any);
+
+        // ツールタイプに応じて実行
+        if (tool.type === "inline") {
+          // Inline: 結果をLLMにフィードバック
+          return await tool.execute(context, validatedArgs);
+        } else {
+          // Handoff: 処理を実行し、LLMには簡潔なメッセージを返す
+          await tool.execute(context, validatedArgs);
+          return;
+        }
       },
     });
 
-    // 溜めたコンテンツとAI応答を一緒に反映
-    const finalContents: MessageContent[] = [
-      { type: "markdown", content: aiResponseContent },
-      ...pendingContents,
-    ];
+    // Handoff の場合は後続処理で chatMessage が更新されるため、ここでは更新しない
+    if (result.type === "handoff") {
+      return;
+    }
+
+    // 通常応答の場合は AI応答を反映
+    const finalContents: MessageContent[] = [{ type: "markdown", content: result.message }];
 
     await db.chatMessage.update({
-      where: { id: assistantMessageId },
-      data: {
-        contents: finalContents,
-        isPartial: false,
-      },
+      where: { id: chatMessageId },
+      data: { contents: finalContents, isPartial: false },
     });
-
-    // 登録されたコールバックを実行
-    await Promise.all(pendingCallbacks.map((callback) => callback()));
   } catch (error) {
     console.error("DeepSeek API error:", error);
     // エラー時も更新
     await db.chatMessage.update({
-      where: { id: params.assistantMessageId },
+      where: { id: params.chatMessageId },
       data: {
         contents: [
           {

@@ -1,5 +1,8 @@
 import { z } from "zod";
-import type { AiFunctionCallingTool, AiFunctionCallingToolContext } from "./aiFunctionCallingTool";
+import type {
+  InlineFunctionCallingTool,
+  AiFunctionCallingToolContext,
+} from "./aiFunctionCallingTool";
 import { db } from "../lib/db";
 import {
   sfenToBoard,
@@ -12,6 +15,8 @@ import {
 import { evaluatePosition } from "../lib/evaluatePosition";
 import { generateBestMovePrompt } from "./generateBestMovePrompt";
 import type { BestMoveContent } from "../shared/schemas/chatMessage";
+import { generateChatResponse } from "../lib/deepseek";
+import { shogiChatSystemPrompt } from "./shogiChatConfig";
 
 const ArgsSchema = z.object({
   move: z
@@ -23,8 +28,12 @@ type Args = z.infer<typeof ArgsSchema>;
 
 /**
  * 指定された指し手を実行するツール
+ * AIターンの場合は undefined を返して handoff を示す
  */
-async function execute(context: AiFunctionCallingToolContext, args: Args): Promise<string> {
+async function execute(
+  context: AiFunctionCallingToolContext,
+  args: Args,
+): Promise<string | undefined> {
   const { matchId } = context;
   // moveは人間の指し手（日本語形式）
   const { move } = args;
@@ -147,28 +156,11 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
           engineName: evaluationResult.engineName,
           sfen: newSfen,
         };
-        context.appendMessageContent(bestMoveContent);
 
         // 最善手を適用した次の局面を保存
         const newBoardWithAiMove = applyUsiMove(newBoard, evaluationResult.bestmove);
         const aiMoveIndex = newState.index + 1;
         const aiSfen = boardToSfen(newBoardWithAiMove);
-
-        context.appendCallbacks(async () => {
-          console.log({
-            aiMoveIndex,
-            usiMove: evaluationResult.bestmove,
-          });
-          await db.matchState.create({
-            data: {
-              matchId,
-              index: aiMoveIndex,
-              usiMove: evaluationResult.bestmove,
-              sfen: aiSfen,
-              thinkingTime: Math.floor(evaluationResult.timeMs / 1000),
-            },
-          });
-        });
 
         // AIの指し手での局面を再評価（キャッシュ用）
         evaluatePosition(aiSfen, 5, 10000);
@@ -176,13 +168,11 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
         const aiMoveJapanese = formatMoveToJapanese(evaluationResult.bestmove, newBoard);
 
         // AIに評価情報と指し手を文字列で返す
-        const prompt = generateBestMovePrompt({
+        const promptBody = generateBestMovePrompt({
           sfen: newSfen,
           bestmove: evaluationResult.bestmove,
           variations: evaluationResult.variations,
         });
-
-        console.log(prompt);
 
         const lines = [
           `**あなたはこの評価を自分の思考の一部のように使いなさい。**`,
@@ -192,17 +182,49 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
           `相手の手: ${userMoveJapanese}`,
           `こちらの手: ${aiMoveJapanese}`,
           ``,
-          prompt,
+          promptBody,
+        ];
+        const promptText = lines.join("\n");
+        const res = await generateChatResponse({
+          userMessage: promptText,
+          systemPrompt: shogiChatSystemPrompt,
+        });
+
+        // type === "handoff"はありえないが、一応チェック。
+        const message = res.type === "message" ? res.message : `${aiMoveJapanese}です。`;
+        const messageContent = { type: "markdown", content: message };
+
+        // 盤面を更新
+        const promises = [
+          db.matchState.create({
+            data: {
+              matchId,
+              index: aiMoveIndex,
+              usiMove: evaluationResult.bestmove,
+              sfen: aiSfen,
+              thinkingTime: Math.floor(evaluationResult.timeMs / 1000),
+            },
+          }),
+
+          db.chatMessage.update({
+            where: { id: context.chatMessageId },
+            data: {
+              role: "ASSISTANT",
+              contents: [messageContent, bestMoveContent],
+              isPartial: false,
+            },
+          }),
         ];
 
-        return lines.join("\n");
+        await Promise.all(promises);
+        return;
       } catch (error) {
         console.error("⚠️ Failed to evaluate position or apply AI move:", error);
         return `ユーザーの手: ${userMoveJapanese}\nAIの思考中にエラーが発生しました。`;
       }
     }
 
-    // AIターンでない場合もユーザーの手の評価を返す
+    // AIターンでない場合はユーザーの手の評価を返す（Inline）
     const lines = [
       `【あなたの手の評価】`,
       userMoveEvaluation,
@@ -223,7 +245,8 @@ const description = `指定された指し手を実行し評価します。ユ�
 またその結果、ユーザーの手の評価情報（評価損失、手の質、候補手順位など）を含む文字列を返します。
 `;
 
-export const moveAndEvaluate: AiFunctionCallingTool<typeof ArgsSchema, string> = {
+export const moveAndEvaluate: InlineFunctionCallingTool<typeof ArgsSchema> = {
+  type: "inline",
   name: "move_and_evaluate",
   description: description,
   args: ArgsSchema,

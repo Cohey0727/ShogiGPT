@@ -2,16 +2,6 @@ const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
 
 /**
- * DeepSeekMessage[] かどうかを判定
- */
-const isMessagesArray = (result: unknown): result is DeepSeekMessage[] =>
-  Array.isArray(result) &&
-  result.length > 0 &&
-  typeof result[0] === "object" &&
-  result[0] !== null &&
-  "role" in result[0];
-
-/**
  * DeepSeek APIのメッセージ型
  */
 export interface DeepSeekMessage {
@@ -86,23 +76,33 @@ interface GenerateChatResponseOptions {
    * @param toolName - 呼び出されたツール名
    * @param toolArgs - ツールの引数
    * @param messages - 現在のメッセージ履歴（読み取り専用として扱う）
-   * @returns ツール結果（string/object）または DeepSeekMessage[] でメッセージを上書き
+   * @returns
+   *   - string: ツール結果をLLMにフィードバック
+   *   - DeepSeekMessage[]: メッセージを上書き
+   *   - void/undefined: Handoff（LLMへのフィードバックを終了し、処理を他に委譲）
    */
   onToolCall?: (
     toolName: string,
     toolArgs: unknown,
     messages: DeepSeekMessage[],
-  ) => Promise<string | Record<string, unknown> | DeepSeekMessage[]>;
+  ) => Promise<string | void>;
   maxIterations?: number;
 }
+
+/**
+ * generateChatResponse の結果型
+ */
+export type GenerateChatResponseResult = { type: "message"; message: string } | { type: "handoff" };
 
 /**
  * DeepSeek APIを使用してチャット応答を生成する
  *
  * @param options - チャット応答生成のオプション
- * @returns 生成されたAI応答テキスト
+ * @returns 生成されたAI応答、または handoff の場合は { type: "handoff" }
  */
-export async function generateChatResponse(options: GenerateChatResponseOptions): Promise<string> {
+export async function generateChatResponse(
+  options: GenerateChatResponseOptions,
+): Promise<GenerateChatResponseResult> {
   if (!DEEPSEEK_API_KEY) {
     throw new Error("DEEPSEEK_API_KEY is not set");
   }
@@ -130,7 +130,6 @@ export async function generateChatResponse(options: GenerateChatResponseOptions)
 
   // Function Callingのループ（最大maxIterations回）
   for (let iteration = 0; iteration < maxIterations; iteration++) {
-    console.log(`🧠 DeepSeek API call, iteration ${iteration + 1}`);
     const requestBody: DeepSeekRequest = {
       model: "deepseek-chat",
       messages,
@@ -138,7 +137,6 @@ export async function generateChatResponse(options: GenerateChatResponseOptions)
       max_tokens: 1500,
       ...(tools.length > 0 ? { tools, tool_choice: "auto" } : {}),
     };
-    console.log("📨 Request body:", JSON.stringify(messages));
 
     const response = await fetch(DEEPSEEK_API_URL, {
       method: "POST",
@@ -184,23 +182,19 @@ export async function generateChatResponse(options: GenerateChatResponseOptions)
         try {
           const toolResult = await onToolCall(toolName, toolArgs, messages);
 
-          if (isMessagesArray(toolResult)) {
-            // DeepSeekMessage[] の場合、メッセージを上書き
-            messages.length = 0;
-            messages.push(...toolResult);
-          } else {
-            // string | jsonの場合
-            const toolResultString =
-              typeof toolResult === "string" ? toolResult : JSON.stringify(toolResult, null, 2);
-
-            // ツール結果を履歴に追加
-            messages.push({
-              role: "tool",
-              tool_call_id: toolCall.id,
-              name: toolName,
-              content: toolResultString,
-            });
+          // Handoff: undefined の場合、LLMへのフィードバックを終了
+          if (toolResult === undefined) {
+            console.log(`🔀 Handoff: Tool "${toolName}" completed, exiting LLM loop`);
+            return { type: "handoff" };
           }
+
+          // Inline: string の場合、ツール結果を履歴に追加
+          messages.push({
+            role: "tool",
+            tool_call_id: toolCall.id,
+            name: toolName,
+            content: toolResult,
+          });
         } catch (error) {
           console.error(`❌ Tool execution failed:`, error);
           messages.push({
@@ -222,7 +216,7 @@ export async function generateChatResponse(options: GenerateChatResponseOptions)
       throw new Error("No content in assistant message");
     }
 
-    return assistantMessage;
+    return { type: "message", message: assistantMessage };
   }
 
   throw new Error(`Max iterations (${maxIterations}) reached in function calling loop`);

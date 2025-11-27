@@ -1,22 +1,16 @@
 import type { AiPersonality } from "./../generated/graphql/types";
-import type { MessageContent } from "../shared/schemas";
 import { z } from "zod";
 
 export interface AiFunctionCallingToolContext {
   matchId: string;
   chatMessageId: string;
   aiPersonality: AiPersonality;
-  /**
-   * メッセージコンテンツを溜めておける
-   */
-  appendMessageContent: (content: MessageContent) => void;
-  /**
-   * AI応答生成完了時に実行するコールバックを登録する
-   */
-  appendCallbacks: (callback: () => Promise<void>) => void;
 }
 
-export type AiFunctionCallingTool<TArgs extends z.ZodTypeAny, TResult = unknown> = {
+/**
+ * Function Calling ツールの共通部分
+ */
+type BaseFunctionCallingTool<TArgs extends z.ZodTypeAny, TResult> = {
   name: string;
   description: string;
   args: TArgs;
@@ -24,11 +18,42 @@ export type AiFunctionCallingTool<TArgs extends z.ZodTypeAny, TResult = unknown>
 };
 
 /**
+ * Inline Tool: AIの会話フロー内で使用
+ * 結果はLLMにフィードバックされ、最終応答生成に使われる
+ * undefined を返すと handoff として扱われる（後続処理に制御を委譲）
+ */
+export type InlineFunctionCallingTool<TArgs extends z.ZodTypeAny> = BaseFunctionCallingTool<
+  TArgs,
+  string | undefined
+> & {
+  type: "inline";
+};
+
+/**
+ * Handoff Tool: 処理を別APIに引き継ぐ
+ * LLMはトリガー役で、処理完了後は別のシステムに制御を渡す
+ * 戻り値は不要（void）
+ */
+export type HandoffFunctionCallingTool<TArgs extends z.ZodTypeAny> = BaseFunctionCallingTool<
+  TArgs,
+  void
+> & {
+  type: "handoff";
+};
+
+/**
+ * Function Calling ツールの共用型
+ */
+export type AiFunctionCallingTool<TArgs extends z.ZodTypeAny = z.ZodTypeAny> =
+  | InlineFunctionCallingTool<TArgs>
+  | HandoffFunctionCallingTool<TArgs>;
+
+/**
  * Helper function to create an AI tool definition from Zod schema
  * Uses Zod's built-in toJSONSchema and reformats for OpenAI compatibility
  */
 export function createAiToolDefinition<TArgs extends z.ZodTypeAny>(
-  tool: AiFunctionCallingTool<TArgs, unknown>,
+  tool: AiFunctionCallingTool<TArgs>,
 ) {
   // Use Zod's built-in JSON Schema conversion
   const jsonSchema = z.toJSONSchema(tool.args) as Record<string, unknown>;

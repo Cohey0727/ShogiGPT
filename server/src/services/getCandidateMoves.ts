@@ -1,5 +1,8 @@
 import { z } from "zod";
-import type { AiFunctionCallingTool, AiFunctionCallingToolContext } from "./aiFunctionCallingTool";
+import type {
+  InlineFunctionCallingTool,
+  AiFunctionCallingToolContext,
+} from "./aiFunctionCallingTool";
 import { db } from "../lib/db";
 import { analyzePositionAnalyzePost } from "../generated/shogi-ai";
 import { formatMoveToJapanese, sfenToBoard } from "../shared/services";
@@ -85,10 +88,14 @@ async function execute(context: AiFunctionCallingToolContext): Promise<Result> {
   };
 }
 
-export const getCandidateMoves: AiFunctionCallingTool<typeof ArgsSchema, Result> = {
+export const getCandidateMoves: InlineFunctionCallingTool<typeof ArgsSchema> = {
+  type: "inline",
   name: "get_candidate_moves",
   description:
     "現在の局面における候補手と評価値を取得します。将棋に関する質問（候補手、次の手、局面評価など）には必ずこのツールを使用して正確な情報を取得してください。推測や想像で答えてはいけません。",
   args: ArgsSchema,
-  execute,
+  execute: async (context) => {
+    const result = await execute(context);
+    return JSON.stringify(result, null, 2);
+  },
 };

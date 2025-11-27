@@ -80,8 +80,5 @@ export function sfenToAscii(sfen: string): string {
   lines.push(`持ち駒: 先手=${senteHand} / 後手=${goteHand}`);
   lines.push("");
 
-  // 凡例
-  lines.push("凡例: と=成歩、杏=成香、圭=成桂、全=成銀、馬=角成、龍=飛成");
-
   return lines.join("\n");
 }

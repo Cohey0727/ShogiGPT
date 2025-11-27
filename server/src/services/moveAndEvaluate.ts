@@ -16,7 +16,7 @@ import { evaluatePosition } from "../lib/evaluatePosition";
 import { generateBestMovePrompt } from "./generateBestMovePrompt";
 import type { BestMoveContent } from "../shared/schemas/chatMessage";
 import { generateChatResponse } from "../lib/deepseek";
-import { shogiChatSystemPrompt } from "./shogiChatConfig";
+import { shogiEvaluationSystemPrompt } from "./shogiChatConfig";
 
 const ArgsSchema = z.object({
   move: z
@@ -177,7 +177,7 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
         console.log(promptText);
         const res = await generateChatResponse({
           userMessage: promptText,
-          systemPrompt: shogiChatSystemPrompt,
+          systemPrompt: shogiEvaluationSystemPrompt,
         });
 
         // type === "handoff"はありえないが、一応チェック。

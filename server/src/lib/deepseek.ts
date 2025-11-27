@@ -184,7 +184,7 @@ export async function generateChatResponse(
 
           // Handoff: undefined の場合、LLMへのフィードバックを終了
           if (toolResult === undefined) {
-            console.log(`🔀 Handoff: Tool "${toolName}" completed, exiting LLM loop`);
+            console.log(`🔀 Handoff: Tool "${toolName}" completed.`);
             return { type: "handoff" };
           }
 

@@ -52,9 +52,8 @@ export type AiFunctionCallingTool<TArgs extends z.ZodTypeAny = z.ZodTypeAny> =
  * Helper function to create an AI tool definition from Zod schema
  * Uses Zod's built-in toJSONSchema and reformats for OpenAI compatibility
  */
-export function createAiToolDefinition<TArgs extends z.ZodTypeAny>(
-  tool: AiFunctionCallingTool<TArgs>,
-) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createAiToolDefinition(tool: AiFunctionCallingTool<any>) {
   // Use Zod's built-in JSON Schema conversion
   const jsonSchema = z.toJSONSchema(tool.args) as Record<string, unknown>;
 

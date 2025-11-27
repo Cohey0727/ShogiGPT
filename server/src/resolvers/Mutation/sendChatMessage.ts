@@ -3,6 +3,7 @@ import { db } from "../../lib/db";
 import { generateChatResponse } from "../../lib/deepseek";
 import type { AiFunctionCallingToolContext } from "../../services/aiFunctionCallingTool";
 import { createAiToolDefinition } from "../../services/aiFunctionCallingTool";
+import { getCandidateMoves } from "../../services/getCandidateMoves";
 import { moveAndEvaluate } from "../../services/moveAndEvaluate";
 import { shogiChatSystemPrompt } from "../../services/shogiChatConfig";
 import type { MessageContent } from "../../shared/schemas";
@@ -77,7 +78,7 @@ async function generateAndUpdateAiResponse(params: {
     });
 
     // ツールマップを作成
-    const tools = [moveAndEvaluate];
+    const tools = [moveAndEvaluate, getCandidateMoves];
     const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
 
     // Function Callingを有効にしてAI応答を生成
@@ -100,7 +101,7 @@ async function generateAndUpdateAiResponse(params: {
         };
 
         // Zodでバリデーション
-        const validatedArgs = tool.args.parse(toolArgs);
+        const validatedArgs = tool.args.parse(toolArgs) as never;
 
         // ツールタイプに応じて実行
         if (tool.type === "inline") {

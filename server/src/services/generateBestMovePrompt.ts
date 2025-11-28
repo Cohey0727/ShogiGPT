@@ -75,7 +75,7 @@ export function generateBestMovePrompt(params: GenerateBestMovePromptParams): st
 ${strategyHint}
 
 ## **厳守事項**:
-- markdown形式で強弱をつけて出力してください。
+- markdown形式で強弱をつけて出力してください。タイトルは不要です。
 - この考察はあなたの思考という前提です。ツールを使って得た情報ではありません。
 - 必ず「です」「ます」を使うこと
 - 読み筋はあくまで、あなたの考えた手順です。相手は必ずしもその通りに指すとは限りません。

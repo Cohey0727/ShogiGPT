@@ -2,6 +2,138 @@ const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
 
 /**
+ * ストリーミングレスポンスのチャンクの型
+ */
+interface StreamChunk {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: Array<{
+    index: number;
+    delta: {
+      role?: string;
+      content?: string;
+    };
+    finish_reason: string | null;
+  }>;
+}
+
+/**
+ * シンプルなストリーミングチャット応答のオプション
+ */
+interface StreamChatOptions {
+  /** ユーザーのメッセージ */
+  userMessage: string;
+  /** システムプロンプト */
+  systemPrompt: string;
+  /** 生成時の温度パラメータ（デフォルト: 0.2） */
+  temperature?: number;
+  /** 最大トークン数（デフォルト: 1500） */
+  maxTokens?: number;
+}
+
+/**
+ * シンプルなストリーミングチャット応答を生成する
+ *
+ * ツール呼び出しなしの単純なテキスト生成用。
+ * 少しずつチャンクが返ってくるAsyncGeneratorを返す。
+ *
+ * @param options - ストリーミングチャットのオプション
+ * @yields 生成されたテキストのチャンク
+ *
+ * @example
+ * ```ts
+ * for await (const chunk of streamChat({ userMessage: "こんにちは", systemPrompt: "..." })) {
+ *   process.stdout.write(chunk);
+ * }
+ * ```
+ */
+export async function* streamChat(
+  options: StreamChatOptions,
+): AsyncGenerator<string, void, unknown> {
+  if (!DEEPSEEK_API_KEY) {
+    throw new Error("DEEPSEEK_API_KEY is not set");
+  }
+
+  const { userMessage, systemPrompt, temperature = 0.2, maxTokens = 1500 } = options;
+
+  const response = await fetch(DEEPSEEK_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "deepseek-chat",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userMessage },
+      ],
+      temperature,
+      max_tokens: maxTokens,
+      stream: true,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`DeepSeek API error: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+
+  if (!response.body) {
+    throw new Error("No response body");
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        break;
+      }
+
+      buffer += decoder.decode(value, { stream: true });
+
+      // SSEフォーマットをパース（data: で始まる行）
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+
+        if (!trimmed || !trimmed.startsWith("data:")) {
+          continue;
+        }
+
+        const data = trimmed.slice(5).trim();
+
+        if (data === "[DONE]") {
+          return;
+        }
+
+        try {
+          const chunk = JSON.parse(data) as StreamChunk;
+          const content = chunk.choices[0]?.delta?.content;
+
+          if (content) {
+            yield content;
+          }
+        } catch {
+          // JSONパースエラーは無視（不完全なチャンクの可能性）
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
+/**
  * DeepSeek APIのメッセージ型
  */
 export interface DeepSeekMessage {

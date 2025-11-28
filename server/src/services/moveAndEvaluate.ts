@@ -15,7 +15,7 @@ import {
 import { evaluatePosition } from "../lib/evaluatePosition";
 import { generateBestMovePrompt } from "./generateBestMovePrompt";
 import type { BestMoveContent } from "../shared/schemas/chatMessage";
-import { generateChatResponse } from "../lib/deepseek";
+import { streamChat } from "../lib/deepseek";
 import { shogiEvaluationSystemPrompt } from "./shogiChatConfig";
 
 const ArgsSchema = z.object({
@@ -30,8 +30,25 @@ type Args = z.infer<typeof ArgsSchema>;
  * 指定された指し手を実行するツール
  * AIターンの場合は undefined を返して handoff を示す
  */
+/**
+ * エラーメッセージでChatMessageを更新するヘルパー関数
+ */
+async function updateChatMessageWithError(
+  chatMessageId: string,
+  errorMessage: string,
+): Promise<void> {
+  await db.chatMessage.update({
+    where: { id: chatMessageId },
+    data: {
+      role: "ASSISTANT",
+      contents: [{ type: "markdown", content: errorMessage }],
+      isPartial: false,
+    },
+  });
+}
+
 async function execute(context: AiFunctionCallingToolContext, args: Args): Promise<void> {
-  const { matchId } = context;
+  const { matchId, chatMessageId } = context;
   // moveは人間の指し手（日本語形式）
   const { move } = args;
 
@@ -43,6 +60,7 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
     });
 
     if (!latestState) {
+      await updateChatMessageWithError(chatMessageId, "対局の局面が見つかりませんでした。");
       return;
     }
 
@@ -52,8 +70,11 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
     });
 
     if (!match) {
+      await updateChatMessageWithError(chatMessageId, "対局情報が見つかりませんでした。");
       return;
     }
+
+    const name = match.playerSente;
 
     // SFENから盤面を生成
     const board = sfenToBoard(latestState.sfen);
@@ -62,11 +83,19 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
     const usiMove = japaneseToUsiMove(move, board);
 
     if (!usiMove) {
+      await updateChatMessageWithError(
+        chatMessageId,
+        `${name}さん、「${move}」を指し手として認識できませんでしたwww`,
+      );
       return;
     }
 
     // 合法手かチェック
     if (!isLegalMove(board, usiMove)) {
+      await updateChatMessageWithError(
+        chatMessageId,
+        `${name}さん、「${move}」は現在の局面では指せない手ですwww`,
+      );
       return;
     }
 
@@ -162,8 +191,6 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
         // AIの指し手での局面を再評価（キャッシュ用）
         evaluatePosition(aiSfen, 5, 10000);
 
-        const aiMoveJapanese = formatMoveToJapanese(evaluationResult.bestmove, newBoard);
-
         // AIに評価情報と指し手を文字列で返す
         const promptBody = generateBestMovePrompt({
           sfen: newSfen,
@@ -175,14 +202,30 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
         const promptText = lines.join("\n");
 
         console.log(promptText);
-        const res = await generateChatResponse({
+
+        // ストリーミングでメッセージを生成
+        const messageContent = { type: "markdown", content: "" };
+        const stream = streamChat({
           userMessage: promptText,
           systemPrompt: shogiEvaluationSystemPrompt,
         });
 
-        // type === "handoff"はありえないが、一応チェック。
-        const message = res.type === "message" ? res.message : `${aiMoveJapanese}です。`;
-        const messageContent = { type: "markdown", content: message };
+        // DB更新をthrottle（100msごとに1回）
+        const throttleInterval = 100;
+        let lastUpdateTime = 0;
+
+        for await (const chunk of stream) {
+          messageContent.content += chunk;
+
+          const now = Date.now();
+          if (now - lastUpdateTime >= throttleInterval) {
+            lastUpdateTime = now;
+            await db.chatMessage.update({
+              where: { id: context.chatMessageId },
+              data: { role: "ASSISTANT", contents: [messageContent], isPartial: true },
+            });
+          }
+        }
 
         // 盤面を更新
         const promises = [
@@ -208,10 +251,18 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
         await Promise.all(promises);
       } catch (error) {
         console.error("⚠️ Failed to evaluate position or apply AI move:", error);
+        await updateChatMessageWithError(
+          chatMessageId,
+          "AIの思考中にエラーが発生しました。もう一度お試しください。",
+        );
       }
     }
   } catch (error) {
     console.error("moveAndEvaluate error:", error);
+    await updateChatMessageWithError(
+      chatMessageId,
+      "指し手の処理中にエラーが発生しました。もう一度お試しください。",
+    );
   }
 }
 

@@ -12,3 +12,4 @@ export * from "./getPieceNameJapanese";
 export * from "./isLegalMove";
 export * from "./japaneseToUsiMove";
 export * from "./sfenToBoard";
+export * from "./getTurnFromSfen";

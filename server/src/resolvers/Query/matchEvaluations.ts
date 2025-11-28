@@ -1,5 +1,6 @@
 import type { QueryResolvers } from "../../generated/graphql/types";
 import { db } from "../../lib/db";
+import { isSenteTurn } from "../../shared/services";
 
 interface Variation {
   scoreCp?: number | null;
@@ -55,10 +56,15 @@ export const matchEvaluations: QueryResolvers["matchEvaluations"] = async (_, { 
       scoreMate = variations[0].scoreMate ?? null;
     }
 
+    // 評価値は手番側から見た値なので、後手番の場合は符号を反転して先手視点に統一
+    const isSente = isSenteTurn(state.sfen);
+    const normalizedScore = isSente ? evaluation.score : -evaluation.score;
+    const normalizedScoreMate = scoreMate !== null ? (isSente ? scoreMate : -scoreMate) : null;
+
     return {
       moveIndex: state.index,
-      scoreCp: evaluation.score,
-      scoreMate,
+      scoreCp: normalizedScore,
+      scoreMate: normalizedScoreMate,
     };
   });
 };

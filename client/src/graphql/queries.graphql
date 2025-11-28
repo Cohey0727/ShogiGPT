@@ -121,3 +121,11 @@ mutation SendChatMessage($matchId: String!, $content: String!, $aiPersonality: A
     success
   }
 }
+
+query GetMatchEvaluations($matchId: String!) {
+  matchEvaluations(matchId: $matchId) {
+    moveIndex
+    scoreCp
+    scoreMate
+  }
+}

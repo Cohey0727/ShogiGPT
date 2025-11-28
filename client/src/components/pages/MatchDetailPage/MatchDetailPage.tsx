@@ -206,6 +206,7 @@ export function MatchDetailPage() {
         <Col style={{ height: "100%", overflow: "hidden" }}>
           <StatusBar
             currentTurn={displayBoardState.board.turn}
+            matchId={matchId}
             matchStateIndex={displayBoardState.moveIndex}
             isAiThinking={isChatPartial}
             thinkingTimeMs={undefined}

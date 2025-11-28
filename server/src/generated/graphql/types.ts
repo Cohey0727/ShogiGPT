@@ -97,6 +97,17 @@ export type Match = {
   updatedAt: Scalars['String']['output'];
 };
 
+/** 対局の評価値（手番ごと） */
+export type MatchEvaluation = {
+  __typename?: 'MatchEvaluation';
+  /** 手番インデックス */
+  moveIndex: Scalars['Int']['output'];
+  /** 評価値（センチポーン） */
+  scoreCp?: Maybe<Scalars['Int']['output']>;
+  /** 詰みまでの手数 */
+  scoreMate?: Maybe<Scalars['Int']['output']>;
+};
+
 /** 対局状態 */
 export type MatchState = {
   __typename?: 'MatchState';
@@ -153,6 +164,13 @@ export type MutationStartMatchArgs = {
 export type Query = {
   __typename?: 'Query';
   health: Health;
+  /** 対局の評価値遷移を取得 */
+  matchEvaluations: Array<MatchEvaluation>;
+};
+
+
+export type QueryMatchEvaluationsArgs = {
+  matchId: Scalars['String']['input'];
 };
 
 /** チャットメッセージ送信リクエスト */
@@ -277,6 +295,7 @@ export type ResolversTypes = ResolversObject<{
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   MarkdownContent: ResolverTypeWrapper<MarkdownContent>;
   Match: ResolverTypeWrapper<Match>;
+  MatchEvaluation: ResolverTypeWrapper<MatchEvaluation>;
   MatchState: ResolverTypeWrapper<MatchState>;
   MessageContent: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['MessageContent']>;
   MoveVariation: ResolverTypeWrapper<MoveVariation>;
@@ -298,6 +317,7 @@ export type ResolversParentTypes = ResolversObject<{
   Int: Scalars['Int']['output'];
   MarkdownContent: MarkdownContent;
   Match: Match;
+  MatchEvaluation: MatchEvaluation;
   MatchState: MatchState;
   MessageContent: ResolversUnionTypes<ResolversParentTypes>['MessageContent'];
   MoveVariation: MoveVariation;
@@ -351,6 +371,12 @@ export type MatchResolvers<ContextType = any, ParentType extends ResolversParent
   updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 
+export type MatchEvaluationResolvers<ContextType = any, ParentType extends ResolversParentTypes['MatchEvaluation'] = ResolversParentTypes['MatchEvaluation']> = ResolversObject<{
+  moveIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  scoreCp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  scoreMate?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+}>;
+
 export type MatchStateResolvers<ContextType = any, ParentType extends ResolversParentTypes['MatchState'] = ResolversParentTypes['MatchState']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   index?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -384,6 +410,7 @@ export interface PlayerTypeScalarConfig extends GraphQLScalarTypeConfig<Resolver
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   health?: Resolver<ResolversTypes['Health'], ParentType, ContextType>;
+  matchEvaluations?: Resolver<Array<ResolversTypes['MatchEvaluation']>, ParentType, ContextType, RequireFields<QueryMatchEvaluationsArgs, 'matchId'>>;
 }>;
 
 export type SendChatMessageResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['SendChatMessageResult'] = ResolversParentTypes['SendChatMessageResult']> = ResolversObject<{
@@ -396,6 +423,7 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   Health?: HealthResolvers<ContextType>;
   MarkdownContent?: MarkdownContentResolvers<ContextType>;
   Match?: MatchResolvers<ContextType>;
+  MatchEvaluation?: MatchEvaluationResolvers<ContextType>;
   MatchState?: MatchStateResolvers<ContextType>;
   MessageContent?: MessageContentResolvers<ContextType>;
   MoveVariation?: MoveVariationResolvers<ContextType>;

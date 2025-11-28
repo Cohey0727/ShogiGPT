@@ -14,17 +14,9 @@ export const container = style({
   boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
 });
 
-export const divider = style({
-  color: "#999",
-});
-
 export const thinking = style({
   color: "#1976d2",
   fontWeight: 600,
-});
-
-export const time = style({
-  color: "#666",
 });
 
 export const checkmate = style({
@@ -57,5 +49,29 @@ export const button = style({
     opacity: 0.4,
     cursor: "not-allowed",
     backgroundColor: "#f5f5f5",
+  },
+});
+
+export const rightSection = style({
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+});
+
+export const iconButton = style({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  border: "1px solid #ccc",
+  backgroundColor: "#fff",
+  cursor: "pointer",
+  padding: "4px",
+  borderRadius: "4px",
+  transition: "all 0.2s",
+  ":hover": {
+    backgroundColor: "#f0f0f0",
+  },
+  ":active": {
+    backgroundColor: "#e0e0e0",
   },
 });

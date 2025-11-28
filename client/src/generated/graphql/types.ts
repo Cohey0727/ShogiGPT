@@ -589,6 +589,17 @@ export type Match = {
   updatedAt: Scalars['String']['output'];
 };
 
+/** 対局の評価値（手番ごと） */
+export type MatchEvaluation = {
+  __typename?: 'MatchEvaluation';
+  /** 手番インデックス */
+  moveIndex: Scalars['Int']['output'];
+  /** 評価値（センチポーン） */
+  scoreCp?: Maybe<Scalars['Int']['output']>;
+  /** 詰みまでの手数 */
+  scoreMate?: Maybe<Scalars['Int']['output']>;
+};
+
 /** 対局状態 */
 export type MatchState = {
   __typename?: 'MatchState';
@@ -1144,6 +1155,13 @@ export type PlayerTypeComparisonExp = {
 export type Query = {
   __typename?: 'Query';
   health: Health;
+  /** 対局の評価値遷移を取得 */
+  matchEvaluations: Array<MatchEvaluation>;
+};
+
+
+export type QueryMatchEvaluationsArgs = {
+  matchId: Scalars['String']['input'];
 };
 
 /** チャットメッセージ送信リクエスト */
@@ -1518,6 +1536,8 @@ export type Query_Root = {
   /** fetch data from the table: "evaluations" using primary key columns */
   evaluationsByPk?: Maybe<Evaluations>;
   health: Health;
+  /** 対局の評価値遷移を取得 */
+  matchEvaluations: Array<MatchEvaluation>;
   /** An array relationship */
   matchStates: Array<MatchStates>;
   /** fetch data from the table: "match_states" using primary key columns */
@@ -1554,6 +1574,11 @@ export type Query_RootEvaluationsArgs = {
 
 export type Query_RootEvaluationsByPkArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type Query_RootMatchEvaluationsArgs = {
+  matchId: Scalars['String']['input'];
 };
 
 
@@ -1756,6 +1781,13 @@ export type SendChatMessageMutationVariables = Exact<{
 
 export type SendChatMessageMutation = { __typename?: 'mutation_root', sendChatMessage: { __typename?: 'SendChatMessageResult', success: boolean } };
 
+export type GetMatchEvaluationsQueryVariables = Exact<{
+  matchId: Scalars['String']['input'];
+}>;
+
+
+export type GetMatchEvaluationsQuery = { __typename?: 'query_root', matchEvaluations: Array<{ __typename?: 'MatchEvaluation', moveIndex: number, scoreCp?: number | null | undefined, scoreMate?: number | null | undefined }> };
+
 
 export const HealthDocument = gql`
     query Health {
@@ -1910,4 +1942,17 @@ export const SendChatMessageDocument = gql`
 
 export function useSendChatMessageMutation() {
   return Urql.useMutation<SendChatMessageMutation, SendChatMessageMutationVariables>(SendChatMessageDocument);
+};
+export const GetMatchEvaluationsDocument = gql`
+    query GetMatchEvaluations($matchId: String!) {
+  matchEvaluations(matchId: $matchId) {
+    moveIndex
+    scoreCp
+    scoreMate
+  }
+}
+    `;
+
+export function useGetMatchEvaluationsQuery(options: Omit<Urql.UseQueryArgs<GetMatchEvaluationsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetMatchEvaluationsQuery, GetMatchEvaluationsQueryVariables>({ query: GetMatchEvaluationsDocument, ...options });
 };

@@ -1,4 +1,5 @@
 export * from "./hooks";
+export * from "./EvaluationChartDialog";
 export * from "./HandStand";
 export * from "./MatchChat";
 export * from "./MessageBubble";

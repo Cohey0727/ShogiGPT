@@ -899,6 +899,18 @@ input MatchesUpdates {
   where: MatchesBoolExp!
 }
 
+"""対局の評価値（手番ごと）"""
+type MatchEvaluation {
+  """手番インデックス"""
+  moveIndex: Int!
+
+  """評価値（センチポーン）"""
+  scoreCp: Int
+
+  """詰みまでの手数"""
+  scoreMate: Int
+}
+
 """
 columns and relationships of "match_states"
 """
@@ -1671,6 +1683,9 @@ type query_root {
   """fetch data from the table: "evaluations" using primary key columns"""
   evaluationsByPk(id: String!): Evaluations
   health: Health!
+
+  """対局の評価値遷移を取得"""
+  matchEvaluations(matchId: String!): [MatchEvaluation!]!
 
   """An array relationship"""
   matchStates(

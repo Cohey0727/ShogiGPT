@@ -1,7 +1,14 @@
+import { BarChartIcon } from "@radix-ui/react-icons";
+
+import { useModal } from "../../molecules/hooks/useModal";
+import { EvaluationChartDialog } from "../EvaluationChartDialog";
 import * as styles from "./StatusBar.css";
+import { Suspense } from "react";
+import { Loading } from "../../molecules";
 
 interface StatusBarProps {
   currentTurn: "SENTE" | "GOTE";
+  matchId: string;
   matchStateIndex: number;
   isAiThinking?: boolean;
   thinkingTimeMs?: number;
@@ -16,6 +23,7 @@ interface StatusBarProps {
 
 export function StatusBar({
   currentTurn,
+  matchId,
   matchStateIndex,
   isAiThinking = false,
   thinkingTimeMs,
@@ -27,6 +35,7 @@ export function StatusBar({
   onResume,
   onViewingIndexChange,
 }: StatusBarProps) {
+  const [isChartOpen, chartModal] = useModal();
   const thinkingTimeSec = thinkingTimeMs ? (thinkingTimeMs / 1000).toFixed(1) : null;
 
   const canGoPrevious = isPaused && viewingStateIndex !== null && viewingStateIndex > 0;
@@ -76,13 +85,21 @@ export function StatusBar({
           </button>
         )}
       </div>
-      {winner ? (
-        <span className={styles.checkmate}>
-          詰み - {winner === "SENTE" ? "☗先手" : "☖後手"}の勝ち
-        </span>
-      ) : (
-        <span>{currentTurn === "SENTE" ? "☗先手" : "☖後手"}の番</span>
-      )}
+      <div className={styles.rightSection}>
+        {winner ? (
+          <span className={styles.checkmate}>
+            詰み - {winner === "SENTE" ? "☗先手" : "☖後手"}の勝ち
+          </span>
+        ) : (
+          <span>{currentTurn === "SENTE" ? "☗先手" : "☖後手"}の番</span>
+        )}
+        <button onClick={() => chartModal.open()} className={styles.iconButton} title="評価値遷移">
+          <BarChartIcon />
+        </button>
+      </div>
+      <Suspense fallback={<Loading />}>
+        <EvaluationChartDialog matchId={matchId} open={isChartOpen} onClose={chartModal.close} />
+      </Suspense>
     </div>
   );
 }

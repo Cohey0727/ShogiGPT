@@ -1,5 +1,27 @@
 type Query {
   health: Health!
+  """
+  対局の評価値遷移を取得
+  """
+  matchEvaluations(matchId: String!): [MatchEvaluation!]!
+}
+
+"""
+対局の評価値（手番ごと）
+"""
+type MatchEvaluation {
+  """
+  手番インデックス
+  """
+  moveIndex: Int!
+  """
+  評価値（センチポーン）
+  """
+  scoreCp: Int
+  """
+  詰みまでの手数
+  """
+  scoreMate: Int
 }
 
 type Mutation {

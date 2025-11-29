@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import {
   Dialog,
   DialogContent,
@@ -8,6 +9,7 @@ import {
   Row,
   Col,
 } from "../../atoms";
+import { useRewindMatchMutation, useForkMatchMutation } from "../../../generated/graphql/types";
 import * as styles from "./ResumeDialog.css";
 
 export type ResumeAction = "rewind" | "fork";
@@ -15,9 +17,10 @@ export type ResumeAction = "rewind" | "fork";
 interface ResumeDialogProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (action: ResumeAction) => void;
+  matchId: string;
   viewingIndex: number;
-  isLoading?: boolean;
+  /** 巻き戻し成功時のコールバック */
+  onRewindSuccess: () => void;
 }
 
 /**
@@ -27,14 +30,29 @@ interface ResumeDialogProps {
 export function ResumeDialog({
   open,
   onClose,
-  onConfirm,
+  matchId,
   viewingIndex,
-  isLoading = false,
+  onRewindSuccess,
 }: ResumeDialogProps) {
+  const [, setLocation] = useLocation();
   const [selectedAction, setSelectedAction] = useState<ResumeAction>("rewind");
+  const [{ fetching: isRewinding }, rewindMatch] = useRewindMatchMutation();
+  const [{ fetching: isForking }, forkMatch] = useForkMatchMutation();
 
-  const handleConfirm = () => {
-    onConfirm(selectedAction);
+  const isLoading = isRewinding || isForking;
+
+  const handleConfirm = async () => {
+    if (selectedAction === "rewind") {
+      await rewindMatch({ matchId, toIndex: viewingIndex });
+      onRewindSuccess();
+      handleClose();
+    } else if (selectedAction === "fork") {
+      const result = await forkMatch({ matchId, fromIndex: viewingIndex });
+      if (result.data?.forkMatch) {
+        setLocation(`/matches/${result.data.forkMatch.id}`);
+      }
+      handleClose();
+    }
   };
 
   const handleClose = () => {

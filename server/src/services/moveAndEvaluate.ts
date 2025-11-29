@@ -21,7 +21,9 @@ import { sfenToAscii } from "../shared/services/sfenToAscii";
 const ArgsSchema = z.object({
   move: z
     .string()
-    .describe('指し手（日本語形式）。例: "7六歩", "7六歩(7七)", "5五金打", "2四角成"など。'),
+    .describe(
+      '指し手（日本語形式）。例: "7六歩", "7六歩(7七)", "5五金打", "2四角成"のようなフォーマットです。勝手に手を変えるのは禁止です。ユーザーの指し手をそのまま抽出して、引数にしてください。',
+    ),
 });
 
 type Args = z.infer<typeof ArgsSchema>;
@@ -220,9 +222,9 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
   }
 }
 
-const description = `指定された指し手を実行し評価します。ユーザーが指し手を指示した場合（「〇〇に△△を進めて」「〇〇歩」など）、必ずこのツールを使用してください。
-直接「了解しました」などと答えずに、このツールで実際に局面を更新してください。日本語形式の指し手（例: "7六歩", "5五金打", "2四角成"）を受け取り、合法性をチェックして局面に適用します。
-そのまま渡してください。
+const description = `指定された指し手を盤面に適用します。ユーザーが指し手を指示した場合、必ずこのツールを使用してください。
+日本語形式の指し手（例: "7六歩", "5五金打", "2四角成", "2四飛(2八)"のようなフォーマット）を受け取り、合法性をチェックして局面に適用します。
+勝手に、手を変えるのは禁止です。ユーザーの指し手をそのまま抽出して、引数にしてください。
 `;
 
 export const moveAndEvaluate: HandoffFunctionCallingTool<typeof ArgsSchema> = {

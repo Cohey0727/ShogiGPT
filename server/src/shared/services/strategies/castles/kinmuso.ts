@@ -18,9 +18,9 @@ const kinmusoConditions: PieceConditionSet = {
 };
 
 /**
- * 盤面が金無双の形かどうかを判定
+ * 局面が金無双の形かどうかを判定
  *
- * @param board - 盤面
+ * @param board - 局面
  * @param player - 判定対象のプレイヤー
  * @returns 金無双の条件を満たせばtrue
  */

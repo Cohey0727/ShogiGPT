@@ -4,7 +4,7 @@ import { generateChatResponse } from "../../lib/deepseek";
 import { shogiGreetingSystemPrompt } from "../../services/shogiChatConfig";
 
 /**
- * 平手の初期盤面（SFEN形式）
+ * 平手の初期局面（SFEN形式）
  */
 const defaultSfen = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1";
 
@@ -14,7 +14,7 @@ const defaultSfen = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b
 export const startMatch: MutationResolvers["startMatch"] = async (_parent, { input }) => {
   const { id, playerSente, playerGote, senteType, goteType, sfen } = input;
 
-  // 初期盤面のSFEN（指定がない場合は平手の初期盤面）
+  // 初期局面のSFEN（指定がない場合は平手の初期局面）
   const initialSfen = sfen ?? defaultSfen;
 
   // 対局を作成

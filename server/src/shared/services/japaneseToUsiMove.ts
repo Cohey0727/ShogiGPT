@@ -7,15 +7,15 @@ import { getDropPositions } from "./dropPiece";
  * 日本語の指し手をUSI形式に変換
  *
  * サポートする形式:
- * - "7七歩" → 盤面から7七に移動可能な歩を探す
+ * - "7七歩" → 局面から7七に移動可能な歩を探す
  * - "7六歩(7七)" → 7七から7六への歩の移動
  * - "5五金打" → 5五に金を打つ
- * - "5五金" → 持ち駒があれば打ち、なければ盤面から移動
+ * - "5五金" → 持ち駒があれば打ち、なければ局面から移動
  * - "2四角成" → 角を2四に移動して成る
  * - "7六歩不成" → 7六に歩を移動するが成らない
  *
  * @param japaneseMove 日本語の指し手
- * @param board 現在の盤面
+ * @param board 現在の局面
  * @returns USI形式の指し手、変換できない場合はnull
  */
 export function japaneseToUsiMove(japaneseMove: string, board: Board): string | null {
@@ -108,7 +108,7 @@ export function japaneseToUsiMove(japaneseMove: string, board: Board): string | 
       }
     }
 
-    // 駒打ちができない場合は、盤面から該当する駒を探す
+    // 駒打ちができない場合は、局面から該当する駒を探す
     if (pieceType) {
       const fromPositions = findPiecesCanMoveTo(board, pieceType, board.turn, toIndex);
 
@@ -186,7 +186,7 @@ const japaneseRankToUsi: Record<string, string> = {
 };
 
 /**
- * USI形式の座標を盤面インデックスに変換
+ * USI形式の座標を局面インデックスに変換
  */
 function usiPositionToIndex(usiPos: string): {
   row: BoardIndex;
@@ -225,7 +225,7 @@ function usiPositionToIndex(usiPos: string): {
 }
 
 /**
- * 盤面インデックスをUSI形式の座標に変換
+ * 局面インデックスをUSI形式の座標に変換
  */
 function indexToUsiPosition(row: number, col: number): string {
   const file = 9 - col; // 1-9

@@ -30,7 +30,7 @@ model Match {
   @@map("matches")
 }
 
-/// 局面情報（ある時点での盤面状態と、そこに至った指し手）
+/// 局面情報（ある時点での局面状態と、そこに至った指し手）
 model MatchState {
   createdAt    DateTime @default(now())
   /// 紐づく対局ID
@@ -40,7 +40,7 @@ model MatchState {
   /// この局面に至った指し手表記（USI形式、例: "7g7f"）
   /// 初期局面（index=0）の場合は "0000"（USI標準のパス/無効手表記）
   usiMove      String
-  /// 盤面（SFEN形式）
+  /// 局面（SFEN形式）
   sfen         String
   /// 消費時間（秒、オプション）
   thinkingTime Int?

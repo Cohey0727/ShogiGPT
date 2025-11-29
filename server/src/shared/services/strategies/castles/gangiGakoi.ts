@@ -25,9 +25,9 @@ const gangiGakoiConditions: PieceConditionSet = {
 };
 
 /**
- * 盤面が雁木囲いの形かどうかを判定
+ * 局面が雁木囲いの形かどうかを判定
  *
- * @param board - 盤面
+ * @param board - 局面
  * @param player - 判定対象のプレイヤー
  * @returns 雁木囲いの条件を満たせばtrue
  */

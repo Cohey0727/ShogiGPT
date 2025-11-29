@@ -4,7 +4,7 @@ import type { PieceConditionSet } from "./matchBoardConditions";
 import { matchBoardConditions } from "./matchBoardConditions";
 
 /**
- * 指し手の表記（筋・段）を盤面座標に変換する
+ * 指し手の表記（筋・段）を局面座標に変換する
  *
  * 例: toPosition(7, 6) => 7六の座標
  */

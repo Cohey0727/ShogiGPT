@@ -47,9 +47,9 @@ function handToAscii(pieces: PieceType[]): string {
 }
 
 /**
- * SFEN形式の文字列をASCII盤面に変換する
+ * SFEN形式の文字列をASCII局面に変換する
  * @param sfen SFEN形式の文字列
- * @returns ASCII盤面の文字列
+ * @returns ASCII局面の文字列
  */
 export function sfenToAscii(sfen: string): string {
   const board = sfenToBoard(sfen);
@@ -59,7 +59,7 @@ export function sfenToAscii(sfen: string): string {
   lines.push("   9    8    7    6    5    4    3    2    1");
   lines.push("+-----------------------------------------------+");
 
-  // 各行の盤面
+  // 各行の局面
   const rowLabels = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
   for (let row = 0; row < 9; row++) {
     const cells = board.cells[row];

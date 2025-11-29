@@ -40,7 +40,7 @@ export function formatMoveToJapanese(usiMove: string, board?: Board): string {
     const fromJp = convertPositionToJapanese(from);
     const toJp = convertPositionToJapanese(to);
 
-    // 盤面情報がある場合は駒名を付ける
+    // 局面情報がある場合は駒名を付ける
     let pieceName = "";
     if (board) {
       try {

@@ -43,7 +43,7 @@ async function execute(context: AiFunctionCallingToolContext): Promise<Result> {
     throw new Error(`対局ID ${matchId} の局面が見つかりません`);
   }
 
-  // 盤面を解析して候補手を取得
+  // 局面を解析して候補手を取得
   const { data, error } = await analyzePositionAnalyzePost({
     body: {
       sfen: latestState.sfen,
@@ -62,13 +62,13 @@ async function execute(context: AiFunctionCallingToolContext): Promise<Result> {
   const sfenParts = latestState.sfen.split(" ");
   const currentTurn = sfenParts[1] === "b" ? "先手" : "後手";
 
-  // 盤面情報を取得（駒名表示のため）
+  // 局面情報を取得（駒名表示のため）
   let board: Board | undefined;
   try {
     board = sfenToBoard(latestState.sfen);
   } catch (error) {
     console.error("Failed to parse SFEN:", error);
-    // 盤面解析に失敗しても続行
+    // 局面解析に失敗しても続行
   }
 
   // 日本語の指し手表記を生成

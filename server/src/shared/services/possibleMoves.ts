@@ -124,7 +124,7 @@ function getPieceDirections(pieceType: PieceType, player: Player): Direction[] {
 }
 
 /**
- * 位置が盤面内にあるかチェック
+ * 位置が局面内にあるかチェック
  */
 function isInBoard(row: number, col: number): boolean {
   return row >= 0 && row <= 8 && col >= 0 && col <= 8;
@@ -132,7 +132,7 @@ function isInBoard(row: number, col: number): boolean {
 
 /**
  * 指定位置から可能な移動先を取得
- * @param board 盤面
+ * @param board 局面
  * @param position 駒の位置
  * @returns 可能な移動先のリスト（空配列: 駒がない/動けない）
  */
@@ -153,7 +153,7 @@ export function getPossibleMoves(board: Board, position: Position): Position[] {
       const newRow = position.row + dir.row * step;
       const newCol = position.col + dir.col * step;
 
-      // 盤面外ならこの方向は終了
+      // 局面外ならこの方向は終了
       if (!isInBoard(newRow, newCol)) {
         break;
       }

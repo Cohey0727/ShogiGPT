@@ -22,12 +22,12 @@ const SFEN_PIECE_MAP: Record<PieceType, string> = {
 };
 
 /**
- * 盤面をSFEN形式に変換する
- * @param board 盤面の状態
+ * 局面をSFEN形式に変換する
+ * @param board 局面の状態
  * @returns SFEN形式の文字列
  */
 export function boardToSfen(board: Board): string {
-  // 1. 盤面部分
+  // 1. 局面部分
   const rows: string[] = [];
   for (let row = 0; row < 9; row++) {
     let rowStr = "";

@@ -3,11 +3,11 @@ import { analyzeMateTags, analyzeMoveTags } from "./analyzeMoveTags";
 import type { MoveInfo } from "../shared/schemas/chatMessage";
 
 export interface GenerateBestMovePromptParams {
-  /** 直前の盤面（ユーザーが指す前） */
+  /** 直前の局面（ユーザーが指す前） */
   beforeSfen: string;
   /** 直前の評価・読み筋 */
   beforeVariations: MoveInfo[];
-  /** 直後の盤面（ユーザーが指した後、AIが指す前） */
+  /** 直後の局面（ユーザーが指した後、AIが指す前） */
   afterSfen: string;
   /** 直後の評価・読み筋 */
   afterVariations: MoveInfo[];
@@ -88,14 +88,14 @@ function evaluateMoveQuality(evalLoss: number, candidateRank: number | null): st
 export function generateBestMovePrompt(params: GenerateBestMovePromptParams): string {
   const { beforeSfen, beforeVariations, afterSfen, afterVariations, userMove } = params;
 
-  // 盤面情報を取得
+  // 局面情報を取得
   const beforeBoard = sfenToBoard(beforeSfen);
   const afterBoard = sfenToBoard(afterSfen);
 
-  // ユーザーの指し手を日本語に変換（直前の盤面を使用）
+  // ユーザーの指し手を日本語に変換（直前の局面を使用）
   const userMoveJapanese = formatMoveToJapanese(userMove, beforeBoard);
 
-  // AIの手番（直後の盤面の手番）
+  // AIの手番（直後の局面の手番）
   const aiPerspective = afterBoard.turn;
 
   // 評価値を取得
@@ -142,7 +142,7 @@ export function generateBestMovePrompt(params: GenerateBestMovePromptParams): st
   const bestmove = afterVariations[0]?.move ?? "";
   const bestmoveJp = formatMoveToJapanese(bestmove, afterBoard);
 
-  // bestmoveの読み筋から戦略を分析（盤面を1手ずつ更新しながら）
+  // bestmoveの読み筋から戦略を分析（局面を1手ずつ更新しながら）
   const topVariation = afterVariations[0];
   let strategyHint = "";
 

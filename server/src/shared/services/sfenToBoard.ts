@@ -22,9 +22,9 @@ const SFEN_TO_PIECE_TYPE: Record<string, PieceType> = {
 };
 
 /**
- * SFEN形式の文字列を盤面の状態に変換する
+ * SFEN形式の文字列を局面の状態に変換する
  * @param sfen SFEN形式の文字列
- * @returns 盤面の状態
+ * @returns 局面の状態
  */
 export function sfenToBoard(sfen: string): Board {
   const parts = sfen.trim().split(/\s+/);
@@ -35,7 +35,7 @@ export function sfenToBoard(sfen: string): Board {
 
   const [boardPart, turnPart, handPart = "-"] = parts;
 
-  // 1. 盤面の解析
+  // 1. 局面の解析
   const cells: Cell[][] = [];
   const rows = boardPart.split("/");
 

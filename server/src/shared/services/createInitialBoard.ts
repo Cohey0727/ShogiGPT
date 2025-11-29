@@ -2,10 +2,10 @@ import type { Board, Cell } from "../consts";
 import { PieceType, Player } from "../consts";
 
 /**
- * 初期盤面を生成
+ * 初期局面を生成
  */
 export function createInitialBoard(): Board {
-  // 空の盤面を作成
+  // 空の局面を作成
   const cells: Cell[][] = Array(9)
     .fill(null)
     .map(() => Array(9).fill(null));

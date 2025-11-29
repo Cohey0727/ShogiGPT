@@ -25,9 +25,9 @@ const elmoGakoiConditions: PieceConditionSet = {
 };
 
 /**
- * 盤面がエルモ囲いの形かどうかを判定
+ * 局面がエルモ囲いの形かどうかを判定
  *
- * @param board - 盤面
+ * @param board - 局面
  * @param player - 判定対象のプレイヤー
  * @returns エルモ囲いの条件を満たせばtrue
  */

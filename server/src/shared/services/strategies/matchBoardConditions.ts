@@ -30,9 +30,9 @@ function isPieceConditionSet(
 }
 
 /**
- * 盤面が指定した条件セットを満たすかどうかを判定（再帰的にネストした条件も評価）
+ * 局面が指定した条件セットを満たすかどうかを判定（再帰的にネストした条件も評価）
  *
- * @param board - 盤面
+ * @param board - 局面
  * @param conditionSet - 駒条件セット
  * @param player - 判定対象のプレイヤー
  * @returns 条件を満たせばtrue
@@ -78,7 +78,7 @@ function transformForPlayer(position: Partial<Position>, player: Player): Partia
  * 指定した位置に指定した駒があるかどうかを判定
  * positionのプロパティがundefinedの場合、その軸は問わない
  *
- * @param board - 盤面
+ * @param board - 局面
  * @param position - 位置（undefinedの軸は任意）
  * @param pieceType - 駒の種類
  * @param player - プレイヤー

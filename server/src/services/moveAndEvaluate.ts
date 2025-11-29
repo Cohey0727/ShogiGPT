@@ -72,7 +72,7 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
 
     const name = match.playerSente;
 
-    // SFENから盤面を生成
+    // SFENから局面を生成
     const board = sfenToBoard(latestState.sfen);
 
     // 日本語の指し手をUSI形式に変換
@@ -125,7 +125,7 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
 
     if (isAiTurn) {
       try {
-        // 盤面を評価（ユーザーが指した後の局面）
+        // 局面を評価（ユーザーが指した後の局面）
         const afterEvalResult = await evaluatePosition(newSfen, 5, 10000);
 
         // bestmoveコンテンツを作成して溜めておく
@@ -181,7 +181,7 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
           }
         }
 
-        // 盤面を更新
+        // 局面を更新
         const promises = [
           db.matchState.create({
             data: {
@@ -221,7 +221,7 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
 }
 
 const description = `指定された指し手を実行し評価します。ユーザーが指し手を指示した場合（「〇〇に△△を進めて」「〇〇歩」など）、必ずこのツールを使用してください。
-直接「了解しました」などと答えずに、このツールで実際に盤面を更新してください。日本語形式の指し手（例: "7六歩", "5五金打", "2四角成"）を受け取り、合法性をチェックして盤面に適用します。
+直接「了解しました」などと答えずに、このツールで実際に局面を更新してください。日本語形式の指し手（例: "7六歩", "5五金打", "2四角成"）を受け取り、合法性をチェックして局面に適用します。
 そのまま渡してください。
 `;
 

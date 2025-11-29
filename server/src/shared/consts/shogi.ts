@@ -57,12 +57,12 @@ export interface Piece {
 }
 
 /**
- * 盤面のインデックス（0-8）
+ * 局面のインデックス（0-8）
  */
 export type BoardIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 /**
- * 盤面の位置
+ * 局面の位置
  */
 export interface Position {
   /** 行（0-8） */
@@ -72,12 +72,12 @@ export interface Position {
 }
 
 /**
- * 盤面のセル
+ * 局面のセル
  */
 export type Cell = Piece | null;
 
 /**
- * 盤面
+ * 局面
  */
 export interface Board {
   /** 盤上（9x9の2次元配列） */

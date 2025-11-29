@@ -26,7 +26,7 @@ interface StrategyBase {
 export interface SingleStrategy extends StrategyBase {
   /** 成立タイプ: 片方 */
   type: "single";
-  /** 盤面が条件を満たすかどうかを判定する関数 */
+  /** 局面が条件を満たすかどうかを判定する関数 */
   match: (board: Board, player: Player) => boolean;
 }
 
@@ -36,7 +36,7 @@ export interface SingleStrategy extends StrategyBase {
 export interface BothStrategy extends StrategyBase {
   /** 成立タイプ: 両者 */
   type: "both";
-  /** 盤面が条件を満たすかどうかを判定する関数 */
+  /** 局面が条件を満たすかどうかを判定する関数 */
   match: (board: Board) => boolean;
 }
 

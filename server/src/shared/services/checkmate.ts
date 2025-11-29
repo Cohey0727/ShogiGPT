@@ -55,10 +55,10 @@ export function isInCheck(board: Board, player: Player): boolean {
 }
 
 /**
- * 移動後の盤面をシミュレート（実際には移動しない）
+ * 移動後の局面をシミュレート（実際には移動しない）
  */
 function simulateMove(board: Board, from: Position, to: Position): Board {
-  // 盤面のディープコピー
+  // 局面のディープコピー
   const newBoard: Board = {
     ...board,
     cells: board.cells.map((row) => [...row]),
@@ -82,7 +82,7 @@ function simulateMove(board: Board, from: Position, to: Position): Board {
 }
 
 /**
- * 持ち駒を打った後の盤面をシミュレート
+ * 持ち駒を打った後の局面をシミュレート
  */
 function simulateDrop(
   board: Board,
@@ -104,7 +104,7 @@ function simulateDrop(
     capturedArray.splice(index, 1);
   }
 
-  // 盤面に配置
+  // 局面に配置
   newBoard.cells[position.row][position.col] = {
     type: pieceType,
     player: player,
@@ -115,7 +115,7 @@ function simulateDrop(
 
 /**
  * 詰み判定: 指定されたプレイヤーが詰んでいるかどうかを判定する
- * @param board 盤面
+ * @param board 局面
  * @param player 判定対象のプレイヤー
  * @returns 詰んでいる場合true
  */
@@ -171,7 +171,7 @@ export function isCheckmate(board: Board, player: Player): boolean {
 
 /**
  * ゲームオーバー判定と勝者の取得
- * @param board 盤面
+ * @param board 局面
  * @returns ゲームオーバーの場合は勝者、そうでない場合はnull
  */
 export function getWinner(board: Board): Player | null {

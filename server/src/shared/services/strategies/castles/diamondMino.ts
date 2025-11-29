@@ -18,9 +18,9 @@ const diamondMinoConditions: PieceConditionSet = {
 };
 
 /**
- * 盤面がダイヤモンド美濃の形かどうかを判定
+ * 局面がダイヤモンド美濃の形かどうかを判定
  *
- * @param board - 盤面
+ * @param board - 局面
  * @param player - 判定対象のプレイヤー
  * @returns ダイヤモンド美濃の条件を満たせばtrue
  */

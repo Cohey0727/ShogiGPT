@@ -19,9 +19,9 @@ const millenniumConditions: PieceConditionSet = {
 };
 
 /**
- * 盤面がミレニアムの形かどうかを判定
+ * 局面がミレニアムの形かどうかを判定
  *
- * @param board - 盤面
+ * @param board - 局面
  * @param player - 判定対象のプレイヤー
  * @returns ミレニアムの条件を満たせばtrue
  */

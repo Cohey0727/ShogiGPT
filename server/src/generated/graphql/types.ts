@@ -30,14 +30,14 @@ export const AiPersonality = {
 } as const;
 
 export type AiPersonality = typeof AiPersonality[keyof typeof AiPersonality];
-/** 最善手コンテンツ（盤面解析結果） */
+/** 最善手コンテンツ（局面解析結果） */
 export type BestMoveContent = {
   __typename?: 'BestMoveContent';
   /** 最善手（USI形式） */
   bestmove: Scalars['String']['output'];
   /** エンジン名 */
   engineName: Scalars['String']['output'];
-  /** SFEN形式の盤面情報 */
+  /** SFEN形式の局面情報 */
   sfen: Scalars['String']['output'];
   /** 思考時間（ミリ秒） */
   timeMs: Scalars['Int']['output'];
@@ -117,7 +117,7 @@ export type MatchState = {
   index: Scalars['Int']['output'];
   /** 対局ID */
   matchId: Scalars['String']['output'];
-  /** 盤面（SFEN形式） */
+  /** 局面（SFEN形式） */
   sfen: Scalars['String']['output'];
   /** 消費時間（秒） */
   thinkingTime?: Maybe<Scalars['Int']['output']>;
@@ -202,7 +202,7 @@ export type StartMatchInput = {
   playerSente?: InputMaybe<Scalars['String']['input']>;
   /** 先手のプレイヤータイプ */
   senteType: Scalars['PlayerType']['input'];
-  /** 初期盤面（SFEN形式、指定しない場合は平手の初期盤面） */
+  /** 初期局面（SFEN形式、指定しない場合は平手の初期局面） */
   sfen?: InputMaybe<Scalars['String']['input']>;
 };
 

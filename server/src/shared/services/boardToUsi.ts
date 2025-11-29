@@ -1,7 +1,7 @@
 import type { BoardIndex, PieceType, Position } from "../consts";
 
 /**
- * 盤面の配列インデックスをUSI形式の座標に変換します
+ * 局面の配列インデックスをUSI形式の座標に変換します
  * @param row 行インデックス（0-8）
  * @param col 列インデックス（0-8）
  * @returns USI形式の座標（例：7g、5e）

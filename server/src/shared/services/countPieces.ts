@@ -1,7 +1,7 @@
 import type { Board, Player } from "../consts/shogi";
 
 /**
- * 盤面上の特定プレイヤーの駒の数をカウント
+ * 局面上の特定プレイヤーの駒の数をカウント
  */
 export function countPieces(board: Board, player: Player): number {
   let count = 0;

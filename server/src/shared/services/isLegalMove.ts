@@ -104,10 +104,10 @@ function parsePosition(pos: string): { row: BoardIndex; col: BoardIndex } | null
     return null;
   }
 
-  // 筋は1-9で、盤面の配列は0-8なので、9から引く（右から左）
+  // 筋は1-9で、局面の配列は0-8なので、9から引く（右から左）
   const col = 9 - file;
 
-  // 段はa-iで、盤面の配列は0-8
+  // 段はa-iで、局面の配列は0-8
   const rankMap: Record<string, BoardIndex> = {
     a: 0,
     b: 1,
@@ -158,10 +158,10 @@ function isPromotionZone(row: number, player: Player): boolean {
 }
 
 /**
- * 移動後の盤面をシミュレート
+ * 移動後の局面をシミュレート
  */
 function simulateMove(board: Board, from: Position, to: Position, promote: boolean): Board {
-  // 盤面のディープコピー
+  // 局面のディープコピー
   const newBoard: Board = {
     ...board,
     cells: board.cells.map((row) => [...row]),
@@ -238,7 +238,7 @@ function simulateMove(board: Board, from: Position, to: Position, promote: boole
 }
 
 /**
- * 持ち駒を打った後の盤面をシミュレート
+ * 持ち駒を打った後の局面をシミュレート
  */
 function simulateDrop(board: Board, pieceType: PieceType, position: Position): Board {
   const newBoard: Board = {
@@ -256,7 +256,7 @@ function simulateDrop(board: Board, pieceType: PieceType, position: Position): B
     capturedArray.splice(index, 1);
   }
 
-  // 盤面に配置
+  // 局面に配置
   newBoard.cells[position.row][position.col] = {
     type: pieceType,
     player: board.turn,
@@ -268,7 +268,7 @@ function simulateDrop(board: Board, pieceType: PieceType, position: Position): B
 /**
  * USI形式の手が合法かどうかを判定する
  *
- * @param board 現在の盤面
+ * @param board 現在の局面
  * @param usiMove USI形式の手（例: "7g7f", "7g7f+", "P*5e"）
  * @returns 合法手の場合true、そうでない場合false
  */

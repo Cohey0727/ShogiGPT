@@ -20,9 +20,9 @@ const matsuoAnagumaConditions: PieceConditionSet = {
 };
 
 /**
- * 盤面が松尾流穴熊の形かどうかを判定
+ * 局面が松尾流穴熊の形かどうかを判定
  *
- * @param board - 盤面
+ * @param board - 局面
  * @param player - 判定対象のプレイヤー
  * @returns 松尾流穴熊の条件を満たせばtrue
  */

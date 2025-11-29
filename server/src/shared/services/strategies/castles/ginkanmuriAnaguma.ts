@@ -21,9 +21,9 @@ const ginkanmuriAnagumaConditions: PieceConditionSet = {
 };
 
 /**
- * 盤面が銀冠穴熊の形かどうかを判定
+ * 局面が銀冠穴熊の形かどうかを判定
  *
- * @param board - 盤面
+ * @param board - 局面
  * @param player - 判定対象のプレイヤー
  * @returns 銀冠穴熊の条件を満たせばtrue
  */

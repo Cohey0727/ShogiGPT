@@ -22,9 +22,9 @@ const furibishaAnagumaConditions: PieceConditionSet = {
 };
 
 /**
- * 盤面が振り飛車穴熊の形かどうかを判定
+ * 局面が振り飛車穴熊の形かどうかを判定
  *
- * @param board - 盤面
+ * @param board - 局面
  * @param player - 判定対象のプレイヤー
  * @returns 振り飛車穴熊の条件を満たせばtrue
  */

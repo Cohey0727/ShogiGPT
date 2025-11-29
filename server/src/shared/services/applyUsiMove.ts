@@ -16,13 +16,13 @@ const USI_TO_PIECE_TYPE: Record<string, PieceType> = {
 };
 
 /**
- * USI形式の指し手を盤面に適用する
- * @param board 現在の盤面
+ * USI形式の指し手を局面に適用する
+ * @param board 現在の局面
  * @param usiMove USI形式の指し手（例: "7g7f", "G*5e", "8h2b+"）
- * @returns 指し手を適用した新しい盤面
+ * @returns 指し手を適用した新しい局面
  */
 export function applyUsiMove(board: Board, usiMove: string): Board {
-  // 盤面をディープコピー
+  // 局面をディープコピー
   const newCells: Cell[][] = board.cells.map((row) => [...row]);
   const newCapturedBySente = [...board.senteHands];
   const newCapturedByGote = [...board.goteHands];
@@ -48,7 +48,7 @@ export function applyUsiMove(board: Board, usiMove: string): Board {
 
     capturedPieces.splice(pieceIndex, 1);
 
-    // 盤面に配置
+    // 局面に配置
     newCells[toRow][toCol] = {
       type: pieceType,
       player: board.turn,
@@ -129,10 +129,10 @@ function parsePosition(pos: string): { row: number; col: number } {
   const file = parseInt(pos[0], 10); // 筋（1-9）
   const rank = pos[1]; // 段（a-i）
 
-  // 筋は1-9で、盤面の配列は0-8なので、9から引く（右から左）
+  // 筋は1-9で、局面の配列は0-8なので、9から引く（右から左）
   const col = 9 - file;
 
-  // 段はa-iで、盤面の配列は0-8
+  // 段はa-iで、局面の配列は0-8
   const rankMap: Record<string, number> = {
     a: 0,
     b: 1,

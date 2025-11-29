@@ -66,7 +66,7 @@ type MarkdownContent {
 }
 
 """
-最善手コンテンツ（盤面解析結果）
+最善手コンテンツ（局面解析結果）
 """
 type BestMoveContent {
   type: String!
@@ -87,7 +87,7 @@ type BestMoveContent {
   """
   engineName: String!
   """
-  SFEN形式の盤面情報
+  SFEN形式の局面情報
   """
   sfen: String!
 }
@@ -210,7 +210,7 @@ input StartMatchInput {
   """
   goteType: PlayerType!
   """
-  初期盤面（SFEN形式、指定しない場合は平手の初期盤面）
+  初期局面（SFEN形式、指定しない場合は平手の初期局面）
   """
   sfen: String
 }
@@ -270,7 +270,7 @@ type MatchState {
   """
   usiMove: String
   """
-  盤面（SFEN形式）
+  局面（SFEN形式）
   """
   sfen: String!
   """

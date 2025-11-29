@@ -384,7 +384,7 @@ function getAreaForRow(row: number, player: Player): Area {
 
 /**
  * 指定した位置から指定方向に向かって到達できる最遠のエリアを取得
- * @param board 盤面
+ * @param board 局面
  * @param position 開始位置
  * @param direction 方向
  * @param player プレイヤー
@@ -403,7 +403,7 @@ function getFarthestReachableArea(
     row += direction.row;
     col += direction.col;
 
-    // 盤面外に出た場合
+    // 局面外に出た場合
     if (row < 0 || row >= 9 || col < 0 || col >= 9) {
       break;
     }

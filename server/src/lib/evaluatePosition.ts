@@ -3,7 +3,7 @@ import { db } from "./db";
 import { analyzePositionAnalyzePost } from "../generated/shogi-ai";
 
 /**
- * 盤面評価結果の型定義
+ * 局面評価結果の型定義
  */
 export interface EvaluationResult {
   /** 評価結果オブジェクト */
@@ -26,7 +26,7 @@ export interface EvaluationResult {
 }
 
 /**
- * 盤面を評価する（キャッシュ機能付き）
+ * 局面を評価する（キャッシュ機能付き）
  *
  * @param sfen - 評価する局面（SFEN形式）
  * @param multipv - 候補手の数

@@ -18,9 +18,9 @@ const ginYaguraConditions: PieceConditionSet = {
 };
 
 /**
- * 盤面が銀矢倉の形かどうかを判定
+ * 局面が銀矢倉の形かどうかを判定
  *
- * @param board - 盤面
+ * @param board - 局面
  * @param player - 判定対象のプレイヤー
  * @returns 銀矢倉の条件を満たせばtrue
  */

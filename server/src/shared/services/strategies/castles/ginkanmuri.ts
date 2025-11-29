@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 銀冠の条件
@@ -18,12 +19,12 @@ const ginkanmuriConditions: PieceConditionSet = {
 };
 
 /**
- * 局面が銀冠の形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns 銀冠の条件を満たせばtrue
+ * 銀冠
  */
-export function isGinkanmuri(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, ginkanmuriConditions, player);
-}
+export const ginkanmuri: SingleStrategy = {
+  name: "銀冠",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, ginkanmuriConditions, player),
+  turnRange: { from: 20 },
+};

@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 片矢倉（天野矢倉）の条件
@@ -18,12 +19,12 @@ const kataYaguraConditions: PieceConditionSet = {
 };
 
 /**
- * 局面が片矢倉（天野矢倉）の形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns 片矢倉の条件を満たせばtrue
+ * 片矢倉
  */
-export function isKataYagura(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, kataYaguraConditions, player);
-}
+export const kataYagura: SingleStrategy = {
+  name: "片矢倉",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, kataYaguraConditions, player),
+  turnRange: { from: 20 },
+};

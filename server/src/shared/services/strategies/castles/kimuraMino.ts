@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 木村美濃の条件
@@ -18,12 +19,12 @@ const kimuraMinoConditions: PieceConditionSet = {
 };
 
 /**
- * 局面が木村美濃の形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns 木村美濃の条件を満たせばtrue
+ * 木村美濃
  */
-export function isKimuraMino(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, kimuraMinoConditions, player);
-}
+export const kimuraMino: SingleStrategy = {
+  name: "木村美濃",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, kimuraMinoConditions, player),
+  turnRange: { from: 20 },
+};

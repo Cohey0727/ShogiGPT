@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 舟囲いの条件
@@ -20,12 +21,11 @@ const funaGakoiConditions: PieceConditionSet = {
 };
 
 /**
- * 局面が舟囲いの形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns 舟囲いの条件を満たせばtrue
+ * 舟囲い
  */
-export function isFunaGakoi(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, funaGakoiConditions, player);
-}
+export const funaGakoi: SingleStrategy = {
+  name: "舟囲い",
+  type: "single",
+  match: (board: Board, player: Player) => matchBoardConditions(board, funaGakoiConditions, player),
+  turnRange: { from: 20 },
+};

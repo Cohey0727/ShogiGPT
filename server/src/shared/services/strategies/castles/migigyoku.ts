@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 右玉の条件
@@ -20,12 +21,11 @@ const migigyokuConditions: PieceConditionSet = {
 };
 
 /**
- * 局面が右玉の形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns 右玉の条件を満たせばtrue
+ * 右玉
  */
-export function isMigigyoku(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, migigyokuConditions, player);
-}
+export const migigyoku: SingleStrategy = {
+  name: "右玉",
+  type: "single",
+  match: (board: Board, player: Player) => matchBoardConditions(board, migigyokuConditions, player),
+  turnRange: { from: 20 },
+};

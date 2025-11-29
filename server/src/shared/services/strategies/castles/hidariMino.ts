@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 左美濃の条件
@@ -20,12 +21,12 @@ const hidariMinoConditions: PieceConditionSet = {
 };
 
 /**
- * 局面が左美濃の形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns 左美濃の条件を満たせばtrue
+ * 左美濃
  */
-export function isHidariMino(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, hidariMinoConditions, player);
-}
+export const hidariMino: SingleStrategy = {
+  name: "左美濃",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, hidariMinoConditions, player),
+  turnRange: { from: 20 },
+};

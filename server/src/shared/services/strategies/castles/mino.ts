@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 美濃囲いの条件
@@ -17,12 +18,11 @@ const minoConditions: PieceConditionSet = {
 };
 
 /**
- * 局面が美濃囲いの形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns 美濃囲いの条件を満たせばtrue
+ * 美濃囲い
  */
-export function isMino(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, minoConditions, player);
-}
+export const mino: SingleStrategy = {
+  name: "美濃囲い",
+  type: "single",
+  match: (board: Board, player: Player) => matchBoardConditions(board, minoConditions, player),
+  turnRange: { from: 20 },
+};

@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 松尾流穴熊の条件
@@ -20,12 +21,12 @@ const matsuoAnagumaConditions: PieceConditionSet = {
 };
 
 /**
- * 局面が松尾流穴熊の形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns 松尾流穴熊の条件を満たせばtrue
+ * 松尾流穴熊
  */
-export function isMatsuoAnaguma(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, matsuoAnagumaConditions, player);
-}
+export const matsuoAnaguma: SingleStrategy = {
+  name: "松尾流穴熊",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, matsuoAnagumaConditions, player),
+  turnRange: { from: 20 },
+};

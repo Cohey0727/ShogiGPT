@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * エルモ囲いの条件
@@ -25,12 +26,11 @@ const elmoGakoiConditions: PieceConditionSet = {
 };
 
 /**
- * 局面がエルモ囲いの形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns エルモ囲いの条件を満たせばtrue
+ * エルモ囲い
  */
-export function isElmoGakoi(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, elmoGakoiConditions, player);
-}
+export const elmoGakoi: SingleStrategy = {
+  name: "エルモ囲い",
+  type: "single",
+  match: (board: Board, player: Player) => matchBoardConditions(board, elmoGakoiConditions, player),
+  turnRange: { from: 20 },
+};

@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * ミレニアムの条件
@@ -19,12 +20,12 @@ const millenniumConditions: PieceConditionSet = {
 };
 
 /**
- * 局面がミレニアムの形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns ミレニアムの条件を満たせばtrue
+ * ミレニアム
  */
-export function isMillennium(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, millenniumConditions, player);
-}
+export const millennium: SingleStrategy = {
+  name: "ミレニアム",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, millenniumConditions, player),
+  turnRange: { from: 20 },
+};

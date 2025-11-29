@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 銀矢倉の条件
@@ -18,12 +19,11 @@ const ginYaguraConditions: PieceConditionSet = {
 };
 
 /**
- * 局面が銀矢倉の形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns 銀矢倉の条件を満たせばtrue
+ * 銀矢倉
  */
-export function isGinYagura(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, ginYaguraConditions, player);
-}
+export const ginYagura: SingleStrategy = {
+  name: "銀矢倉",
+  type: "single",
+  match: (board: Board, player: Player) => matchBoardConditions(board, ginYaguraConditions, player),
+  turnRange: { from: 20 },
+};

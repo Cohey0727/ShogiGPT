@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 片美濃の条件
@@ -17,12 +18,11 @@ const kataMinoConditions: PieceConditionSet = {
 };
 
 /**
- * 局面が片美濃の形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns 片美濃の条件を満たせばtrue
+ * 片美濃
  */
-export function isKataMino(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, kataMinoConditions, player);
-}
+export const kataMino: SingleStrategy = {
+  name: "片美濃",
+  type: "single",
+  match: (board: Board, player: Player) => matchBoardConditions(board, kataMinoConditions, player),
+  turnRange: { from: 20 },
+};

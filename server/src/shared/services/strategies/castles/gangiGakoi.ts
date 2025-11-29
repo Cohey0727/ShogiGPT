@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 雁木囲いの条件
@@ -25,12 +26,12 @@ const gangiGakoiConditions: PieceConditionSet = {
 };
 
 /**
- * 局面が雁木囲いの形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns 雁木囲いの条件を満たせばtrue
+ * 雁木囲い
  */
-export function isGangiGakoi(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, gangiGakoiConditions, player);
-}
+export const gangiGakoi: SingleStrategy = {
+  name: "雁木囲い",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, gangiGakoiConditions, player),
+  turnRange: { from: 20 },
+};

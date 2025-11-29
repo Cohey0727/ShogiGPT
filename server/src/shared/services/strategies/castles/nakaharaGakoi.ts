@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 中原囲いの条件
@@ -17,12 +18,12 @@ const nakaharaGakoiConditions: PieceConditionSet = {
 };
 
 /**
- * 局面が中原囲いの形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns 中原囲いの条件を満たせばtrue
+ * 中原囲い
  */
-export function isNakaharaGakoi(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, nakaharaGakoiConditions, player);
-}
+export const nakaharaGakoi: SingleStrategy = {
+  name: "中原囲い",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, nakaharaGakoiConditions, player),
+  turnRange: { from: 20 },
+};

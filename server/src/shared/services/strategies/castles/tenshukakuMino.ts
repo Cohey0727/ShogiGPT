@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 天守閣美濃の条件
@@ -19,12 +20,12 @@ const tenshukakuMinoConditions: PieceConditionSet = {
 };
 
 /**
- * 局面が天守閣美濃の形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns 天守閣美濃の条件を満たせばtrue
+ * 天守閣美濃
  */
-export function isTenshukakuMino(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, tenshukakuMinoConditions, player);
-}
+export const tenshukakuMino: SingleStrategy = {
+  name: "天守閣美濃",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, tenshukakuMinoConditions, player),
+  turnRange: { from: 20 },
+};

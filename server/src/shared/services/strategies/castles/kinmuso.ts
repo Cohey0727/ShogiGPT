@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 金無双の条件
@@ -18,12 +19,11 @@ const kinmusoConditions: PieceConditionSet = {
 };
 
 /**
- * 局面が金無双の形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns 金無双の条件を満たせばtrue
+ * 金無双
  */
-export function isKinmuso(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, kinmusoConditions, player);
-}
+export const kinmuso: SingleStrategy = {
+  name: "金無双",
+  type: "single",
+  match: (board: Board, player: Player) => matchBoardConditions(board, kinmusoConditions, player),
+  turnRange: { from: 20 },
+};

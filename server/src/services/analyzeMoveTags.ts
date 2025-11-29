@@ -1,6 +1,8 @@
 import type { Board, Player } from "../shared/consts/shogi";
 import { PieceType, pieceProperties } from "../shared/consts/shogi";
 import { isCheckmate } from "../shared/services/checkmate";
+import { castles, tactics } from "../shared/services/strategies";
+import type { SingleStrategy, Strategy } from "../shared/services/strategies";
 
 export interface AnalyzeMoveTagsArgs {
   beforeBoard: Board;
@@ -63,6 +65,7 @@ export function analyzeMateTags(args: AnalyzeMoveTagsArgs): string[] {
  */
 export function analyzeMoveTags(args: AnalyzeMoveTagsArgs): string[] {
   const { afterBoard, perspective } = args;
+  const isMyselfMove = perspective === args.beforeBoard.turn;
   const opponentPlayer = perspective === "SENTE" ? "GOTE" : "SENTE";
   const features: string[] = [];
 
@@ -70,7 +73,7 @@ export function analyzeMoveTags(args: AnalyzeMoveTagsArgs): string[] {
     // 駒の取り合い分析
     const capturedPiece = analyzeCapture(args);
     if (capturedPiece) {
-      features.push(`${capturedPiece}を取る`);
+      features.push(`${capturedPiece}を${isMyselfMove ? "取る" : "取られる"}`);
     }
 
     // 角道の変化分析
@@ -701,4 +704,91 @@ function isPathClearAndOnLine(
     col += direction.col;
   }
   return false;
+}
+
+/**
+ * Strategyがsingle型かどうかを判定
+ */
+function isSingleStrategy(strategy: Strategy): strategy is SingleStrategy {
+  return strategy.type === "single";
+}
+
+/**
+ * 戦略（囲い・戦法）の成立/崩壊タグを分析
+ *
+ * @param args - 分析に必要な引数
+ * @param turnNumber - 現在の手数
+ * @returns 戦略関連のタグ配列
+ */
+export function analyzeStrategyTags(args: AnalyzeMoveTagsArgs, turnNumber: number): string[] {
+  const { beforeBoard, afterBoard, perspective } = args;
+  const isMyselfMove = perspective === beforeBoard.turn;
+  const opponentPlayer = perspective === "SENTE" ? "GOTE" : "SENTE";
+  const tags: string[] = [];
+
+  // すべての戦略（囲い + 戦法）を結合
+  const allStrategies: Strategy[] = [...castles, ...tactics];
+
+  for (const strategy of allStrategies) {
+    // 手番範囲チェック
+    if (strategy.turnRange.from !== undefined && turnNumber < strategy.turnRange.from) {
+      continue;
+    }
+    if (strategy.turnRange.to !== undefined && turnNumber > strategy.turnRange.to) {
+      continue;
+    }
+
+    if (isSingleStrategy(strategy)) {
+      // 自分の戦略を判定
+      const wasMatchedSelf = strategy.match(beforeBoard, perspective);
+      const isMatchedSelf = strategy.match(afterBoard, perspective);
+
+      if (!wasMatchedSelf && isMatchedSelf) {
+        // 戦略が成立した
+        if (isMyselfMove) {
+          tags.push(`${strategy.name}が成立`);
+        } else {
+          // 相手の手で自分の戦略が成立することは稀だが一応
+          tags.push(`${strategy.name}が成立`);
+        }
+      } else if (wasMatchedSelf && !isMatchedSelf) {
+        // 戦略が崩れた
+        if (isMyselfMove) {
+          tags.push(`${strategy.name}を崩す`);
+        } else {
+          tags.push(`${strategy.name}を崩される`);
+        }
+      }
+
+      // 相手の戦略を判定
+      const wasMatchedOpponent = strategy.match(beforeBoard, opponentPlayer);
+      const isMatchedOpponent = strategy.match(afterBoard, opponentPlayer);
+
+      if (!wasMatchedOpponent && isMatchedOpponent) {
+        // 相手の戦略が成立した
+        if (isMyselfMove) {
+          // 自分の手で相手の戦略が成立することは稀
+        } else {
+          tags.push(`相手が${strategy.name}を構築`);
+        }
+      } else if (wasMatchedOpponent && !isMatchedOpponent) {
+        // 相手の戦略が崩れた
+        if (isMyselfMove) {
+          tags.push(`相手の${strategy.name}を崩す`);
+        }
+      }
+    } else {
+      // both型の戦略（現在は未使用だが将来のために）
+      const wasMatched = strategy.match(beforeBoard);
+      const isMatched = strategy.match(afterBoard);
+
+      if (!wasMatched && isMatched) {
+        tags.push(`${strategy.name}が成立`);
+      } else if (wasMatched && !isMatched) {
+        tags.push(`${strategy.name}が崩れる`);
+      }
+    }
+  }
+
+  return tags;
 }

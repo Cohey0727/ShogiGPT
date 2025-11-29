@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 居飛車穴熊の条件
@@ -20,12 +21,12 @@ const ibishaAnagumaConditions: PieceConditionSet = {
 };
 
 /**
- * 局面が居飛車穴熊の形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns 居飛車穴熊の条件を満たせばtrue
+ * 居飛車穴熊
  */
-export function isIbishaAnaguma(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, ibishaAnagumaConditions, player);
-}
+export const ibishaAnaguma: SingleStrategy = {
+  name: "居飛車穴熊",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, ibishaAnagumaConditions, player),
+  turnRange: { from: 20 },
+};

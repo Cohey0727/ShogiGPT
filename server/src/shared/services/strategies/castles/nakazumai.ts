@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 中住まいの条件
@@ -28,12 +29,11 @@ const nakazumaiConditions: PieceConditionSet = {
 };
 
 /**
- * 局面が中住まいの形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns 中住まいの条件を満たせばtrue
+ * 中住まい
  */
-export function isNakazumai(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, nakazumaiConditions, player);
-}
+export const nakazumai: SingleStrategy = {
+  name: "中住まい",
+  type: "single",
+  match: (board: Board, player: Player) => matchBoardConditions(board, nakazumaiConditions, player),
+  turnRange: { from: 20 },
+};

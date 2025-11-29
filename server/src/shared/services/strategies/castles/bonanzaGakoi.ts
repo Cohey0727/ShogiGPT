@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * ボナンザ囲いの条件
@@ -17,12 +18,12 @@ const bonanzaGakoiConditions: PieceConditionSet = {
 };
 
 /**
- * 局面がボナンザ囲いの形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns ボナンザ囲いの条件を満たせばtrue
+ * ボナンザ囲い
  */
-export function isBonanzaGakoi(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, bonanzaGakoiConditions, player);
-}
+export const bonanzaGakoi: SingleStrategy = {
+  name: "ボナンザ囲い",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, bonanzaGakoiConditions, player),
+  turnRange: { from: 20 },
+};

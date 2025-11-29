@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * ダイヤモンド美濃の条件
@@ -18,12 +19,12 @@ const diamondMinoConditions: PieceConditionSet = {
 };
 
 /**
- * 局面がダイヤモンド美濃の形かどうかを判定
- *
- * @param board - 局面
- * @param player - 判定対象のプレイヤー
- * @returns ダイヤモンド美濃の条件を満たせばtrue
+ * ダイヤモンド美濃
  */
-export function isDiamondMino(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, diamondMinoConditions, player);
-}
+export const diamondMino: SingleStrategy = {
+  name: "ダイヤモンド美濃",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, diamondMinoConditions, player),
+  turnRange: { from: 20 },
+};

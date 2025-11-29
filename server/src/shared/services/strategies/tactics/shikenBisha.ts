@@ -8,12 +8,10 @@ import type { SingleStrategy } from "../types";
  * 四間飛車の条件
  * 飛6八
  */
-const shikenBishaConditions: PieceConditionSet[] = [
-  {
-    type: "and",
-    conditions: [{ type: PieceType.Rook, position: { row: 7, col: 3 } }], // 6八
-  },
-];
+const shikenBishaConditions: PieceConditionSet = {
+  type: "and",
+  conditions: [{ piece: PieceType.Rook, position: { row: 7, col: 3 } }], // 6八
+};
 
 /**
  * 四間飛車

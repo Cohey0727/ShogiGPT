@@ -11,10 +11,10 @@ const diamondMinoConditions: PieceConditionSet[] = [
   {
     type: "and",
     conditions: [
-      { type: PieceType.King, position: { row: 7, col: 7 } }, // 2八
-      { type: PieceType.Gold, position: { row: 7, col: 6 } }, // 3八
-      { type: PieceType.Gold, position: { row: 6, col: 5 } }, // 4七
-      { type: PieceType.Silver, position: { row: 6, col: 6 } }, // 3七
+      { piece: PieceType.King, position: { row: 7, col: 7 } }, // 2八
+      { piece: PieceType.Gold, position: { row: 7, col: 6 } }, // 3八
+      { piece: PieceType.Gold, position: { row: 6, col: 5 } }, // 4七
+      { piece: PieceType.Silver, position: { row: 6, col: 6 } }, // 3七
     ],
   },
 ];

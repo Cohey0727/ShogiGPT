@@ -8,12 +8,10 @@ import type { SingleStrategy } from "../types";
  * 早繰り銀の条件
  * 先手: 銀4六
  */
-const hayakuriGinConditions: PieceConditionSet[] = [
-  {
-    type: "and",
-    conditions: [{ type: PieceType.Silver, position: { row: 5, col: 5 } }], // 4六
-  },
-];
+const hayakuriGinConditions: PieceConditionSet = {
+  type: "and",
+  conditions: [{ piece: PieceType.Silver, position: { row: 5, col: 5 } }], // 4六
+};
 
 /**
  * 早繰り銀

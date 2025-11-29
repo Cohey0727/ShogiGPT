@@ -5,7 +5,7 @@ import type { Board, PieceType, Player, Position } from "../../consts/shogi";
  */
 export interface PieceCondition {
   /** 駒の種類 */
-  type: PieceType;
+  piece: PieceType;
   /** 位置、部分的に指定可能（undefinedの軸は任意） */
   position: Partial<Position>;
 }
@@ -16,41 +16,44 @@ export interface PieceCondition {
 export interface PieceConditionSet {
   /** 条件の結合タイプ（and: すべて満たす、or: いずれか満たす） */
   type: "and" | "or";
-  /** 駒条件の配列 */
-  conditions: PieceCondition[];
+  /** 駒条件またはネストした条件セットの配列 */
+  conditions: (PieceCondition | PieceConditionSet)[];
 }
 
 /**
- * 盤面が指定した条件を満たすかどうかを判定
+ * PieceConditionSetかどうかを判定
+ */
+function isPieceConditionSet(
+  condition: PieceCondition | PieceConditionSet,
+): condition is PieceConditionSet {
+  return "conditions" in condition;
+}
+
+/**
+ * 盤面が指定した条件セットを満たすかどうかを判定（再帰的にネストした条件も評価）
  *
  * @param board - 盤面
- * @param conditions - 駒条件セットの配列
+ * @param conditionSet - 駒条件セット
  * @param player - 判定対象のプレイヤー
  * @returns 条件を満たせばtrue
  */
 export function matchBoardConditions(
   board: Board,
-  conditions: PieceConditionSet[],
+  conditionSet: PieceConditionSet,
   player: Player,
 ): boolean {
-  for (const set of conditions) {
-    const results = set.conditions.map((condition) => {
-      const pos = transformForPlayer(condition.position, player);
-      return hasPieceAt(board, pos, condition.type, player);
-    });
-
-    if (set.type === "and") {
-      if (!results.every(Boolean)) {
-        return false;
-      }
-    } else {
-      if (!results.some(Boolean)) {
-        return false;
-      }
+  const results = conditionSet.conditions.map((condition) => {
+    if (isPieceConditionSet(condition)) {
+      return matchBoardConditions(board, condition, player);
     }
-  }
+    const pos = transformForPlayer(condition.position, player);
+    return hasPieceAt(board, pos, condition.piece, player);
+  });
 
-  return true;
+  if (conditionSet.type === "and") {
+    return results.every(Boolean);
+  }
+  return results.some(Boolean);
 }
 
 /**

@@ -11,11 +11,11 @@ const tenshukakuMinoConditions: PieceConditionSet[] = [
   {
     type: "and",
     conditions: [
-      { type: PieceType.Rook, position: { row: 7, col: 7 } }, // 2八
-      { type: PieceType.King, position: { row: 6, col: 1 } }, // 8七
-      { type: PieceType.Gold, position: { row: 7, col: 4 } }, // 5八
-      { type: PieceType.Gold, position: { row: 7, col: 3 } }, // 6八
-      { type: PieceType.Silver, position: { row: 7, col: 2 } }, // 7八
+      { piece: PieceType.Rook, position: { row: 7, col: 7 } }, // 2八
+      { piece: PieceType.King, position: { row: 6, col: 1 } }, // 8七
+      { piece: PieceType.Gold, position: { row: 7, col: 4 } }, // 5八
+      { piece: PieceType.Gold, position: { row: 7, col: 3 } }, // 6八
+      { piece: PieceType.Silver, position: { row: 7, col: 2 } }, // 7八
     ],
   },
 ];

@@ -8,12 +8,10 @@ import type { SingleStrategy } from "../types";
  * 腰掛け銀の条件
  * 先手: 銀5六
  */
-const koshikakeGinConditions: PieceConditionSet[] = [
-  {
-    type: "and",
-    conditions: [{ type: PieceType.Silver, position: { row: 5, col: 4 } }], // 5六
-  },
-];
+const koshikakeGinConditions: PieceConditionSet = {
+  type: "and",
+  conditions: [{ piece: PieceType.Silver, position: { row: 5, col: 4 } }], // 5六
+};
 
 /**
  * 腰掛け銀

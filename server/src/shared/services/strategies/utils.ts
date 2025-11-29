@@ -69,8 +69,8 @@ export function isSquareEmpty(board: Board, position: Position, player?: Player)
  */
 export function matchForBothPlayers(
   board: Board,
-  senteConditions: PieceConditionSet[],
-  goteConditions: PieceConditionSet[],
+  senteConditions: PieceConditionSet,
+  goteConditions: PieceConditionSet,
 ): boolean {
   return (
     matchBoardConditions(board, senteConditions, PlayerValue.Sente) &&

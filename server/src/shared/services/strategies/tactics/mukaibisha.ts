@@ -9,12 +9,10 @@ import type { SingleStrategy } from "../types";
  * 先手: 飛8八
  * 後手: 飛2二
  */
-const mukaibishaConditions: PieceConditionSet[] = [
-  {
-    type: "and",
-    conditions: [{ type: PieceType.Rook, position: { row: 7, col: 1 } }], // 8八
-  },
-];
+const mukaibishaConditions: PieceConditionSet = {
+  type: "and",
+  conditions: [{ piece: PieceType.Rook, position: { row: 7, col: 1 } }], // 8八
+};
 
 /**
  * 向かい飛車

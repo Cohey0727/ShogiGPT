@@ -5,7 +5,7 @@ import type { Board, Player } from "../../consts/shogi";
  */
 export interface TurnRange {
   /** 判定開始手番（この手番以降で判定する） */
-  from: number;
+  from?: number;
   /** 判定終了手番（この手番まで判定する、undefinedは終局まで） */
   to?: number;
 }

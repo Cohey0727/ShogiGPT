@@ -11,9 +11,9 @@ const nakaharaGakoiConditions: PieceConditionSet[] = [
   {
     type: "and",
     conditions: [
-      { type: PieceType.King, position: { row: 7, col: 5 } }, // 4八
-      { type: PieceType.Gold, position: { row: 7, col: 4 } }, // 5八
-      { type: PieceType.Gold, position: { row: 7, col: 6 } }, // 3八
+      { piece: PieceType.King, position: { row: 7, col: 5 } }, // 4八
+      { piece: PieceType.Gold, position: { row: 7, col: 4 } }, // 5八
+      { piece: PieceType.Gold, position: { row: 7, col: 6 } }, // 3八
     ],
   },
 ];

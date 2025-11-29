@@ -9,12 +9,10 @@ import type { SingleStrategy } from "../types";
  * 先手: 飛2八
  * 後手: 飛8二
  */
-const ibishaConditions: PieceConditionSet[] = [
-  {
-    type: "and",
-    conditions: [{ type: PieceType.Rook, position: { row: 7, col: 7 } }], // 2八
-  },
-];
+const ibishaConditions: PieceConditionSet = {
+  type: "and",
+  conditions: [{ piece: PieceType.Rook, position: { row: 7, col: 7 } }], // 2八
+};
 
 /**
  * 居飛車

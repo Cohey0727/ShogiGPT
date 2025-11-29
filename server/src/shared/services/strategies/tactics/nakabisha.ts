@@ -8,12 +8,10 @@ import type { SingleStrategy } from "../types";
  * 中飛車の条件
  * 飛5八
  */
-const nakabishaConditions: PieceConditionSet[] = [
-  {
-    type: "and",
-    conditions: [{ type: PieceType.Rook, position: { row: 7, col: 4 } }], // 5八
-  },
-];
+const nakabishaConditions: PieceConditionSet = {
+  type: "and",
+  conditions: [{ piece: PieceType.Rook, position: { row: 7, col: 4 } }], // 5八
+};
 
 /**
  * 中飛車

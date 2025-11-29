@@ -8,12 +8,10 @@ import type { SingleStrategy } from "../types";
  * 三間飛車の条件
  * 飛7八
  */
-const sankenBishaConditions: PieceConditionSet[] = [
-  {
-    type: "and",
-    conditions: [{ type: PieceType.Rook, position: { row: 7, col: 2 } }], // 7八
-  },
-];
+const sankenBishaConditions: PieceConditionSet = {
+  type: "and",
+  conditions: [{ piece: PieceType.Rook, position: { row: 7, col: 2 } }], // 7八
+};
 
 /**
  * 三間飛車

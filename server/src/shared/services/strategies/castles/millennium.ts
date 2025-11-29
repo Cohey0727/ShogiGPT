@@ -11,11 +11,11 @@ const millenniumConditions: PieceConditionSet[] = [
   {
     type: "and",
     conditions: [
-      { type: PieceType.Rook, position: { row: 7, col: 7 } }, // 2八
-      { type: PieceType.King, position: { row: 7, col: 3 } }, // 6八
-      { type: PieceType.Gold, position: { row: 7, col: 2 } }, // 7八
-      { type: PieceType.Gold, position: { row: 8, col: 2 } }, // 7九
-      { type: PieceType.Silver, position: { row: 7, col: 1 } }, // 8八
+      { piece: PieceType.Rook, position: { row: 7, col: 7 } }, // 2八
+      { piece: PieceType.King, position: { row: 7, col: 3 } }, // 6八
+      { piece: PieceType.Gold, position: { row: 7, col: 2 } }, // 7八
+      { piece: PieceType.Gold, position: { row: 8, col: 2 } }, // 7九
+      { piece: PieceType.Silver, position: { row: 7, col: 1 } }, // 8八
     ],
   },
 ];

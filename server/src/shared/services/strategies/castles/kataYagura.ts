@@ -7,17 +7,15 @@ import { matchBoardConditions } from "../matchBoardConditions";
  * 片矢倉（天野矢倉）の条件
  * 玉7八、金6七・6八、銀7七
  */
-const kataYaguraConditions: PieceConditionSet[] = [
-  {
-    type: "and",
-    conditions: [
-      { type: PieceType.King, position: { row: 7, col: 2 } }, // 7八
-      { type: PieceType.Gold, position: { row: 6, col: 3 } }, // 6七
-      { type: PieceType.Gold, position: { row: 7, col: 3 } }, // 6八
-      { type: PieceType.Silver, position: { row: 6, col: 2 } }, // 7七
-    ],
-  },
-];
+const kataYaguraConditions: PieceConditionSet = {
+  type: "and",
+  conditions: [
+    { piece: PieceType.King, position: { row: 7, col: 2 } }, // 7八
+    { piece: PieceType.Gold, position: { row: 6, col: 3 } }, // 6七
+    { piece: PieceType.Gold, position: { row: 7, col: 3 } }, // 6八
+    { piece: PieceType.Silver, position: { row: 6, col: 2 } }, // 7七
+  ],
+};
 
 /**
  * 盤面が片矢倉（天野矢倉）の形かどうかを判定

@@ -7,16 +7,14 @@ import { matchBoardConditions } from "../matchBoardConditions";
  * 美濃囲いの条件
  * 玉2八、金3八・5八
  */
-const minoConditions: PieceConditionSet[] = [
-  {
-    type: "and",
-    conditions: [
-      { type: PieceType.King, position: { row: 7, col: 7 } }, // 2八
-      { type: PieceType.Gold, position: { row: 7, col: 6 } }, // 3八
-      { type: PieceType.Gold, position: { row: 7, col: 4 } }, // 5八
-    ],
-  },
-];
+const minoConditions: PieceConditionSet = {
+  type: "and",
+  conditions: [
+    { piece: PieceType.King, position: { row: 7, col: 7 } }, // 2八
+    { piece: PieceType.Gold, position: { row: 7, col: 6 } }, // 3八
+    { piece: PieceType.Gold, position: { row: 7, col: 4 } }, // 5八
+  ],
+};
 
 /**
  * 盤面が美濃囲いの形かどうかを判定

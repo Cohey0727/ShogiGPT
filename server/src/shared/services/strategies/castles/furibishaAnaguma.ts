@@ -14,11 +14,11 @@ const furibishaAnagumaConditions: PieceConditionSet[] = [
   {
     type: "and",
     conditions: [
-      { type: PieceType.King, position: { row: 8, col: 8 } }, // 1九
-      { type: PieceType.Gold, position: { row: 7, col: 7 } }, // 2八
-      { type: PieceType.Gold, position: { row: 8, col: 6 } }, // 3九
-      { type: PieceType.Silver, position: { row: 8, col: 7 } }, // 2九
-      { type: PieceType.Lance, position: { row: 7, col: 8 } }, // 1八
+      { piece: PieceType.King, position: { row: 8, col: 8 } }, // 1九
+      { piece: PieceType.Gold, position: { row: 7, col: 7 } }, // 2八
+      { piece: PieceType.Gold, position: { row: 8, col: 6 } }, // 3九
+      { piece: PieceType.Silver, position: { row: 8, col: 7 } }, // 2九
+      { piece: PieceType.Lance, position: { row: 7, col: 8 } }, // 1八
     ],
   },
 ];

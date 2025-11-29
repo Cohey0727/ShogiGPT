@@ -7,17 +7,15 @@ import { matchBoardConditions } from "../matchBoardConditions";
  * 金矢倉の条件
  * 玉8八、金7八・6七、銀7七
  */
-const kinYaguraConditions: PieceConditionSet[] = [
-  {
-    type: "and",
-    conditions: [
-      { type: PieceType.King, position: { row: 7, col: 1 } }, // 8八
-      { type: PieceType.Gold, position: { row: 7, col: 2 } }, // 7八
-      { type: PieceType.Gold, position: { row: 6, col: 3 } }, // 6七
-      { type: PieceType.Silver, position: { row: 6, col: 2 } }, // 7七
-    ],
-  },
-];
+const kinYaguraConditions: PieceConditionSet = {
+  type: "and",
+  conditions: [
+    { piece: PieceType.King, position: { row: 7, col: 1 } }, // 8八
+    { piece: PieceType.Gold, position: { row: 7, col: 2 } }, // 7八
+    { piece: PieceType.Gold, position: { row: 6, col: 3 } }, // 6七
+    { piece: PieceType.Silver, position: { row: 6, col: 2 } }, // 7七
+  ],
+};
 
 /**
  * 盤面が金矢倉の形かどうかを判定

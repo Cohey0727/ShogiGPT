@@ -7,22 +7,25 @@ import { matchBoardConditions } from "../matchBoardConditions";
  * 中住まいの条件
  * 玉5九or5八、金4九or4八
  */
-const nakazumaiConditions: PieceConditionSet[] = [
-  {
-    type: "or",
-    conditions: [
-      { type: PieceType.King, position: { row: 8, col: 4 } }, // 5九
-      { type: PieceType.King, position: { row: 7, col: 4 } }, // 5八
-    ],
-  },
-  {
-    type: "or",
-    conditions: [
-      { type: PieceType.Gold, position: { row: 8, col: 5 } }, // 4九
-      { type: PieceType.Gold, position: { row: 7, col: 5 } }, // 4八
-    ],
-  },
-];
+const nakazumaiConditions: PieceConditionSet = {
+  type: "and",
+  conditions: [
+    {
+      type: "or",
+      conditions: [
+        { piece: PieceType.King, position: { row: 8, col: 4 } }, // 5九
+        { piece: PieceType.King, position: { row: 7, col: 4 } }, // 5八
+      ],
+    },
+    {
+      type: "or",
+      conditions: [
+        { piece: PieceType.Gold, position: { row: 8, col: 5 } }, // 4九
+        { piece: PieceType.Gold, position: { row: 7, col: 5 } }, // 4八
+      ],
+    },
+  ],
+};
 
 /**
  * 盤面が中住まいの形かどうかを判定

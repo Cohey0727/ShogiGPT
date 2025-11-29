@@ -11,12 +11,12 @@ const ibishaAnagumaConditions: PieceConditionSet[] = [
   {
     type: "and",
     conditions: [
-      { type: PieceType.Rook, position: { row: 7, col: 7 } }, // 2八
-      { type: PieceType.King, position: { row: 8, col: 0 } }, // 9九
-      { type: PieceType.Gold, position: { row: 7, col: 2 } }, // 7八
-      { type: PieceType.Gold, position: { row: 8, col: 2 } }, // 7九
-      { type: PieceType.Silver, position: { row: 7, col: 1 } }, // 8八
-      { type: PieceType.Lance, position: { row: 7, col: 0 } }, // 9八
+      { piece: PieceType.Rook, position: { row: 7, col: 7 } }, // 2八
+      { piece: PieceType.King, position: { row: 8, col: 0 } }, // 9九
+      { piece: PieceType.Gold, position: { row: 7, col: 2 } }, // 7八
+      { piece: PieceType.Gold, position: { row: 8, col: 2 } }, // 7九
+      { piece: PieceType.Silver, position: { row: 7, col: 1 } }, // 8八
+      { piece: PieceType.Lance, position: { row: 7, col: 0 } }, // 9八
     ],
   },
 ];

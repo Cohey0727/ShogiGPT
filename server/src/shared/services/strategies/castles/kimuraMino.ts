@@ -11,10 +11,10 @@ const kimuraMinoConditions: PieceConditionSet[] = [
   {
     type: "and",
     conditions: [
-      { type: PieceType.King, position: { row: 7, col: 7 } }, // 2八
-      { type: PieceType.Gold, position: { row: 7, col: 6 } }, // 3八
-      { type: PieceType.Gold, position: { row: 6, col: 4 } }, // 5七
-      { type: PieceType.Silver, position: { row: 5, col: 5 } }, // 4六
+      { piece: PieceType.King, position: { row: 7, col: 7 } }, // 2八
+      { piece: PieceType.Gold, position: { row: 7, col: 6 } }, // 3八
+      { piece: PieceType.Gold, position: { row: 6, col: 4 } }, // 5七
+      { piece: PieceType.Silver, position: { row: 5, col: 5 } }, // 4六
     ],
   },
 ];

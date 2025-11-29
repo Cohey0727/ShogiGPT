@@ -1,12 +1,23 @@
-import { useParams } from "wouter";
+import { useParams, useLocation } from "wouter";
 import { useState, useCallback, useMemo } from "react";
-import { ShogiBoard, MatchChat, PieceStand, StatusBar, usePromptSettings } from "../../organisms";
+import {
+  ShogiBoard,
+  MatchChat,
+  PieceStand,
+  StatusBar,
+  ResumeDialog,
+  usePromptSettings,
+} from "../../organisms";
+import type { ResumeAction } from "../../organisms";
 import {
   useGetMatchQuery,
   useSubscribeMatchStatesSubscription,
   useSubscribeChatMessagesSubscription,
   useSendChatMessageMutation,
+  useRewindMatchMutation,
+  useForkMatchMutation,
 } from "../../../generated/graphql/types";
+import { useModal } from "../../molecules/hooks/useModal";
 import styles from "./MatchDetailPage.css";
 import type { Board, PieceType } from "../../../shared/consts";
 import {
@@ -24,7 +35,7 @@ interface BoardState {
   previousBoard: Board | null;
 }
 
-/** 楽観的更新用の盤面状態 */
+/** 楽観的更新用の局面状態 */
 interface OptimisticState {
   board: Board;
   moveIndex: number;
@@ -33,6 +44,7 @@ interface OptimisticState {
 export function MatchDetailPage() {
   const params = useParams<{ matchId: string }>();
   const matchId = params.matchId;
+  const [, setLocation] = useLocation();
 
   const [{ data: matchData }] = useGetMatchQuery({
     variables: { matchId },
@@ -53,7 +65,10 @@ export function MatchDetailPage() {
   });
 
   const [, sendChatMessage] = useSendChatMessageMutation();
+  const [{ fetching: isRewinding }, rewindMatch] = useRewindMatchMutation();
+  const [{ fetching: isForking }, forkMatch] = useForkMatchMutation();
   const [promptSettings] = usePromptSettings();
+  const [isResumeDialogOpen, resumeDialogModal] = useModal();
 
   if (!match) {
     throw new Error("Match not found");
@@ -100,7 +115,7 @@ export function MatchDetailPage() {
 
     const board = sfenToBoard(currentState.sfen);
 
-    // 前の盤面も取得
+    // 前の局面も取得
     let previousBoard: Board | null = null;
     if (targetIndex > 0) {
       const prevState = matchStates[targetIndex - 1];
@@ -112,10 +127,10 @@ export function MatchDetailPage() {
 
   const [selectedHandPiece, setSelectedHandPiece] = useState<PieceType | null>(null);
 
-  // 楽観的更新用の盤面状態
+  // 楽観的更新用の局面状態
   const [optimisticState, setOptimisticState] = useState<OptimisticState | null>(null);
 
-  // 表示用の盤面状態（楽観的更新を優先）
+  // 表示用の局面状態（楽観的更新を優先）
   const displayBoardState = useMemo<BoardState>(() => {
     // 巻き戻し中は常にサーバーの状態を使用
     if (viewingStateIndex !== null) {
@@ -160,7 +175,7 @@ export function MatchDetailPage() {
       const japaneseMove = formatMoveToJapanese(usiMove, board);
 
       // チャット経由で指し手を送信
-      // サーバーのAIがmoveAndEvaluateツールを呼び出して盤面を更新
+      // サーバーのAIがmoveAndEvaluateツールを呼び出して局面を更新
       await sendChatMessage({
         matchId,
         content: japaneseMove,
@@ -170,7 +185,7 @@ export function MatchDetailPage() {
     [boardState, matchId, sendChatMessage, viewingStateIndex, promptSettings.aiPersonality],
   );
 
-  // 前の盤面との差分セルを計算
+  // 前の局面との差分セルを計算
   const diffCells = useMemo(() => {
     if (!displayBoardState.previousBoard) {
       return [];
@@ -194,10 +209,32 @@ export function MatchDetailPage() {
     setViewingStateIndex(matchStates.length - 1);
   }, [matchStates.length]);
 
-  // 対局を再開
-  const handleResume = useCallback(() => {
-    setViewingStateIndex(null);
-  }, []);
+  // 再生ボタン押下時（ダイアログを開く）
+  const handleResumeClick = useCallback(() => {
+    resumeDialogModal.open();
+  }, [resumeDialogModal]);
+
+  // ダイアログで選択されたアクションを処理
+  const handleResumeSelect = useCallback(
+    async (action: ResumeAction) => {
+      if (viewingStateIndex === null) return;
+
+      if (action === "rewind") {
+        // 現在の対局を巻き戻す
+        await rewindMatch({ matchId, toIndex: viewingStateIndex });
+        setViewingStateIndex(null);
+        resumeDialogModal.close();
+      } else if (action === "fork") {
+        // 新しい対局を作成して遷移
+        const result = await forkMatch({ matchId, fromIndex: viewingStateIndex });
+        if (result.data?.forkMatch) {
+          setLocation(`/matches/${result.data.forkMatch.id}`);
+        }
+        resumeDialogModal.close();
+      }
+    },
+    [matchId, viewingStateIndex, rewindMatch, forkMatch, setLocation, resumeDialogModal],
+  );
 
   return (
     <div className={styles.container}>
@@ -215,8 +252,15 @@ export function MatchDetailPage() {
             viewingStateIndex={viewingStateIndex}
             totalStates={matchStates.length}
             onPause={handlePause}
-            onResume={handleResume}
+            onResumeClick={handleResumeClick}
             onViewingIndexChange={handleViewingIndexChange}
+          />
+          <ResumeDialog
+            open={isResumeDialogOpen}
+            onClose={resumeDialogModal.close}
+            onConfirm={handleResumeSelect}
+            viewingIndex={viewingStateIndex ?? 0}
+            isLoading={isRewinding || isForking}
           />
           <Row className={styles.boardSection} align="center" justify="center">
             <div className={styles.gotePieceStand}>

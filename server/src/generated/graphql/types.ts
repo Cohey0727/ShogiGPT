@@ -63,6 +63,14 @@ export type ChatMessage = {
   role: Scalars['String']['output'];
 };
 
+/** 対局分岐リクエスト */
+export type ForkMatchInput = {
+  /** 分岐する手数インデックス */
+  fromIndex: Scalars['Int']['input'];
+  /** 元の対局ID */
+  matchId: Scalars['String']['input'];
+};
+
 export type Health = {
   __typename?: 'Health';
   status: Scalars['String']['output'];
@@ -147,8 +155,22 @@ export type MoveVariation = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  /** 対局を分岐して新しい対局を作成する */
+  forkMatch: Match;
+  /** 対局を指定した手数まで巻き戻す */
+  rewindMatch: Match;
   sendChatMessage: SendChatMessageResult;
   startMatch: Match;
+};
+
+
+export type MutationForkMatchArgs = {
+  input: ForkMatchInput;
+};
+
+
+export type MutationRewindMatchArgs = {
+  input: RewindMatchInput;
 };
 
 
@@ -171,6 +193,14 @@ export type Query = {
 
 export type QueryMatchEvaluationsArgs = {
   matchId: Scalars['String']['input'];
+};
+
+/** 対局巻き戻しリクエスト */
+export type RewindMatchInput = {
+  /** 対局ID */
+  matchId: Scalars['String']['input'];
+  /** 巻き戻す先の手数インデックス */
+  toIndex: Scalars['Int']['input'];
 };
 
 /** チャットメッセージ送信リクエスト */
@@ -291,6 +321,7 @@ export type ResolversTypes = ResolversObject<{
   BestMoveContent: ResolverTypeWrapper<BestMoveContent>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   ChatMessage: ResolverTypeWrapper<Omit<ChatMessage, 'contents'> & { contents: Array<ResolversTypes['MessageContent']> }>;
+  ForkMatchInput: ForkMatchInput;
   Health: ResolverTypeWrapper<Health>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   MarkdownContent: ResolverTypeWrapper<MarkdownContent>;
@@ -302,6 +333,7 @@ export type ResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
   PlayerType: ResolverTypeWrapper<Scalars['PlayerType']['output']>;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
+  RewindMatchInput: RewindMatchInput;
   SendChatMessageInput: SendChatMessageInput;
   SendChatMessageResult: ResolverTypeWrapper<SendChatMessageResult>;
   StartMatchInput: StartMatchInput;
@@ -313,6 +345,7 @@ export type ResolversParentTypes = ResolversObject<{
   BestMoveContent: BestMoveContent;
   Boolean: Scalars['Boolean']['output'];
   ChatMessage: Omit<ChatMessage, 'contents'> & { contents: Array<ResolversParentTypes['MessageContent']> };
+  ForkMatchInput: ForkMatchInput;
   Health: Health;
   Int: Scalars['Int']['output'];
   MarkdownContent: MarkdownContent;
@@ -324,6 +357,7 @@ export type ResolversParentTypes = ResolversObject<{
   Mutation: Record<PropertyKey, never>;
   PlayerType: Scalars['PlayerType']['output'];
   Query: Record<PropertyKey, never>;
+  RewindMatchInput: RewindMatchInput;
   SendChatMessageInput: SendChatMessageInput;
   SendChatMessageResult: SendChatMessageResult;
   StartMatchInput: StartMatchInput;
@@ -400,6 +434,8 @@ export type MoveVariationResolvers<ContextType = any, ParentType extends Resolve
 }>;
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+  forkMatch?: Resolver<ResolversTypes['Match'], ParentType, ContextType, RequireFields<MutationForkMatchArgs, 'input'>>;
+  rewindMatch?: Resolver<ResolversTypes['Match'], ParentType, ContextType, RequireFields<MutationRewindMatchArgs, 'input'>>;
   sendChatMessage?: Resolver<ResolversTypes['SendChatMessageResult'], ParentType, ContextType, RequireFields<MutationSendChatMessageArgs, 'input'>>;
   startMatch?: Resolver<ResolversTypes['Match'], ParentType, ContextType, RequireFields<MutationStartMatchArgs, 'input'>>;
 }>;

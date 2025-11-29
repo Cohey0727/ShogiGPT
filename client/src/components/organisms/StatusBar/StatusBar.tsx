@@ -1,4 +1,4 @@
-import { BarChartIcon } from "@radix-ui/react-icons";
+import { BarChartIcon, DoubleArrowLeftIcon, DoubleArrowRightIcon } from "@radix-ui/react-icons";
 
 import { useModal } from "../../molecules/hooks/useModal";
 import { EvaluationChartDialog } from "../EvaluationChartDialog";
@@ -17,7 +17,8 @@ interface StatusBarProps {
   viewingStateIndex: number | null;
   totalStates: number;
   onPause: () => void;
-  onResume: (index: number) => void;
+  /** 再生ボタン押下時（ダイアログを開く） */
+  onResumeClick: () => void;
   onViewingIndexChange: (index: number) => void;
 }
 
@@ -32,7 +33,7 @@ export function StatusBar({
   viewingStateIndex,
   totalStates,
   onPause,
-  onResume,
+  onResumeClick,
   onViewingIndexChange,
 }: StatusBarProps) {
   const [isChartOpen, chartModal] = useModal();
@@ -66,12 +67,12 @@ export function StatusBar({
       <div className={styles.controls}>
         {isPaused && (
           <button onClick={handlePrevious} disabled={!canGoPrevious} className={styles.button}>
-            {`<<`}
+            <DoubleArrowLeftIcon />
           </button>
         )}
         <span>{matchStateIndex + 1}手目</span>
         {isPaused ? (
-          <button onClick={() => onResume(viewingStateIndex ?? 0)} className={styles.button}>
+          <button onClick={onResumeClick} className={styles.button}>
             ⏵
           </button>
         ) : (
@@ -81,7 +82,7 @@ export function StatusBar({
         )}
         {isPaused && (
           <button onClick={handleNext} disabled={!canGoNext} className={styles.button}>
-            {`>>`}
+            <DoubleArrowRightIcon />
           </button>
         )}
       </div>

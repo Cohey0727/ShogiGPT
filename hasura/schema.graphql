@@ -569,6 +569,15 @@ input EvaluationsUpdates {
   where: EvaluationsBoolExp!
 }
 
+"""対局分岐リクエスト"""
+input ForkMatchInput {
+  """分岐する手数インデックス"""
+  fromIndex: Int!
+
+  """元の対局ID"""
+  matchId: String!
+}
+
 type Health {
   status: String!
   timestamp: String!
@@ -1303,6 +1312,9 @@ type mutation_root {
   """
   deleteMatchesByPk(id: String!): Matches
 
+  """対局を分岐して新しい対局を作成する"""
+  forkMatch(input: ForkMatchInput!): Match!
+
   """
   insert data into the table: "chat_messages"
   """
@@ -1390,6 +1402,9 @@ type mutation_root {
     """upsert condition"""
     onConflict: MatchesOnConflict
   ): Matches
+
+  """対局を指定した手数まで巻き戻す"""
+  rewindMatch(input: RewindMatchInput!): Match!
   sendChatMessage(input: SendChatMessageInput!): SendChatMessageResult!
   startMatch(input: StartMatchInput!): Match!
 
@@ -1732,6 +1747,15 @@ type query_root {
   matchesByPk(id: String!): Matches
 }
 
+"""対局巻き戻しリクエスト"""
+input RewindMatchInput {
+  """対局ID"""
+  matchId: String!
+
+  """巻き戻す先の手数インデックス"""
+  toIndex: Int!
+}
+
 """チャットメッセージ送信リクエスト"""
 input SendChatMessageInput {
   """AIのパーソナリティ設定"""
@@ -1767,7 +1791,7 @@ input StartMatchInput {
   """先手のプレイヤータイプ"""
   senteType: PlayerType!
 
-  """初期盤面（SFEN形式、指定しない場合は平手の初期盤面）"""
+  """初期局面（SFEN形式、指定しない場合は平手の初期局面）"""
   sfen: String
 }
 

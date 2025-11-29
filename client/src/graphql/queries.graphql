@@ -129,3 +129,29 @@ query GetMatchEvaluations($matchId: String!) {
     scoreMate
   }
 }
+
+mutation RewindMatch($matchId: String!, $toIndex: Int!) {
+  rewindMatch(input: { matchId: $matchId, toIndex: $toIndex }) {
+    id
+    createdAt
+    updatedAt
+    status
+    playerSente
+    playerGote
+    senteType
+    goteType
+  }
+}
+
+mutation ForkMatch($matchId: String!, $fromIndex: Int!) {
+  forkMatch(input: { matchId: $matchId, fromIndex: $fromIndex }) {
+    id
+    createdAt
+    updatedAt
+    status
+    playerSente
+    playerGote
+    senteType
+    goteType
+  }
+}

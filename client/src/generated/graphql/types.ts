@@ -34,14 +34,14 @@ export const AiPersonality = {
 } as const;
 
 export type AiPersonality = typeof AiPersonality[keyof typeof AiPersonality];
-/** 最善手コンテンツ（盤面解析結果） */
+/** 最善手コンテンツ（局面解析結果） */
 export type BestMoveContent = {
   __typename?: 'BestMoveContent';
   /** 最善手（USI形式） */
   bestmove: Scalars['String']['output'];
   /** エンジン名 */
   engineName: Scalars['String']['output'];
-  /** SFEN形式の盤面情報 */
+  /** SFEN形式の局面情報 */
   sfen: Scalars['String']['output'];
   /** 思考時間（ミリ秒） */
   timeMs: Scalars['Int']['output'];
@@ -514,6 +514,14 @@ export type EvaluationsUpdates = {
   where: EvaluationsBoolExp;
 };
 
+/** 対局分岐リクエスト */
+export type ForkMatchInput = {
+  /** 分岐する手数インデックス */
+  fromIndex: Scalars['Int']['input'];
+  /** 元の対局ID */
+  matchId: Scalars['String']['input'];
+};
+
 export type Health = {
   __typename?: 'Health';
   status: Scalars['String']['output'];
@@ -609,7 +617,7 @@ export type MatchState = {
   index: Scalars['Int']['output'];
   /** 対局ID */
   matchId: Scalars['String']['output'];
-  /** 盤面（SFEN形式） */
+  /** 局面（SFEN形式） */
   sfen: Scalars['String']['output'];
   /** 消費時間（秒） */
   thinkingTime?: Maybe<Scalars['Int']['output']>;
@@ -1108,8 +1116,22 @@ export type MoveVariation = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  /** 対局を分岐して新しい対局を作成する */
+  forkMatch: Match;
+  /** 対局を指定した手数まで巻き戻す */
+  rewindMatch: Match;
   sendChatMessage: SendChatMessageResult;
   startMatch: Match;
+};
+
+
+export type MutationForkMatchArgs = {
+  input: ForkMatchInput;
+};
+
+
+export type MutationRewindMatchArgs = {
+  input: RewindMatchInput;
 };
 
 
@@ -1164,6 +1186,14 @@ export type QueryMatchEvaluationsArgs = {
   matchId: Scalars['String']['input'];
 };
 
+/** 対局巻き戻しリクエスト */
+export type RewindMatchInput = {
+  /** 対局ID */
+  matchId: Scalars['String']['input'];
+  /** 巻き戻す先の手数インデックス */
+  toIndex: Scalars['Int']['input'];
+};
+
 /** チャットメッセージ送信リクエスト */
 export type SendChatMessageInput = {
   /** AIのパーソナリティ設定 */
@@ -1193,7 +1223,7 @@ export type StartMatchInput = {
   playerSente?: InputMaybe<Scalars['String']['input']>;
   /** 先手のプレイヤータイプ */
   senteType: Scalars['PlayerType']['input'];
-  /** 初期盤面（SFEN形式、指定しない場合は平手の初期盤面） */
+  /** 初期局面（SFEN形式、指定しない場合は平手の初期局面） */
   sfen?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1262,6 +1292,8 @@ export type Mutation_Root = {
   deleteMatches?: Maybe<MatchesMutationResponse>;
   /** delete single row from the table: "matches" */
   deleteMatchesByPk?: Maybe<Matches>;
+  /** 対局を分岐して新しい対局を作成する */
+  forkMatch: Match;
   /** insert data into the table: "chat_messages" */
   insertChatMessages?: Maybe<ChatMessagesMutationResponse>;
   /** insert a single row into the table: "chat_messages" */
@@ -1278,6 +1310,8 @@ export type Mutation_Root = {
   insertMatches?: Maybe<MatchesMutationResponse>;
   /** insert a single row into the table: "matches" */
   insertMatchesOne?: Maybe<Matches>;
+  /** 対局を指定した手数まで巻き戻す */
+  rewindMatch: Match;
   sendChatMessage: SendChatMessageResult;
   startMatch: Match;
   /** update data of the table: "chat_messages" */
@@ -1357,6 +1391,12 @@ export type Mutation_RootDeleteMatchesByPkArgs = {
 
 
 /** mutation root */
+export type Mutation_RootForkMatchArgs = {
+  input: ForkMatchInput;
+};
+
+
+/** mutation root */
 export type Mutation_RootInsertChatMessagesArgs = {
   objects: Array<ChatMessagesInsertInput>;
   onConflict?: InputMaybe<ChatMessagesOnConflict>;
@@ -1409,6 +1449,12 @@ export type Mutation_RootInsertMatchesArgs = {
 export type Mutation_RootInsertMatchesOneArgs = {
   object: MatchesInsertInput;
   onConflict?: InputMaybe<MatchesOnConflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootRewindMatchArgs = {
+  input: RewindMatchInput;
 };
 
 
@@ -1788,6 +1834,22 @@ export type GetMatchEvaluationsQueryVariables = Exact<{
 
 export type GetMatchEvaluationsQuery = { __typename?: 'query_root', matchEvaluations: Array<{ __typename?: 'MatchEvaluation', moveIndex: number, scoreCp?: number | null | undefined, scoreMate?: number | null | undefined }> };
 
+export type RewindMatchMutationVariables = Exact<{
+  matchId: Scalars['String']['input'];
+  toIndex: Scalars['Int']['input'];
+}>;
+
+
+export type RewindMatchMutation = { __typename?: 'mutation_root', rewindMatch: { __typename?: 'Match', id: string, createdAt: string, updatedAt: string, status: string, playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI' } };
+
+export type ForkMatchMutationVariables = Exact<{
+  matchId: Scalars['String']['input'];
+  fromIndex: Scalars['Int']['input'];
+}>;
+
+
+export type ForkMatchMutation = { __typename?: 'mutation_root', forkMatch: { __typename?: 'Match', id: string, createdAt: string, updatedAt: string, status: string, playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI' } };
+
 
 export const HealthDocument = gql`
     query Health {
@@ -1955,4 +2017,40 @@ export const GetMatchEvaluationsDocument = gql`
 
 export function useGetMatchEvaluationsQuery(options: Omit<Urql.UseQueryArgs<GetMatchEvaluationsQueryVariables>, 'query'>) {
   return Urql.useQuery<GetMatchEvaluationsQuery, GetMatchEvaluationsQueryVariables>({ query: GetMatchEvaluationsDocument, ...options });
+};
+export const RewindMatchDocument = gql`
+    mutation RewindMatch($matchId: String!, $toIndex: Int!) {
+  rewindMatch(input: {matchId: $matchId, toIndex: $toIndex}) {
+    id
+    createdAt
+    updatedAt
+    status
+    playerSente
+    playerGote
+    senteType
+    goteType
+  }
+}
+    `;
+
+export function useRewindMatchMutation() {
+  return Urql.useMutation<RewindMatchMutation, RewindMatchMutationVariables>(RewindMatchDocument);
+};
+export const ForkMatchDocument = gql`
+    mutation ForkMatch($matchId: String!, $fromIndex: Int!) {
+  forkMatch(input: {matchId: $matchId, fromIndex: $fromIndex}) {
+    id
+    createdAt
+    updatedAt
+    status
+    playerSente
+    playerGote
+    senteType
+    goteType
+  }
+}
+    `;
+
+export function useForkMatchMutation() {
+  return Urql.useMutation<ForkMatchMutation, ForkMatchMutationVariables>(ForkMatchDocument);
 };

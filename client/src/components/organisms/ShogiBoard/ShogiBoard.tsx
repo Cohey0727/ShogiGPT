@@ -65,7 +65,7 @@ export function ShogiBoard({
 
   const handleCellClick = useCallback(
     async (row: BoardIndex, col: BoardIndex) => {
-      // 盤面が無効化されている場合は何もしない
+      // 局面が無効化されている場合は何もしない
       if (disabled) return;
 
       // 持ち駒を選択している場合

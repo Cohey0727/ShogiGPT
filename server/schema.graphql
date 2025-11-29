@@ -27,6 +27,14 @@ type MatchEvaluation {
 type Mutation {
   sendChatMessage(input: SendChatMessageInput!): SendChatMessageResult!
   startMatch(input: StartMatchInput!): Match!
+  """
+  対局を指定した手数まで巻き戻す
+  """
+  rewindMatch(input: RewindMatchInput!): Match!
+  """
+  対局を分岐して新しい対局を作成する
+  """
+  forkMatch(input: ForkMatchInput!): Match!
 }
 
 type Health {
@@ -213,6 +221,34 @@ input StartMatchInput {
   初期局面（SFEN形式、指定しない場合は平手の初期局面）
   """
   sfen: String
+}
+
+"""
+対局巻き戻しリクエスト
+"""
+input RewindMatchInput {
+  """
+  対局ID
+  """
+  matchId: String!
+  """
+  巻き戻す先の手数インデックス
+  """
+  toIndex: Int!
+}
+
+"""
+対局分岐リクエスト
+"""
+input ForkMatchInput {
+  """
+  元の対局ID
+  """
+  matchId: String!
+  """
+  分岐する手数インデックス
+  """
+  fromIndex: Int!
 }
 
 """

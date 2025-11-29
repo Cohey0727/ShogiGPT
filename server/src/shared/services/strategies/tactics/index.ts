@@ -5,8 +5,6 @@ export * from "./sankenBisha";
 export * from "./shikenBisha";
 export * from "./nakabisha";
 export * from "./migiShikenBisha";
-
-// 中飛車系
 export * from "./gokigenNakabisha";
 
 // 銀の戦法

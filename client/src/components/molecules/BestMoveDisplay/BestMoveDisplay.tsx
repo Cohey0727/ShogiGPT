@@ -25,13 +25,13 @@ function formatScore(scoreCp?: number | null, scoreMate?: number | null): string
 export function BestMoveDisplay({ content }: BestMoveDisplayProps) {
   const { bestmove, variations, timeMs, sfen } = content;
 
-  // 盤面情報を取得（駒名を表示するため）
+  // 局面情報を取得（駒名を表示するため）
   let board: Board | undefined;
   try {
     board = sfenToBoard(sfen);
   } catch (error) {
     console.error("Failed to parse SFEN:", error);
-    // 盤面解析に失敗しても、駒名なしで続行
+    // 局面解析に失敗しても、駒名なしで続行
   }
 
   return (
@@ -40,7 +40,7 @@ export function BestMoveDisplay({ content }: BestMoveDisplayProps) {
         collapsible
         header={
           <Row className={styles.header} justify="space-between" align="center">
-            <h3 className={styles.title}>盤面解析結果</h3>
+            <h3 className={styles.title}>局面解析結果</h3>
             <Row className={styles.meta} justify="center" align="center">
               <span className={styles.time}>{(timeMs / 1000).toFixed(1)}秒</span>
             </Row>

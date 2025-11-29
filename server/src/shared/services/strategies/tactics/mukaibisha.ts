@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 向かい飛車の条件
@@ -16,12 +17,12 @@ const mukaibishaConditions: PieceConditionSet[] = [
 ];
 
 /**
- * 盤面が向かい飛車の形かどうかを判定
- *
- * @param board - 盤面
- * @param player - 判定対象のプレイヤー
- * @returns 向かい飛車の条件を満たせばtrue
+ * 向かい飛車
  */
-export function isMukaibisha(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, mukaibishaConditions, player);
-}
+export const mukaibisha: SingleStrategy = {
+  name: "向かい飛車",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, mukaibishaConditions, player),
+  turnRange: { from: 5 },
+};

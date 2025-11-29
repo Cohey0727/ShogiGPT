@@ -2,11 +2,11 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 中飛車の条件
- * 先手: 飛5八
- * 後手: 飛5二
+ * 飛5八
  */
 const nakabishaConditions: PieceConditionSet[] = [
   {
@@ -16,12 +16,11 @@ const nakabishaConditions: PieceConditionSet[] = [
 ];
 
 /**
- * 盤面が中飛車の形かどうかを判定
- *
- * @param board - 盤面
- * @param player - 判定対象のプレイヤー
- * @returns 中飛車の条件を満たせばtrue
+ * 中飛車
  */
-export function isNakabisha(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, nakabishaConditions, player);
-}
+export const nakabisha: SingleStrategy = {
+  name: "中飛車",
+  type: "single",
+  match: (board: Board, player: Player) => matchBoardConditions(board, nakabishaConditions, player),
+  turnRange: { from: 5 },
+};

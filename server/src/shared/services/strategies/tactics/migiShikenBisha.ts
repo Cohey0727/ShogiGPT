@@ -2,29 +2,26 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 右四間飛車の条件
- * 先手: 飛4八、銀5六
- * 後手: 飛6二、銀5四
+ * 飛4八
  */
-const migiShikenbishaConditions: PieceConditionSet[] = [
+const migiShikenBishaConditions: PieceConditionSet[] = [
   {
     type: "and",
-    conditions: [
-      { type: PieceType.Rook, position: { row: 7, col: 5 } }, // 4八
-      { type: PieceType.Silver, position: { row: 5, col: 4 } }, // 5六
-    ],
+    conditions: [{ type: PieceType.Rook, position: { row: 7, col: 5 } }], // 4八
   },
 ];
 
 /**
- * 盤面が右四間飛車の形かどうかを判定
- *
- * @param board - 盤面
- * @param player - 判定対象のプレイヤー
- * @returns 右四間飛車の条件を満たせばtrue
+ * 右四間飛車
  */
-export function isMigiShikenBisha(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, migiShikenbishaConditions, player);
-}
+export const migiShikenBisha: SingleStrategy = {
+  name: "右四間飛車",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, migiShikenBishaConditions, player),
+  turnRange: { from: 5 },
+};

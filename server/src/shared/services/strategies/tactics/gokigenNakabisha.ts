@@ -2,11 +2,11 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * ゴキゲン中飛車の条件
- * 先手: 飛5八、歩5五、角7七
- * 後手: 飛5二、歩5五、角3三
+ * 飛5八、歩5五、角7七
  */
 const gokigenNakabishaConditions: PieceConditionSet[] = [
   {
@@ -20,12 +20,12 @@ const gokigenNakabishaConditions: PieceConditionSet[] = [
 ];
 
 /**
- * 盤面がゴキゲン中飛車の形かどうかを判定
- *
- * @param board - 盤面
- * @param player - 判定対象のプレイヤー
- * @returns ゴキゲン中飛車の条件を満たせばtrue
+ * ゴキゲン中飛車
  */
-export function isGokigenNakabisha(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, gokigenNakabishaConditions, player);
-}
+export const gokigenNakabisha: SingleStrategy = {
+  name: "ゴキゲン中飛車",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, gokigenNakabishaConditions, player),
+  turnRange: { from: 10 },
+};

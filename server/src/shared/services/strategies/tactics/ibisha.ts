@@ -2,6 +2,7 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 居飛車の条件
@@ -16,12 +17,11 @@ const ibishaConditions: PieceConditionSet[] = [
 ];
 
 /**
- * 盤面が居飛車の形かどうかを判定
- *
- * @param board - 盤面
- * @param player - 判定対象のプレイヤー
- * @returns 居飛車の条件を満たせばtrue
+ * 居飛車
  */
-export function isIbisha(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, ibishaConditions, player);
-}
+export const ibisha: SingleStrategy = {
+  name: "居飛車",
+  type: "single",
+  match: (board: Board, player: Player) => matchBoardConditions(board, ibishaConditions, player),
+  turnRange: { from: 20, to: 40 },
+};

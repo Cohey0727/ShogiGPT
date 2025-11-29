@@ -83,8 +83,7 @@ export function matchForBothPlayers(
  */
 export function noBishopsOnBoard(board: Board): boolean {
   return (
-    hasNoPieceOnBoard(board, PieceType.Bishop) &&
-    hasNoPieceOnBoard(board, PieceType.PromotedBishop)
+    hasNoPieceOnBoard(board, PieceType.Bishop) && hasNoPieceOnBoard(board, PieceType.PromotedBishop)
   );
 }
 

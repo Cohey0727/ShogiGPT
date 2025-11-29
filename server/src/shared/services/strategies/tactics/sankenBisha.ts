@@ -2,13 +2,13 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 三間飛車の条件
- * 先手: 飛7八
- * 後手: 飛3二
+ * 飛7八
  */
-const sankenbishaConditions: PieceConditionSet[] = [
+const sankenBishaConditions: PieceConditionSet[] = [
   {
     type: "and",
     conditions: [{ type: PieceType.Rook, position: { row: 7, col: 2 } }], // 7八
@@ -16,12 +16,12 @@ const sankenbishaConditions: PieceConditionSet[] = [
 ];
 
 /**
- * 盤面が三間飛車の形かどうかを判定
- *
- * @param board - 盤面
- * @param player - 判定対象のプレイヤー
- * @returns 三間飛車の条件を満たせばtrue
+ * 三間飛車
  */
-export function isSankenBisha(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, sankenbishaConditions, player);
-}
+export const sankenBisha: SingleStrategy = {
+  name: "三間飛車",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, sankenBishaConditions, player),
+  turnRange: { from: 5 },
+};

@@ -2,11 +2,11 @@ import type { Board, Player } from "../../../consts/shogi";
 import { PieceType } from "../../../consts/shogi";
 import type { PieceConditionSet } from "../matchBoardConditions";
 import { matchBoardConditions } from "../matchBoardConditions";
+import type { SingleStrategy } from "../types";
 
 /**
  * 腰掛け銀の条件
  * 先手: 銀5六
- * 後手: 銀5四
  */
 const koshikakeGinConditions: PieceConditionSet[] = [
   {
@@ -16,12 +16,12 @@ const koshikakeGinConditions: PieceConditionSet[] = [
 ];
 
 /**
- * 盤面が腰掛け銀の形かどうかを判定
- *
- * @param board - 盤面
- * @param player - 判定対象のプレイヤー
- * @returns 腰掛け銀の条件を満たせばtrue
+ * 腰掛け銀
  */
-export function isKoshikakeGin(board: Board, player: Player): boolean {
-  return matchBoardConditions(board, koshikakeGinConditions, player);
-}
+export const koshikakeGin: SingleStrategy = {
+  name: "腰掛け銀",
+  type: "single",
+  match: (board: Board, player: Player) =>
+    matchBoardConditions(board, koshikakeGinConditions, player),
+  turnRange: { from: 10 },
+};

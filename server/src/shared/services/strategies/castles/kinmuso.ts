@@ -7,17 +7,15 @@ import { matchBoardConditions } from "../matchBoardConditions";
  * 金無双の条件
  * 玉3八、金4八・5八、銀2八
  */
-const kinmusoConditions: PieceConditionSet[] = [
-  {
-    type: "and",
-    conditions: [
-      { piece: PieceType.King, position: { row: 7, col: 6 } }, // 3八
-      { piece: PieceType.Gold, position: { row: 7, col: 5 } }, // 4八
-      { piece: PieceType.Gold, position: { row: 7, col: 4 } }, // 5八
-      { piece: PieceType.Silver, position: { row: 7, col: 7 } }, // 2八
-    ],
-  },
-];
+const kinmusoConditions: PieceConditionSet = {
+  type: "and",
+  conditions: [
+    { piece: PieceType.King, position: { row: 7, col: 6 } }, // 3八
+    { piece: PieceType.Gold, position: { row: 7, col: 5 } }, // 4八
+    { piece: PieceType.Gold, position: { row: 7, col: 4 } }, // 5八
+    { piece: PieceType.Silver, position: { row: 7, col: 7 } }, // 2八
+  ],
+};
 
 /**
  * 盤面が金無双の形かどうかを判定

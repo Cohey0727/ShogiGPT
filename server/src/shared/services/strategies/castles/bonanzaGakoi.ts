@@ -7,16 +7,14 @@ import { matchBoardConditions } from "../matchBoardConditions";
  * ボナンザ囲いの条件
  * 玉7九、金6八・7八
  */
-const bonanzaGakoiConditions: PieceConditionSet[] = [
-  {
-    type: "and",
-    conditions: [
-      { piece: PieceType.King, position: { row: 8, col: 2 } }, // 7九
-      { piece: PieceType.Gold, position: { row: 7, col: 3 } }, // 6八
-      { piece: PieceType.Gold, position: { row: 7, col: 2 } }, // 7八
-    ],
-  },
-];
+const bonanzaGakoiConditions: PieceConditionSet = {
+  type: "and",
+  conditions: [
+    { piece: PieceType.King, position: { row: 8, col: 2 } }, // 7九
+    { piece: PieceType.Gold, position: { row: 7, col: 3 } }, // 6八
+    { piece: PieceType.Gold, position: { row: 7, col: 2 } }, // 7八
+  ],
+};
 
 /**
  * 盤面がボナンザ囲いの形かどうかを判定

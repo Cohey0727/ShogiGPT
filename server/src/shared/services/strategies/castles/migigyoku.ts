@@ -10,16 +10,14 @@ import { matchBoardConditions } from "../matchBoardConditions";
  * 注: README.mdでは飛2八、玉2八となっているが、
  * 飛と玉が同じ2八にいることは不可能なので、飛の条件は省略
  */
-const migigyokuConditions: PieceConditionSet[] = [
-  {
-    type: "and",
-    conditions: [
-      { piece: PieceType.King, position: { row: 7, col: 7 } }, // 2八
-      { piece: PieceType.Gold, position: { row: 7, col: 6 } }, // 3八
-      { piece: PieceType.Silver, position: { row: 7, col: 5 } }, // 4八
-    ],
-  },
-];
+const migigyokuConditions: PieceConditionSet = {
+  type: "and",
+  conditions: [
+    { piece: PieceType.King, position: { row: 7, col: 7 } }, // 2八
+    { piece: PieceType.Gold, position: { row: 7, col: 6 } }, // 3八
+    { piece: PieceType.Silver, position: { row: 7, col: 5 } }, // 4八
+  ],
+};
 
 /**
  * 盤面が右玉の形かどうかを判定

@@ -7,16 +7,14 @@ import { matchBoardConditions } from "../matchBoardConditions";
  * 中原囲いの条件
  * 玉4八、金5八・3八
  */
-const nakaharaGakoiConditions: PieceConditionSet[] = [
-  {
-    type: "and",
-    conditions: [
-      { piece: PieceType.King, position: { row: 7, col: 5 } }, // 4八
-      { piece: PieceType.Gold, position: { row: 7, col: 4 } }, // 5八
-      { piece: PieceType.Gold, position: { row: 7, col: 6 } }, // 3八
-    ],
-  },
-];
+const nakaharaGakoiConditions: PieceConditionSet = {
+  type: "and",
+  conditions: [
+    { piece: PieceType.King, position: { row: 7, col: 5 } }, // 4八
+    { piece: PieceType.Gold, position: { row: 7, col: 4 } }, // 5八
+    { piece: PieceType.Gold, position: { row: 7, col: 6 } }, // 3八
+  ],
+};
 
 /**
  * 盤面が中原囲いの形かどうかを判定

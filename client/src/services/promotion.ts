@@ -1,4 +1,4 @@
-import { pieceProperties, Player, type Piece, type Position } from "../shared/consts";
+import { pieces, Player, Position, BoardPiece } from "../shared/consts";
 
 /**
  * 駒が成れる条件を満たしているか判定する
@@ -8,9 +8,9 @@ import { pieceProperties, Player, type Piece, type Position } from "../shared/co
  * @param to 移動先の位置
  * @returns 成れる場合はtrue、そうでない場合はfalse
  */
-export function canPromote(piece: Piece, from: Position, to: Position): boolean {
+export function canPromote(piece: BoardPiece, from: Position, to: Position): boolean {
   // 成れる駒タイプかチェック
-  const properties = pieceProperties[piece.type];
+  const properties = pieces[piece.type];
   if (!properties.promoted) {
     return false;
   }

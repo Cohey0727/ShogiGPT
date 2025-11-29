@@ -1,7 +1,7 @@
 import { convertPositionToJapanese } from "./convertPositionToJapanese";
 import { getPieceNameJapanese } from "./getPieceNameJapanese";
 import type { Board } from "../consts/shogi";
-import { pieceProperties } from "../consts/shogi";
+import { pieces } from "../consts/shogi";
 
 /**
  * USI形式の位置をBoard配列のインデックスに変換
@@ -47,7 +47,7 @@ export function formatMoveToJapanese(usiMove: string, board?: Board): string {
         const { row, col } = usiPositionToBoardIndex(from);
         const piece = board.cells[row]?.[col];
         if (piece) {
-          pieceName = pieceProperties[piece.type].name;
+          pieceName = pieces[piece.type].shortName;
         }
       } catch {
         // インデックスエラーの場合は駒名なしで続行

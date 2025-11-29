@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
-import { Player, pieceProperties } from "../../../shared/consts";
-import type { Board, BoardIndex, Position, PieceType } from "../../../shared/consts";
+import { Player, pieces, Board, BoardIndex, Position, PieceType } from "../../../shared/consts";
 import { getPossibleMoves, canPromote, getDropPositions } from "../../../services";
 import { moveToUsi, dropToUsi } from "../../../shared/services";
 import { useModal } from "../../molecules/hooks";
@@ -158,7 +157,7 @@ export function ShogiBoard({
 
               if (promote) {
                 // 成る
-                const promotedType = pieceProperties[piece.type].promoted;
+                const promotedType = pieces[piece.type].promoted;
                 if (promotedType) {
                   finalPiece = { ...piece, type: promotedType };
                 }
@@ -178,7 +177,7 @@ export function ShogiBoard({
             if (handsPiece) {
               // 駒を取った場合、持ち駒に追加
               // 成り駒の場合は元の駒に戻す
-              const capturedType = pieceProperties[handsPiece.type].unpromoted || handsPiece.type;
+              const capturedType = pieces[handsPiece.type].unpromoted || handsPiece.type;
 
               if (piece.player === Player.Sente) {
                 // 先手が取った
@@ -259,8 +258,8 @@ export function ShogiBoard({
               >
                 {cell && (
                   <img
-                    src={pieceProperties[cell.type].image}
-                    alt={pieceProperties[cell.type].name}
+                    src={pieces[cell.type].image}
+                    alt={pieces[cell.type].name}
                     className={clsx(styles.piece, {
                       [styles.gote]: cell.player === Player.Gote,
                     })}

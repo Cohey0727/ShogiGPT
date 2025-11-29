@@ -1,5 +1,5 @@
 import type { Cell, PieceType } from "../consts";
-import { Player, pieceProperties } from "../consts";
+import { Player, pieces as pieceData } from "../consts";
 import { sfenToBoard } from "./sfenToBoard";
 
 /**
@@ -13,7 +13,7 @@ function cellToAscii(cell: Cell): string {
   }
 
   const prefix = cell.player === Player.Sente ? "先" : "後";
-  const piece = pieceProperties[cell.type].shortName;
+  const piece = pieceData[cell.type].shortName;
   return prefix + piece;
 }
 
@@ -35,7 +35,7 @@ function handToAscii(pieces: PieceType[]): string {
 
   const result: string[] = [];
   for (const [pieceType, count] of counts) {
-    const pieceName = pieceProperties[pieceType].shortName;
+    const pieceName = pieceData[pieceType].shortName;
     if (count === 1) {
       result.push(pieceName);
     } else {

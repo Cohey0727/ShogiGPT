@@ -77,8 +77,7 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
     // SFENから局面を生成
     const board = sfenToBoard(latestState.sfen);
 
-    // 日本語の指し手をUSI形式に変換
-    const usiMove = japaneseToUsiMove(move, board);
+    const usiMove = japaneseToUsiMove(move, board, latestState.usiMove);
 
     if (!usiMove) {
       await updateChatMessageWithError(

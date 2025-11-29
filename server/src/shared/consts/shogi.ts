@@ -1,3 +1,5 @@
+import { objectEntries } from "../utils";
+
 /**
  * プレイヤー（先手/後手）
  */
@@ -49,7 +51,7 @@ export type PieceType = (typeof PieceType)[keyof typeof PieceType];
 /**
  * 駒
  */
-export interface Piece {
+export interface BoardPiece {
   /** 駒の種類 */
   type: PieceType;
   /** 駒の所有者 */
@@ -74,7 +76,7 @@ export interface Position {
 /**
  * 局面のセル
  */
-export type Cell = Piece | null;
+export type Cell = BoardPiece | null;
 
 /**
  * 局面
@@ -93,11 +95,15 @@ export interface Board {
 /**
  * 駒のプロパティ
  */
-export interface PieceProperties {
+export interface Piece {
+  /** 駒の種類 */
+  type: PieceType;
   /** 駒の日本語表記 */
   name: string;
   /** 駒の短縮表記 */
   shortName: string;
+  /** USI形式の駒文字 */
+  usi: string;
   /** 駒の画像ファイル名 */
   image: string;
   /** 成った後の駒（undefined = 成れない） */
@@ -109,87 +115,124 @@ export interface PieceProperties {
 /**
  * 各駒のプロパティ定義
  */
-export const pieceProperties: Record<PieceType, PieceProperties> = {
+export const pieces: Record<PieceType, Piece> = {
   [PieceType.King]: {
-    name: "王",
+    type: PieceType.King,
+    name: "王将",
     shortName: "王",
+    usi: "K",
     image: "/assets/pieces/king.png",
   },
   [PieceType.Rook]: {
-    name: "飛",
+    type: PieceType.Rook,
+    name: "飛車",
     shortName: "飛",
+    usi: "R",
     image: "/assets/pieces/rook.png",
     promoted: PieceType.PromotedRook,
   },
   [PieceType.Bishop]: {
-    name: "角",
+    type: PieceType.Bishop,
+    name: "角行",
     shortName: "角",
+    usi: "B",
     image: "/assets/pieces/bishop.png",
     promoted: PieceType.PromotedBishop,
   },
   [PieceType.Gold]: {
-    name: "金",
+    type: PieceType.Gold,
+    name: "金将",
     shortName: "金",
+    usi: "G",
     image: "/assets/pieces/gold.png",
   },
   [PieceType.Silver]: {
-    name: "銀",
+    type: PieceType.Silver,
+    name: "銀将",
     shortName: "銀",
+    usi: "S",
     image: "/assets/pieces/silver.png",
     promoted: PieceType.PromotedSilver,
   },
   [PieceType.Knight]: {
-    name: "桂",
+    type: PieceType.Knight,
+    name: "桂馬",
     shortName: "桂",
+    usi: "N",
     image: "/assets/pieces/knight.png",
     promoted: PieceType.PromotedKnight,
   },
   [PieceType.Lance]: {
-    name: "香",
+    type: PieceType.Lance,
+    name: "香車",
     shortName: "香",
+    usi: "L",
     image: "/assets/pieces/lance.png",
     promoted: PieceType.PromotedLance,
   },
   [PieceType.Pawn]: {
-    name: "歩",
+    type: PieceType.Pawn,
+    name: "歩兵",
     shortName: "歩",
+    usi: "P",
     image: "/assets/pieces/pawn.png",
     promoted: PieceType.PromotedPawn,
   },
   [PieceType.PromotedRook]: {
-    name: "竜",
+    type: PieceType.PromotedRook,
+    name: "竜王",
     shortName: "竜",
+    usi: "R",
     image: "/assets/pieces/promoted_rook.png",
     unpromoted: PieceType.Rook,
   },
   [PieceType.PromotedBishop]: {
-    name: "馬",
+    type: PieceType.PromotedBishop,
+    name: "竜馬",
     shortName: "馬",
+    usi: "B",
     image: "/assets/pieces/promoted_bishop.png",
     unpromoted: PieceType.Bishop,
   },
   [PieceType.PromotedSilver]: {
+    type: PieceType.PromotedSilver,
     name: "成銀",
     shortName: "全",
+    usi: "S",
     image: "/assets/pieces/promoted_silver.png",
     unpromoted: PieceType.Silver,
   },
   [PieceType.PromotedKnight]: {
+    type: PieceType.PromotedKnight,
     name: "成桂",
     shortName: "圭",
+    usi: "N",
     image: "/assets/pieces/promoted_knight.png",
     unpromoted: PieceType.Knight,
   },
   [PieceType.PromotedLance]: {
+    type: PieceType.PromotedLance,
     name: "成香",
     shortName: "杏",
+    usi: "L",
     image: "/assets/pieces/promoted_lance.png",
     unpromoted: PieceType.Lance,
   },
   [PieceType.PromotedPawn]: {
-    name: "と",
+    type: PieceType.PromotedPawn,
+    name: "と金",
     shortName: "と",
+    usi: "P",
     image: "/assets/pieces/promoted_pawn.png",
     unpromoted: PieceType.Pawn,
   },
 };
+
+export const japaneseToPiece = objectEntries(pieces).reduce(
+  (acc, [, piece]) => {
+    acc[piece.name] = piece;
+    acc[piece.shortName] = piece;
+    return acc;
+  },
+  {} as Record<string, Piece>,
+);

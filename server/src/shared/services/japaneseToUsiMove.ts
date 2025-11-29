@@ -1,5 +1,4 @@
-import type { Board, BoardIndex, PieceType, Position } from "../consts";
-import { PieceType as PieceTypeEnum, Player } from "../consts";
+import { Board, BoardIndex, japaneseToPiece, PieceType, Player, Position } from "../consts";
 import { getPossibleMoves } from "./possibleMoves";
 import { getDropPositions } from "./dropPiece";
 
@@ -13,12 +12,19 @@ import { getDropPositions } from "./dropPiece";
  * - "5五金" → 持ち駒があれば打ち、なければ局面から移動
  * - "2四角成" → 角を2四に移動して成る
  * - "7六歩不成" → 7六に歩を移動するが成らない
+ * - "同歩" → 直前の手と同じ場所に歩を移動
+ * - "同銀成" → 直前の手と同じ場所に銀を移動して成る
  *
  * @param japaneseMove 日本語の指し手
  * @param board 現在の局面
+ * @param beforeMoveUsi 直前の指し手（USI形式）。「同」表記の解決に使用
  * @returns USI形式の指し手、変換できない場合はnull
  */
-export function japaneseToUsiMove(japaneseMove: string, board: Board): string | null {
+export function japaneseToUsiMove(
+  japaneseMove: string,
+  board: Board,
+  beforeMoveUsi: string,
+): string | null {
   // 全角を半角に変換
   const normalized = japaneseMove
     // 全角数字を半角に変換
@@ -36,12 +42,50 @@ export function japaneseToUsiMove(japaneseMove: string, board: Board): string | 
     return null;
   }
 
+  // パターン0: 同〇（例: "同歩", "同銀成", "同角不成"）
+  const sameMatch = move.match(/^同(.+?)(成|不成)?$/);
+  if (sameMatch) {
+    if (!beforeMoveUsi) {
+      return null;
+    }
+
+    const [, pieceName, promotionFlag] = sameMatch;
+
+    // 直前の手の移動先を取得（USI形式: "7g7f" → "7f"が移動先）
+    // 駒打ちの場合は "P*5e" のような形式なので、最後の2文字が移動先
+    const toPos = beforeMoveUsi.length >= 2 ? beforeMoveUsi.slice(-2) : null;
+    if (!toPos || !/^[1-9][a-i]$/.test(toPos)) {
+      return null;
+    }
+
+    const toIndex = usiPositionToIndex(toPos);
+    if (!toIndex) {
+      return null;
+    }
+
+    const isPromotion = promotionFlag === "成";
+    const pieceType = japaneseToPiece[pieceName]?.type;
+
+    if (pieceType) {
+      const fromPositions = findPiecesCanMoveTo(board, pieceType, board.turn, toIndex);
+
+      if (fromPositions.length >= 1) {
+        const from = fromPositions[0];
+        const fromPos = indexToUsiPosition(from.row, from.col);
+        const promotionMark = isPromotion ? "+" : "";
+        return `${fromPos}${toPos}${promotionMark}`;
+      }
+    }
+
+    return null;
+  }
+
   // パターン1: 駒打ち（例: "5五金打", "55金打", "５五金打"）
   const dropMatch = move.match(/^([１-９1-9])([一二三四五六七八九1-9])(.+?)打$/);
   if (dropMatch) {
     const [, file, rank, pieceName] = dropMatch;
     const toPos = japanesePositionToUsi(`${file}${rank}`);
-    const usiPiece = japaneseToUsiPiece[pieceName];
+    const usiPiece = japaneseToPiece[pieceName]?.usi;
 
     if (toPos && usiPiece) {
       return `${usiPiece}*${toPos}`;
@@ -88,7 +132,7 @@ export function japaneseToUsiMove(japaneseMove: string, board: Board): string | 
     const isPromotion = promotionFlag === "成";
 
     // 駒のタイプを取得
-    const pieceType = japaneseToPieceType[pieceName];
+    const pieceType = japaneseToPiece[pieceName]?.type;
 
     // まず駒打ちを試す（持ち駒に該当する駒がある場合）
     const capturedPieces = board.turn === Player.Sente ? board.senteHands : board.goteHands;
@@ -100,7 +144,7 @@ export function japaneseToUsiMove(japaneseMove: string, board: Board): string | 
           (pos) => pos.row === toIndex.row && pos.col === toIndex.col,
         );
         if (canDrop) {
-          const usiPiece = japaneseToUsiPiece[pieceName];
+          const usiPiece = japaneseToPiece[pieceName]?.usi;
           if (usiPiece) {
             return `${usiPiece}*${toPos}`;
           }
@@ -132,43 +176,6 @@ export function japaneseToUsiMove(japaneseMove: string, board: Board): string | 
 
   return null;
 }
-
-/**
- * 日本語の駒名をUSI形式に変換
- */
-const japaneseToUsiPiece: Record<string, string> = {
-  歩: "P",
-  香: "L",
-  桂: "N",
-  銀: "S",
-  金: "G",
-  角: "B",
-  飛: "R",
-  玉: "K",
-  王: "K",
-  と: "P",
-  成香: "L",
-  成桂: "N",
-  成銀: "S",
-  馬: "B",
-  竜: "R",
-  龍: "R",
-};
-
-/**
- * 日本語の駒名からPieceTypeに変換
- */
-const japaneseToPieceType: Record<string, PieceType> = {
-  歩: PieceTypeEnum.Pawn,
-  香: PieceTypeEnum.Lance,
-  桂: PieceTypeEnum.Knight,
-  銀: PieceTypeEnum.Silver,
-  金: PieceTypeEnum.Gold,
-  角: PieceTypeEnum.Bishop,
-  飛: PieceTypeEnum.Rook,
-  玉: PieceTypeEnum.King,
-  王: PieceTypeEnum.King,
-};
 
 /**
  * 日本語の段（一～九）をUSI形式（a～i）に変換
@@ -301,12 +308,12 @@ function findPiecesCanMoveTo(
         piece.player === player &&
         (piece.type === pieceType ||
           // 成り駒も考慮
-          (pieceType === PieceTypeEnum.Pawn && piece.type === PieceTypeEnum.PromotedPawn) ||
-          (pieceType === PieceTypeEnum.Lance && piece.type === PieceTypeEnum.PromotedLance) ||
-          (pieceType === PieceTypeEnum.Knight && piece.type === PieceTypeEnum.PromotedKnight) ||
-          (pieceType === PieceTypeEnum.Silver && piece.type === PieceTypeEnum.PromotedSilver) ||
-          (pieceType === PieceTypeEnum.Bishop && piece.type === PieceTypeEnum.PromotedBishop) ||
-          (pieceType === PieceTypeEnum.Rook && piece.type === PieceTypeEnum.PromotedRook))
+          (pieceType === PieceType.Pawn && piece.type === PieceType.PromotedPawn) ||
+          (pieceType === PieceType.Lance && piece.type === PieceType.PromotedLance) ||
+          (pieceType === PieceType.Knight && piece.type === PieceType.PromotedKnight) ||
+          (pieceType === PieceType.Silver && piece.type === PieceType.PromotedSilver) ||
+          (pieceType === PieceType.Bishop && piece.type === PieceType.PromotedBishop) ||
+          (pieceType === PieceType.Rook && piece.type === PieceType.PromotedRook))
       ) {
         const fromPosition: Position = {
           row: row as BoardIndex,

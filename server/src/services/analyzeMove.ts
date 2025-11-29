@@ -1,5 +1,5 @@
-import type { Position, Piece, Player } from "../shared/consts/shogi";
-import { pieceProperties } from "../shared/consts/shogi";
+import type { Position, BoardPiece, Player } from "../shared/consts/shogi";
+import { pieces } from "../shared/consts/shogi";
 import type { BoardDiff } from "./boardDiff";
 
 /**
@@ -25,9 +25,9 @@ export interface Move {
   /** 移動先の位置 */
   to: Position;
   /** 移動した駒 */
-  piece: Piece;
+  piece: BoardPiece;
   /** 取った駒（なければundefined） */
-  captured?: Piece;
+  captured?: BoardPiece;
   /** 成ったかどうか */
   promoted: boolean;
 }
@@ -107,14 +107,14 @@ export function analyzeMove(diff: BoardDiff, currentPlayer: Player): Move | null
 
   // 成った場合、成り駒が正しいか確認
   if (promoted) {
-    const expectedPromoted = pieceProperties[movedPiece.type].promoted;
+    const expectedPromoted = pieces[movedPiece.type].promoted;
     if (expectedPromoted !== destinationPiece.type) {
       return null;
     }
   }
 
   // 駒を取ったかどうかを判定
-  let captured: Piece | undefined;
+  let captured: BoardPiece | undefined;
   if (toDiff.before !== null) {
     captured = toDiff.before;
 
@@ -122,7 +122,7 @@ export function analyzeMove(diff: BoardDiff, currentPlayer: Player): Move | null
     const playerCapturedDiff = currentPlayer === "SENTE" ? capturedDiff.sente : capturedDiff.gote;
 
     // 取った駒が成り駒の場合、元の駒に戻して持ち駒に追加される
-    const capturedType = pieceProperties[captured.type].unpromoted ?? captured.type;
+    const capturedType = pieces[captured.type].unpromoted ?? captured.type;
 
     if (!playerCapturedDiff.added.includes(capturedType)) {
       return null;

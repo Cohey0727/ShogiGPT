@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Player, pieceProperties, PieceType } from "../../../shared/consts";
+import { Player, pieces as pieceData, PieceType } from "../../../shared/consts";
 import styles from "./HandStand.css";
 
 interface PieceStandProps {
@@ -49,7 +49,7 @@ export function HandStand({
       <div className={styles.capturedList}>
         {pieceOrder.map((pieceType) => {
           const count = pieceCounts[pieceType] || 0;
-          const piece = pieceProperties[pieceType];
+          const piece = pieceData[pieceType];
           const captured = count > 0;
           const isSelected = selectedPieceType === pieceType;
 

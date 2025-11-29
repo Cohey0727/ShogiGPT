@@ -1,4 +1,4 @@
-import { pieceProperties, type PieceType } from "../../../shared/consts";
+import { pieces, type PieceType } from "../../../shared/consts";
 import * as styles from "./PromotionModal.css";
 
 interface PromotionModalProps {
@@ -15,14 +15,14 @@ export function PromotionModal({
   onSelectNormal,
   onSelectPromoted,
 }: PromotionModalProps) {
-  const properties = pieceProperties[pieceType];
+  const properties = pieces[pieceType];
   const promotedType = properties.promoted;
 
   if (!promotedType) {
     return null;
   }
 
-  const promotedProperties = pieceProperties[promotedType];
+  const promotedProperties = pieces[promotedType];
 
   return (
     <div className={styles.overlay}>

@@ -1,5 +1,5 @@
 import type { Board, Player } from "../shared/consts/shogi";
-import { PieceType, pieceProperties } from "../shared/consts/shogi";
+import { PieceType, pieces } from "../shared/consts/shogi";
 import { isCheckmate } from "../shared/services/checkmate";
 import { castles, tactics } from "../shared/services/strategies";
 import type { SingleStrategy, Strategy } from "../shared/services/strategies";
@@ -354,7 +354,7 @@ function analyzeCapture(args: AnalyzeMoveTagsArgs): string | undefined {
   if (moveInfo.from) {
     const targetCell = beforeBoard.cells[moveInfo.to.row][moveInfo.to.col];
     if (targetCell && targetCell.player === opponentPlayer) {
-      return pieceProperties[targetCell.type].name;
+      return pieces[targetCell.type].shortName;
     }
   }
 

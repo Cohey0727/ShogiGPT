@@ -318,8 +318,36 @@ tsc --noEmit
 
 ### 3. 命名規則
 
+#### UPPER_SNAKE_CASEの使用制限
+
+**UPPER_SNAKE_CASE は以下の場合にのみ使用すること:**
+
+1. 環境変数名（`VITE_API_URL`, `VITE_APP_ENV` など）
+2. 環境変数から読み取った値を格納する変数
+3. 環境変数を簡単に加工したプリミティブな値
+
+上記以外のコード内の定数には UPPER_SNAKE_CASE を使用せず、camelCase または PascalCase を使用する。
+
+```ts
+// ✅ 良い例: 環境変数名と、それを読み取った値
+const API_URL = import.meta.env.VITE_API_URL;
+const APP_ENV = import.meta.env.VITE_APP_ENV;
+
+// ✅ 良い例: コード内の定数はcamelCaseまたはPascalCase
+const maxRetries = 3;
+const defaultTimeout = 5000;
+const apiVersion = "v1";
+
+// ❌ 悪い例: 環境変数と無関係な定数にUPPER_SNAKE_CASEを使用
+const MAX_RETRIES = 3;
+const DEFAULT_TIMEOUT = 5000;
+```
+
+#### 基本ルール
+
 - **変数・関数**: camelCase（例: `userName`, `handleClick`）
-- **定数**: UPPER_SNAKE_CASE（例: `MAX_COUNT`, `API_URL`）
+- **定数**: camelCase（例: `maxRetries`, `defaultTimeout`）
+- **定数オブジェクト**: PascalCase（例: `Player`, `MoveType`）
 - **コンポーネント**: PascalCase（例: `Button`, `HomePage`）
 - **型・インターフェース**: PascalCase（例: `ButtonProps`, `User`）
 

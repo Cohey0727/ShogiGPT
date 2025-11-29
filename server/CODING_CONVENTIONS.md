@@ -19,14 +19,13 @@
 src/
 ├── resolvers/        # GraphQLリゾルバー
 │   ├── Query/       # クエリリゾルバー
-│   ├── Mutation/    # ミューテーションリゾルバー（今後追加）
+│   ├── Mutation/    # ミューテーションリゾルバー
 │   ├── resolvers.ts # リゾルバーの集約
 │   ├── schema.ts    # GraphQLスキーマ定義
 │   └── types.ts     # リゾルバー型定義
 ├── services/         # ビジネスロジック、ドメインロジック
 ├── shared/           # クライアントとの共有コード
-│   └── consts/      # 定数定義
-├── middleware/       # Honoミドルウェア（今後追加）
+├── middleware/       # Honoミドルウェア
 └── index.ts          # エントリーポイント
 ```
 
@@ -302,6 +301,32 @@ export const health: QueryResolvers["health"] = () => ({
 
 ## 命名規則
 
+### UPPER_SNAKE_CASEの使用制限
+
+**UPPER_SNAKE_CASE は以下の場合にのみ使用すること:**
+
+1. 環境変数名（`API_KEY`, `DATABASE_URL` など）
+2. 環境変数から読み取った値を格納する変数
+3. 環境変数を簡単に加工したプリミティブな値
+
+上記以外のコード内の定数には UPPER_SNAKE_CASE を使用せず、camelCase または PascalCase を使用する。
+
+```ts
+// ✅ 良い例: 環境変数名と、それを読み取った値
+const API_KEY = Bun.env.API_KEY;
+const DATABASE_URL = Bun.env.DATABASE_URL;
+const PORT = Number.parseInt(Bun.env.PORT ?? "8787", 10);
+
+// ✅ 良い例: コード内の定数はcamelCaseまたはPascalCase
+const defaultPort = 8787;
+const maxRetries = 3;
+const apiVersion = "v1";
+
+// ❌ 悪い例: 環境変数と無関係な定数にUPPER_SNAKE_CASEを使用
+const DEFAULT_PORT = 8787;
+const MAX_RETRIES = 3;
+```
+
 ### 1. 変数・関数
 
 - **変数**: camelCase（例: `currentPlayer`, `boardDiff`）
@@ -311,7 +336,7 @@ export const health: QueryResolvers["health"] = () => ({
 ### 2. 定数
 
 - **定数オブジェクト**: PascalCase（例: `MoveType`, `Player`）
-- **単純な定数**: UPPER_SNAKE_CASE（例: `MAX_RETRIES`, `API_VERSION`）
+- **単純な定数**: camelCase（例: `defaultPort`, `maxRetries`, `apiVersion`）
 
 ```ts
 // 定数オブジェクト
@@ -321,7 +346,8 @@ export const Player = {
 } as const;
 
 // 単純な定数
-export const DEFAULT_PORT = 8787;
+export const defaultPort = 8787;
+export const maxRetries = 3;
 ```
 
 ### 3. 型・インターフェース

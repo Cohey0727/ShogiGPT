@@ -56,7 +56,7 @@ async function generateAndUpdateAiResponse(params: {
 
     // 会話履歴を取得（最新3件、partial除外）
     const history = await db.chatMessage.findMany({
-      where: { matchId, isPartial: false, role: "USER" },
+      where: { matchId, isPartial: false },
       orderBy: { createdAt: "asc" },
       take: 3,
     });
@@ -151,7 +151,7 @@ function createChatContent(content: string, aiPersonality: AiPersonality): strin
 
 【最重要ルール - 必ず守ること】
 重要な原則：
-- ユーザーが「打って」「指して」「動かして」などと言った場合、絶対にmove_and_evaluate関数を呼び出してください
+- ユーザーが駒を動かす旨の発言があった場合、絶対にmove_and_evaluate関数を呼び出してください
 - 「5六角」「2四飛(2八)」など手順のみをユーザーが言ってきた場合は、絶対にmove_and_evaluate関数を呼び出してください。**絶対に差し手を変更するな！**、そのまま引数にしろ。
 - 自分が引数にする指し手が変更されていないかを必ず確認してください。
 - 将棋に関する質問や指示には、必ず利用可能なツールを使用してください

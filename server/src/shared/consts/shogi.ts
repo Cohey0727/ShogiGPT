@@ -100,6 +100,8 @@ export interface Piece {
   type: PieceType;
   /** 駒の日本語表記 */
   name: string;
+  /** 駒の別名 */
+  otherNames?: string[];
   /** 駒の短縮表記 */
   shortName: string;
   /** USI形式の駒文字 */
@@ -118,8 +120,9 @@ export interface Piece {
 export const pieces: Record<PieceType, Piece> = {
   [PieceType.King]: {
     type: PieceType.King,
-    name: "王将",
-    shortName: "王",
+    name: "玉将",
+    shortName: "玉",
+    otherNames: ["王将", "王"],
     usi: "K",
     image: "/assets/pieces/king.png",
   },

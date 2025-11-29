@@ -738,9 +738,14 @@ export function analyzeStrategyTags(args: AnalyzeMoveTagsArgs, turnNumber: numbe
       continue;
     }
 
+    // turnRange.fromの開始ターンでは、前のターンは判定対象外なのでwasは常にfalse扱いとする
+    const isFirstTurnInRange =
+      strategy.turnRange.from !== undefined && turnNumber === strategy.turnRange.from;
+
     if (isSingleStrategy(strategy)) {
       // 自分の戦略を判定
-      const wasMatchedSelf = strategy.match(beforeBoard, perspective);
+      // 開始ターンでは前のターンは判定対象外なのでfalse扱い
+      const wasMatchedSelf = isFirstTurnInRange ? false : strategy.match(beforeBoard, perspective);
       const isMatchedSelf = strategy.match(afterBoard, perspective);
 
       if (!wasMatchedSelf && isMatchedSelf) {
@@ -751,17 +756,12 @@ export function analyzeStrategyTags(args: AnalyzeMoveTagsArgs, turnNumber: numbe
           // 相手の手で自分の戦略が成立することは稀だが一応
           tags.push(`${strategy.name}が成立`);
         }
-      } else if (wasMatchedSelf && !isMatchedSelf) {
-        // 戦略が崩れた
-        if (isMyselfMove) {
-          tags.push(`${strategy.name}を崩す`);
-        } else {
-          tags.push(`${strategy.name}を崩される`);
-        }
       }
-
       // 相手の戦略を判定
-      const wasMatchedOpponent = strategy.match(beforeBoard, opponentPlayer);
+      // 開始ターンでは前のターンは判定対象外なのでfalse扱い
+      const wasMatchedOpponent = isFirstTurnInRange
+        ? false
+        : strategy.match(beforeBoard, opponentPlayer);
       const isMatchedOpponent = strategy.match(afterBoard, opponentPlayer);
 
       if (!wasMatchedOpponent && isMatchedOpponent) {
@@ -771,21 +771,15 @@ export function analyzeStrategyTags(args: AnalyzeMoveTagsArgs, turnNumber: numbe
         } else {
           tags.push(`相手が${strategy.name}を構築`);
         }
-      } else if (wasMatchedOpponent && !isMatchedOpponent) {
-        // 相手の戦略が崩れた
-        if (isMyselfMove) {
-          tags.push(`相手の${strategy.name}を崩す`);
-        }
       }
     } else {
       // both型の戦略（現在は未使用だが将来のために）
-      const wasMatched = strategy.match(beforeBoard);
+      // 開始ターンでは前のターンは判定対象外なのでfalse扱い
+      const wasMatched = isFirstTurnInRange ? false : strategy.match(beforeBoard);
       const isMatched = strategy.match(afterBoard);
 
       if (!wasMatched && isMatched) {
         tags.push(`${strategy.name}が成立`);
-      } else if (wasMatched && !isMatched) {
-        tags.push(`${strategy.name}が崩れる`);
       }
     }
   }

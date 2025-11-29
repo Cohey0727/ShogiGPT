@@ -35,5 +35,5 @@ export const nakazumai: SingleStrategy = {
   name: "中住まい",
   type: "single",
   match: (board: Board, player: Player) => matchBoardConditions(board, nakazumaiConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { from: 30 },
 };

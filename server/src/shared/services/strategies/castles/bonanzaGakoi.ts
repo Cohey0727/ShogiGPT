@@ -25,5 +25,5 @@ export const bonanzaGakoi: SingleStrategy = {
   type: "single",
   match: (board: Board, player: Player) =>
     matchBoardConditions(board, bonanzaGakoiConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

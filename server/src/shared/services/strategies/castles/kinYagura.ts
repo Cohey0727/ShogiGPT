@@ -25,5 +25,5 @@ export const kinYagura: SingleStrategy = {
   name: "金矢倉",
   type: "single",
   match: (board: Board, player: Player) => matchBoardConditions(board, kinYaguraConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

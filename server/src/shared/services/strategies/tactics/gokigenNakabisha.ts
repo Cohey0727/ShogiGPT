@@ -25,5 +25,5 @@ export const gokigenNakabisha: SingleStrategy = {
   type: "single",
   match: (board: Board, player: Player) =>
     matchBoardConditions(board, gokigenNakabishaConditions, player),
-  turnRange: { from: 10 },
+  turnRange: { to: 30 },
 };

@@ -20,5 +20,5 @@ export const nakabisha: SingleStrategy = {
   name: "中飛車",
   type: "single",
   match: (board: Board, player: Player) => matchBoardConditions(board, nakabishaConditions, player),
-  turnRange: { from: 5 },
+  turnRange: { to: 30 },
 };

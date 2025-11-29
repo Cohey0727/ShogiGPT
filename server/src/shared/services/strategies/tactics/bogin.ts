@@ -29,5 +29,5 @@ export const bogin: SingleStrategy = {
   name: "棒銀",
   type: "single",
   match: (board: Board, player: Player) => matchBoardConditions(board, boginConditions, player),
-  turnRange: { to: 20 },
+  turnRange: { to: 30 },
 };

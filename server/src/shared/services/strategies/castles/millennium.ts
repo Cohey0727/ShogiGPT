@@ -27,5 +27,5 @@ export const millennium: SingleStrategy = {
   type: "single",
   match: (board: Board, player: Player) =>
     matchBoardConditions(board, millenniumConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

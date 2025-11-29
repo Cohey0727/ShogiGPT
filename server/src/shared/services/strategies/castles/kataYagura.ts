@@ -26,5 +26,5 @@ export const kataYagura: SingleStrategy = {
   type: "single",
   match: (board: Board, player: Player) =>
     matchBoardConditions(board, kataYaguraConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

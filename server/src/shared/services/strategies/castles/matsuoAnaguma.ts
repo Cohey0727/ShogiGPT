@@ -28,5 +28,5 @@ export const matsuoAnaguma: SingleStrategy = {
   type: "single",
   match: (board: Board, player: Player) =>
     matchBoardConditions(board, matsuoAnagumaConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 40 },
 };

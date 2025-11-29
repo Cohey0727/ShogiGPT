@@ -21,5 +21,5 @@ export const migiShikenBisha: SingleStrategy = {
   type: "single",
   match: (board: Board, player: Player) =>
     matchBoardConditions(board, migiShikenBishaConditions, player),
-  turnRange: { from: 5 },
+  turnRange: { to: 30 },
 };

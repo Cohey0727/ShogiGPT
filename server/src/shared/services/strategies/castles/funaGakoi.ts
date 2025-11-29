@@ -27,5 +27,5 @@ export const funaGakoi: SingleStrategy = {
   name: "舟囲い",
   type: "single",
   match: (board: Board, player: Player) => matchBoardConditions(board, funaGakoiConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

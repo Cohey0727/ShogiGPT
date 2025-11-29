@@ -41,5 +41,5 @@ export const mukaibisha: BothStrategy = {
 
     return senteMukai || goteMukai;
   },
-  turnRange: { from: 5 },
+  turnRange: { to: 30 },
 };

@@ -6,11 +6,14 @@ import type { SingleStrategy } from "../types";
 
 /**
  * 早繰り銀の条件
- * 先手: 銀4六
+ * 先手: 銀4六、歩4七
  */
 const hayakuriGinConditions: PieceConditionSet = {
   type: "and",
-  conditions: [{ piece: PieceType.Silver, position: { row: 5, col: 5 } }], // 4六
+  conditions: [
+    { piece: PieceType.Silver, position: { row: 5, col: 5 } },
+    { piece: PieceType.Pawn, position: { row: 6, col: 5 } },
+  ], // 4六
 };
 
 /**
@@ -21,5 +24,5 @@ export const hayakuriGin: SingleStrategy = {
   type: "single",
   match: (board: Board, player: Player) =>
     matchBoardConditions(board, hayakuriGinConditions, player),
-  turnRange: { from: 10 },
+  turnRange: { to: 30 },
 };

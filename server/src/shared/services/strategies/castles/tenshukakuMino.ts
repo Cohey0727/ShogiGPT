@@ -27,5 +27,5 @@ export const tenshukakuMino: SingleStrategy = {
   type: "single",
   match: (board: Board, player: Player) =>
     matchBoardConditions(board, tenshukakuMinoConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

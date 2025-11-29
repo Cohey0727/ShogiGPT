@@ -25,5 +25,5 @@ export const kinmuso: SingleStrategy = {
   name: "金無双",
   type: "single",
   match: (board: Board, player: Player) => matchBoardConditions(board, kinmusoConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

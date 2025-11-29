@@ -24,5 +24,5 @@ export const mino: SingleStrategy = {
   name: "美濃囲い",
   type: "single",
   match: (board: Board, player: Player) => matchBoardConditions(board, minoConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

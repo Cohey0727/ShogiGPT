@@ -25,5 +25,5 @@ export const nakaharaGakoi: SingleStrategy = {
   type: "single",
   match: (board: Board, player: Player) =>
     matchBoardConditions(board, nakaharaGakoiConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

@@ -24,5 +24,5 @@ export const kataMino: SingleStrategy = {
   name: "片美濃",
   type: "single",
   match: (board: Board, player: Player) => matchBoardConditions(board, kataMinoConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

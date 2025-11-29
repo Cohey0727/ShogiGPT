@@ -25,5 +25,5 @@ export const kaniGakoi: SingleStrategy = {
   name: "カニ囲い",
   type: "single",
   match: (board: Board, player: Player) => matchBoardConditions(board, kaniGakoiConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

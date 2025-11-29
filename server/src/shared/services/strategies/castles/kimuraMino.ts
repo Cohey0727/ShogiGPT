@@ -26,5 +26,5 @@ export const kimuraMino: SingleStrategy = {
   type: "single",
   match: (board: Board, player: Player) =>
     matchBoardConditions(board, kimuraMinoConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

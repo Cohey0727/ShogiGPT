@@ -21,5 +21,5 @@ export const ibisha: SingleStrategy = {
   name: "居飛車",
   type: "single",
   match: (board: Board, player: Player) => matchBoardConditions(board, ibishaConditions, player),
-  turnRange: { from: 20, to: 40 },
+  turnRange: { from: 20, to: 30 },
 };

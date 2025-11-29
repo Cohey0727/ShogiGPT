@@ -28,5 +28,5 @@ export const ibishaAnaguma: SingleStrategy = {
   type: "single",
   match: (board: Board, player: Player) =>
     matchBoardConditions(board, ibishaAnagumaConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 40 },
 };

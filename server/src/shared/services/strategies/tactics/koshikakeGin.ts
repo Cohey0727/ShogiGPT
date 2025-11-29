@@ -6,11 +6,14 @@ import type { SingleStrategy } from "../types";
 
 /**
  * 腰掛け銀の条件
- * 先手: 銀5六
+ * 先手: 銀5六、歩5七
  */
 const koshikakeGinConditions: PieceConditionSet = {
   type: "and",
-  conditions: [{ piece: PieceType.Silver, position: { row: 5, col: 4 } }], // 5六
+  conditions: [
+    { piece: PieceType.Silver, position: { row: 5, col: 4 } },
+    { piece: PieceType.Pawn, position: { row: 6, col: 4 } },
+  ], // 5六
 };
 
 /**
@@ -21,5 +24,5 @@ export const koshikakeGin: SingleStrategy = {
   type: "single",
   match: (board: Board, player: Player) =>
     matchBoardConditions(board, koshikakeGinConditions, player),
-  turnRange: { from: 10 },
+  turnRange: { to: 30 },
 };

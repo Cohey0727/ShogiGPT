@@ -33,5 +33,5 @@ export const gangiGakoi: SingleStrategy = {
   type: "single",
   match: (board: Board, player: Player) =>
     matchBoardConditions(board, gangiGakoiConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

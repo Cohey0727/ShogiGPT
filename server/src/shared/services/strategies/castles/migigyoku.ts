@@ -27,5 +27,5 @@ export const migigyoku: SingleStrategy = {
   name: "右玉",
   type: "single",
   match: (board: Board, player: Player) => matchBoardConditions(board, migigyokuConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

@@ -26,5 +26,5 @@ export const diamondMino: SingleStrategy = {
   type: "single",
   match: (board: Board, player: Player) =>
     matchBoardConditions(board, diamondMinoConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

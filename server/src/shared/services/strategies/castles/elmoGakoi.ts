@@ -32,5 +32,5 @@ export const elmoGakoi: SingleStrategy = {
   name: "エルモ囲い",
   type: "single",
   match: (board: Board, player: Player) => matchBoardConditions(board, elmoGakoiConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

@@ -29,5 +29,5 @@ export const ginkanmuriAnaguma: SingleStrategy = {
   type: "single",
   match: (board: Board, player: Player) =>
     matchBoardConditions(board, ginkanmuriAnagumaConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 40 },
 };

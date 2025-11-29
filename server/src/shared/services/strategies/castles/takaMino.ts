@@ -25,5 +25,5 @@ export const takaMino: SingleStrategy = {
   name: "高美濃",
   type: "single",
   match: (board: Board, player: Player) => matchBoardConditions(board, takaMinoConditions, player),
-  turnRange: { from: 20 },
+  turnRange: { to: 30 },
 };

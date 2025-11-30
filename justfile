@@ -89,3 +89,16 @@ ngrok:
 		"cd {{client_dir}} && bun run start" \
 		"caddy run --config ./Caddyfile" \
 		"ngrok http 8080"
+
+# Start localtunnel with Caddy reverse proxy and dev servers
+localtunnel:
+	@echo "Starting Docker Compose services..."
+	@docker compose up -d
+	@echo "Waiting for services to be ready..."
+	@sleep 3
+	mprocs \
+		"docker compose logs -f" \
+		"cd {{server_dir}} && bun run start" \
+		"cd {{client_dir}} && bun run start" \
+		"caddy run --config ./Caddyfile" \
+		"npx localtunnel --port 8080"

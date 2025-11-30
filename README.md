@@ -95,17 +95,17 @@ shogi-gpt/
 | `just codegen` | GraphQLスキーマから型定義を生成 |
 | `just db-reset` | データベースを完全にリセット（**警告**: すべてのデータを削除） |
 | `just ngrok` | ngrokトンネルを起動してサービスを外部公開 |
+| `just localtunnel` | localtunnelでサービスを外部公開 |
 
-## 外部公開（ngrok + Caddy）
+## 外部公開
 
-ローカル開発環境を外部に公開したい場合は、ngrokとCaddyを使用します。
-ngrok Free Tierでは1つのURLしか使えないため、Caddyでパスベースのルーティングを行います。
+ローカル開発環境を外部に公開する方法です。Caddyでパスベースのルーティングを行います。
 
-### セットアップ
+### ngrokで公開する場合
 
-1. ngrokをインストール
+1. ngrokとCaddyをインストール
    ```bash
-   brew install ngrok
+   brew install ngrok caddy
    ```
 
 2. [ngrokダッシュボード](https://dashboard.ngrok.com/get-started/your-authtoken)でアカウントを作成し、認証トークンを取得
@@ -115,19 +115,30 @@ ngrok Free Tierでは1つのURLしか使えないため、Caddyでパスベー�
    authtoken: your_token_here
    ```
 
-4. Caddyをインストール
+4. 起動
+   ```bash
+   just ngrok
+   ```
+
+5. ルーティング
+   - `https://xxx.ngrok-free.app/v1/graphql*` → Hasura (localhost:7777)
+   - `https://xxx.ngrok-free.app/*` → Client (localhost:3030)
+
+### localtunnelで公開する場合
+
+1. Caddyをインストール（ngrokと同様）
    ```bash
    brew install caddy
    ```
 
-### 起動方法
+2. 起動
+   ```bash
+   just localtunnel
+   ```
+   ※ localtunnel自体はnpx経由で実行されるためインストール不要
 
-```bash
-just ngrok
-```
+3. ルーティング（ngrokと同様）
+   - `https://xxx.loca.lt/v1/graphql*` → Hasura (localhost:7777)
+   - `https://xxx.loca.lt/*` → Client (localhost:3030)
 
-### ルーティング
-
-ngrokの1つのURLから以下のようにルーティングされます：
-- `https://xxx.ngrok-free.app/v1/graphql*` → Hasura (localhost:7777)
-- `https://xxx.ngrok-free.app/*` → Client (localhost:3030)
+4. 注意: 初回アクセス時にIP確認画面が表示されます

@@ -101,4 +101,17 @@ localtunnel:
 		"cd {{server_dir}} && bun run start" \
 		"cd {{client_dir}} && bun run start" \
 		"caddy run --config ./Caddyfile" \
-		"npx localtunnel --port 8080"
+		"echo 'Tunnel password (your global IP):' && curl -s ifconfig.me && echo && npx localtunnel --port 8080"
+
+# Start Cloudflare Tunnel with Caddy reverse proxy and dev servers
+cloudflared:
+	@echo "Starting Docker Compose services..."
+	@docker compose up -d
+	@echo "Waiting for services to be ready..."
+	@sleep 3
+	mprocs \
+		"docker compose logs -f" \
+		"cd {{server_dir}} && bun run start" \
+		"cd {{client_dir}} && bun run start" \
+		"caddy run --config ./Caddyfile" \
+		"cloudflared tunnel --url http://localhost:8080"

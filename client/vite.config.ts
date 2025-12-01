@@ -21,6 +21,6 @@ export default defineConfig({
   },
   server: {
     port: 3030,
-    allowedHosts: [".ngrok-free.app", ".ngrok-free.dev"],
+    allowedHosts: [".ngrok-free.app", ".ngrok-free.dev", ".loca.lt", ".trycloudflare.com"],
   },
 });

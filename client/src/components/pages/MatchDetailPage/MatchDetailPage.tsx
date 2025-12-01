@@ -203,10 +203,16 @@ export function MatchDetailPage() {
     setViewingStateIndex(matchStates.length - 1);
   }, [matchStates.length]);
 
-  // 再生ボタン押下時（ダイアログを開く）
+  // 再生ボタン押下時
   const handleResumeClick = useCallback(() => {
+    // 最新の状態を表示中の場合は、ダイアログを開かずにそのまま再開
+    const latestIndex = matchStates.at(-1)?.index;
+    if (viewingStateIndex === latestIndex) {
+      setViewingStateIndex(null);
+      return;
+    }
     resumeDialogModal.open();
-  }, [resumeDialogModal]);
+  }, [resumeDialogModal, viewingStateIndex, matchStates]);
 
   // 巻き戻し成功時のコールバック
   const handleRewindSuccess = useCallback(() => {

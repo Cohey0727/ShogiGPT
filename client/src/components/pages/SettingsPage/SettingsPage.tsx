@@ -15,17 +15,17 @@ export function SettingsPage() {
 
   return (
     <Col gap="xl" className={styles.container}>
-      <Col gap="sm" className={styles.header}>
+      <Col gap="sm">
         <h1 className={styles.title}>設定</h1>
       </Col>
-      <Col gap="lg" className={styles.content}>
+      <Col gap="lg">
         <Col gap="md" className={styles.section}>
           <Row gap="sm" align="center" className={styles.sectionTitle}>
             <span>🎮</span>
             <span>ゲーム設定</span>
           </Row>
           <Row justify="space-between" align="center" className={styles.settingRow}>
-            <Col gap="xs" className={styles.settingLabel}>
+            <Col gap="xs">
               <span className={styles.settingName}>AIの性格</span>
               <span className={styles.settingDescription}>AIのコメントスタイルを設定</span>
             </Col>

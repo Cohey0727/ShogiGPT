@@ -6,8 +6,6 @@ const styles = {
     padding: "2rem",
   }),
 
-  header: style({}),
-
   title: style({
     fontSize: "2.5rem",
     fontWeight: "bold",
@@ -18,8 +16,6 @@ const styles = {
     fontSize: "1rem",
     color: "#b0b0b0",
   }),
-
-  content: style({}),
 
   section: style({
     backgroundColor: "rgba(255, 255, 255, 0.05)",
@@ -42,8 +38,6 @@ const styles = {
       borderBottom: "none",
     },
   }),
-
-  settingLabel: style({}),
 
   settingName: style({
     fontSize: "1rem",

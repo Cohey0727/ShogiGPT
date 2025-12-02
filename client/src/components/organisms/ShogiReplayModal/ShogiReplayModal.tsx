@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { useState, useCallback, useMemo } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import {
   DoubleArrowLeftIcon,
@@ -38,9 +38,6 @@ export interface ShogiReplayModalProps {
 /**
  * 将棋の局面を再生するモーダル
  */
-/** 将棋盤の基準サイズ（駒台含む） */
-const boardBaseHeight = 450;
-
 export function ShogiReplayModal({
   title,
   startBoard,
@@ -49,30 +46,6 @@ export function ShogiReplayModal({
   onClose,
 }: ShogiReplayModalProps) {
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
-  const [scale, setScale] = useState(1);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // コンテナサイズに合わせてスケールを計算
-  useEffect(() => {
-    if (!open) return;
-
-    const updateScale = () => {
-      if (containerRef.current) {
-        const containerHeight = containerRef.current.clientHeight;
-        const newScale = Math.min(1, containerHeight / boardBaseHeight);
-        setScale(newScale);
-      }
-    };
-
-    // 初回計算（少し遅延させてDOMが確定してから）
-    const timer = setTimeout(updateScale, 50);
-    window.addEventListener("resize", updateScale);
-
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("resize", updateScale);
-    };
-  }, [open]);
 
   // 現在の局面を計算
   const currentBoard = useMemo(() => {
@@ -128,24 +101,13 @@ export function ShogiReplayModal({
         <DialogPrimitive.Overlay className={styles.overlay} />
         <DialogPrimitive.Content className={styles.content}>
           <Col gap="md" className={styles.inner}>
-            <Row justify="space-between" align="center" className={styles.header}>
+            <Row justify="space-between" align="center">
               <h2 className={styles.title}>{title}</h2>
               <DialogPrimitive.Close className={styles.close}>
                 <span>×</span>
               </DialogPrimitive.Close>
             </Row>
-
-            <Row
-              justify="center"
-              align="center"
-              className={styles.boardContainer}
-              ref={containerRef}
-            >
-              <div style={{ transform: `scale(${scale})`, transformOrigin: "center center" }}>
-                <ShogiTable board={currentBoard} onBoardChange={handleBoardChange} disabled />
-              </div>
-            </Row>
-
+            <ShogiTable board={currentBoard} onBoardChange={handleBoardChange} disabled />
             <Row justify="center" align="center" gap="sm">
               <button
                 className={styles.controlButton}

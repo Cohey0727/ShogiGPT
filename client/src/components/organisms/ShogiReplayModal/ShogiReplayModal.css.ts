@@ -44,8 +44,6 @@ export default {
     height: "100%",
   }),
 
-  header: style({}),
-
   title: style({
     fontSize: "1.125rem",
     fontWeight: "600",

@@ -2,12 +2,8 @@ import { style } from "@vanilla-extract/css";
 
 const styles = {
   container: style({
-    flex: 1,
     padding: "1rem",
-    justifyContent: "center",
-    alignItems: "center",
     gap: "1rem",
-    height: "100%",
     overflow: "hidden",
   }),
 

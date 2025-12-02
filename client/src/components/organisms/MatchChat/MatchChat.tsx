@@ -1,16 +1,14 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { MessageBubble } from "../MessageBubble";
 import { Button } from "../../atoms/Button";
 import { BestMoveDisplay } from "../../molecules/BestMoveDisplay";
-import {
-  useSubscribeChatMessagesSubscription,
-  useSendChatMessageMutation,
-} from "../../../generated/graphql/types";
+import { useSendChatMessageMutation } from "../../../generated/graphql/types";
 import { MarkdownContentSchema, BestMoveContentSchema } from "../../../schemas/chatMessage";
 import { usePromptSettings } from "../hooks";
 import styles from "./MatchChat.css";
+import { useChatMessageStream } from "../hooks/useChatMessageStream";
 
 interface MatchChatProps {
   matchId: string;
@@ -19,10 +17,13 @@ interface MatchChatProps {
 }
 
 const formatTimestamp = (isoString: string): string => {
-  const date = new Date(isoString);
+  // サーバーからのUTC時間をZサフィックス付きで解釈
+  const utcString = isoString.endsWith("Z") ? isoString : `${isoString}Z`;
+  const date = new Date(utcString);
   return date.toLocaleTimeString("ja-JP", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Asia/Tokyo",
   });
 };
 
@@ -33,13 +34,8 @@ export function MatchChat({ matchId, disabled = false }: MatchChatProps) {
   const [promptSettings] = usePromptSettings();
 
   // メッセージ取得 - Subscriptionでリアルタイム更新
-  const [{ data }] = useSubscribeChatMessagesSubscription({
-    variables: { matchId },
-  });
-
+  const [messages] = useChatMessageStream({ matchId });
   const [, sendChatMessage] = useSendChatMessageMutation();
-
-  const messages = useMemo(() => data?.chatMessages || [], [data?.chatMessages]);
 
   // 新着メッセージがある場合は自動スクロール
   useEffect(() => {

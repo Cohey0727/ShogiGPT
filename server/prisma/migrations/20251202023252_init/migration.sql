@@ -37,6 +37,7 @@ CREATE TABLE "match_states" (
 CREATE TABLE "chat_messages" (
     "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "matchId" TEXT NOT NULL,
     "role" "MessageRole" NOT NULL,
     "contents" JSONB NOT NULL,

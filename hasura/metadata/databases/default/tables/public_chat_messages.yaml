@@ -10,38 +10,41 @@ insert_permissions:
     permission:
       check: {}
       columns:
-        - role
-        - isPartial
         - contents
+        - createdAt
         - id
+        - isPartial
         - matchId
         - metadata
-        - createdAt
+        - role
+        - updatedAt
     comment: ""
 select_permissions:
   - role: anonymous
     permission:
       columns:
-        - role
-        - isPartial
         - contents
+        - createdAt
         - id
+        - isPartial
         - matchId
         - metadata
-        - createdAt
+        - role
+        - updatedAt
       filter: {}
     comment: ""
 update_permissions:
   - role: anonymous
     permission:
       columns:
-        - role
-        - isPartial
         - contents
+        - createdAt
         - id
+        - isPartial
         - matchId
         - metadata
-        - createdAt
+        - role
+        - updatedAt
       filter: {}
       check: {}
     comment: ""

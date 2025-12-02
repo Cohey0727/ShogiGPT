@@ -11,7 +11,6 @@ import {
 import {
   useGetMatchQuery,
   useSubscribeMatchStatesSubscription,
-  useSubscribeChatMessagesSubscription,
   useSendChatMessageMutation,
 } from "../../../generated/graphql/types";
 import { useModal } from "../../molecules/hooks/useModal";
@@ -25,6 +24,7 @@ import {
   formatMoveToJapanese,
 } from "../../../shared/services";
 import { Col, Row, ResizableContainer } from "../../atoms";
+import { useChatMessageStream } from "../../organisms/hooks/useChatMessageStream";
 
 interface BoardState {
   board: Board;
@@ -54,11 +54,7 @@ export function MatchDetailPage() {
     pause: !matchId,
   });
 
-  // ChatMessagesをSubscriptionで監視（isPartialチェック用）
-  const [{ data: chatMessagesData }] = useSubscribeChatMessagesSubscription({
-    variables: { matchId },
-    pause: !matchId,
-  });
+  const [messages] = useChatMessageStream({ matchId });
 
   const [, sendChatMessage] = useSendChatMessageMutation();
   const [promptSettings] = usePromptSettings();
@@ -79,10 +75,9 @@ export function MatchDetailPage() {
 
   // 最新のチャットメッセージがisPartialかどうかを判定
   const isChatPartial = useMemo(() => {
-    const messages = chatMessagesData?.chatMessages || [];
     if (messages.length === 0) return false;
     return messages[messages.length - 1].isPartial;
-  }, [chatMessagesData?.chatMessages]);
+  }, [messages]);
 
   const boardState = useMemo<BoardState>(() => {
     const matchStates = matchStatesData?.matchStates || [];
@@ -190,8 +185,11 @@ export function MatchDetailPage() {
   // 勝者を計算
   const winner = useMemo(() => getWinner(displayBoardState.board), [displayBoardState.board]);
 
+  // 盤面操作を無効化するかどうか
+  const isBoardDisabled = isPaused || isChatPartial || winner !== null;
+
   // 全ての対局状態
-  const matchStates = matchStatesData?.matchStates || [];
+  const matchStates = matchStatesData?.matchStates;
 
   // 表示するstateのインデックスを変更
   const handleViewingIndexChange = useCallback((newIndex: number) => {
@@ -200,11 +198,13 @@ export function MatchDetailPage() {
 
   // 対局を停止
   const handlePause = useCallback(() => {
+    if (!matchStates) return;
     setViewingStateIndex(matchStates.length - 1);
-  }, [matchStates.length]);
+  }, [matchStates]);
 
   // 再生ボタン押下時
   const handleResumeClick = useCallback(() => {
+    if (!matchStates) return;
     // 最新の状態を表示中の場合は、ダイアログを開かずにそのまま再開
     const latestIndex = matchStates.at(-1)?.index;
     if (viewingStateIndex === latestIndex) {
@@ -233,7 +233,7 @@ export function MatchDetailPage() {
             winner={winner}
             isPaused={isPaused}
             viewingStateIndex={viewingStateIndex}
-            totalStates={matchStates.length}
+            totalStates={matchStates?.length ?? 0}
             onPause={handlePause}
             onResumeClick={handleResumeClick}
             onViewingIndexChange={handleViewingIndexChange}
@@ -258,7 +258,7 @@ export function MatchDetailPage() {
                     setSelectedHandPiece(pieceType);
                   }
                 }}
-                disabled={isPaused || isChatPartial}
+                disabled={isBoardDisabled}
               />
             </div>
             <div className={styles.boardContainer}>
@@ -268,7 +268,7 @@ export function MatchDetailPage() {
                 onBoardChange={handleBoardChange}
                 selectedHandPiece={selectedHandPiece}
                 onHandPieceDeselect={() => setSelectedHandPiece(null)}
-                disabled={isPaused || isChatPartial}
+                disabled={isBoardDisabled}
                 diffCells={diffCells}
               />
             </div>
@@ -284,7 +284,7 @@ export function MatchDetailPage() {
                     setSelectedHandPiece(pieceType);
                   }
                 }}
-                disabled={isPaused || isChatPartial}
+                disabled={isBoardDisabled}
               />
             </div>
           </Row>

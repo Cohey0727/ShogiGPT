@@ -154,6 +154,7 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
           afterSfen: newSfen,
           afterVariations: afterEvalResult.variations,
           userMove: usiMove,
+          turnNumber: newState.index,
         });
 
         console.log(promptText);
@@ -163,6 +164,7 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
         const stream = streamChat({
           userMessage: promptText,
           systemPrompt: shogiEvaluationSystemPrompt,
+          temperature: 0.0,
         });
 
         // DB更新をthrottle（100msごとに1回）

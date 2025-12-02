@@ -57,6 +57,7 @@ type ChatMessages {
   matchId: String!
   metadata: String
   role: MessageRole!
+  updatedAt: timestamp!
 }
 
 """
@@ -98,6 +99,7 @@ input ChatMessagesBoolExp {
   matchId: StringComparisonExp
   metadata: StringComparisonExp
   role: MessageRoleComparisonExp
+  updatedAt: TimestampComparisonExp
 }
 
 """
@@ -144,6 +146,7 @@ input ChatMessagesInsertInput {
   matchId: String
   metadata: String
   role: MessageRole
+  updatedAt: timestamp
 }
 
 """
@@ -155,6 +158,7 @@ input ChatMessagesMaxOrderBy {
   matchId: OrderBy
   metadata: OrderBy
   role: OrderBy
+  updatedAt: OrderBy
 }
 
 """
@@ -166,6 +170,7 @@ input ChatMessagesMinOrderBy {
   matchId: OrderBy
   metadata: OrderBy
   role: OrderBy
+  updatedAt: OrderBy
 }
 
 """
@@ -198,6 +203,7 @@ input ChatMessagesOrderBy {
   matchId: OrderBy
   metadata: OrderBy
   role: OrderBy
+  updatedAt: OrderBy
 }
 
 """primary key columns input for table: chat_messages"""
@@ -234,6 +240,9 @@ enum ChatMessagesSelectColumn {
 
   """column name"""
   role
+
+  """column name"""
+  updatedAt
 }
 
 """
@@ -247,6 +256,7 @@ input ChatMessagesSetInput {
   matchId: String
   metadata: String
   role: MessageRole
+  updatedAt: timestamp
 }
 
 """
@@ -269,6 +279,7 @@ input ChatMessagesStreamCursorValueInput {
   matchId: String
   metadata: String
   role: MessageRole
+  updatedAt: timestamp
 }
 
 """
@@ -295,6 +306,9 @@ enum ChatMessagesUpdateColumn {
 
   """column name"""
   role
+
+  """column name"""
+  updatedAt
 }
 
 input ChatMessagesUpdates {

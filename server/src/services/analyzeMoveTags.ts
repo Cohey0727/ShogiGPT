@@ -751,10 +751,10 @@ export function analyzeStrategyTags(args: AnalyzeMoveTagsArgs, turnNumber: numbe
       if (!wasMatchedSelf && isMatchedSelf) {
         // 戦略が成立した
         if (isMyselfMove) {
-          tags.push(`${strategy.name}が成立`);
+          tags.push(`${strategy.name}`);
         } else {
-          // 相手の手で自分の戦略が成立することは稀だが一応
-          tags.push(`${strategy.name}が成立`);
+          // 相手の手で自分の戦略が成立すること場合は無視
+          // tags.push(`${strategy.name}`);
         }
       }
       // 相手の戦略を判定
@@ -765,11 +765,11 @@ export function analyzeStrategyTags(args: AnalyzeMoveTagsArgs, turnNumber: numbe
       const isMatchedOpponent = strategy.match(afterBoard, opponentPlayer);
 
       if (!wasMatchedOpponent && isMatchedOpponent) {
-        // 相手の戦略が成立した
+        // 相手の戦略した
         if (isMyselfMove) {
           // 自分の手で相手の戦略が成立することは稀
         } else {
-          tags.push(`相手が${strategy.name}を構築`);
+          tags.push(`相手が${strategy.name}`);
         }
       }
     } else {
@@ -779,7 +779,7 @@ export function analyzeStrategyTags(args: AnalyzeMoveTagsArgs, turnNumber: numbe
       const isMatched = strategy.match(afterBoard);
 
       if (!wasMatched && isMatched) {
-        tags.push(`${strategy.name}が成立`);
+        tags.push(`${strategy.name}`);
       }
     }
   }

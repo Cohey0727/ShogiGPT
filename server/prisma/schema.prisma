@@ -54,6 +54,7 @@ model MatchState {
 model ChatMessage {
   id        String      @id @default(cuid())
   createdAt DateTime    @default(now())
+  updatedAt DateTime    @default(now()) @updatedAt
   /// 紐づく対局ID
   matchId   String
   /// メッセージの送信者ロール

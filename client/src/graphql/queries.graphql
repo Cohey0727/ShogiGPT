@@ -55,21 +55,28 @@ query GetMatch($matchId: String!) {
   }
 }
 
-query GetChatMessages($matchId: String!) {
-  chatMessages(where: { matchId: { _eq: $matchId } }, orderBy: { createdAt: ASC }) {
-    id
-    createdAt
-    matchId
-    role
-    contents
-    metadata
-  }
-}
-
 subscription SubscribeChatMessages($matchId: String!) {
   chatMessages(where: { matchId: { _eq: $matchId } }, orderBy: { createdAt: ASC }) {
     id
     createdAt
+    updatedAt
+    matchId
+    role
+    contents
+    metadata
+    isPartial
+  }
+}
+
+subscription SubscribeChatMessagesStream($matchId: String!, $cursor: timestamp!) {
+  chatMessagesStream(
+    batchSize: 10
+    cursor: { initialValue: { updatedAt: $cursor }, ordering: ASC }
+    where: { matchId: { _eq: $matchId } }
+  ) {
+    id
+    createdAt
+    updatedAt
     matchId
     role
     contents

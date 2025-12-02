@@ -7,8 +7,10 @@ export interface SegmentButtonOption<T extends string> {
   label: string;
 }
 
-export interface SegmentButtonProps<T extends string>
-  extends Omit<ButtonHTMLAttributes<HTMLDivElement>, "onChange" | "value"> {
+export interface SegmentButtonProps<T extends string> extends Omit<
+  ButtonHTMLAttributes<HTMLDivElement>,
+  "onChange" | "value"
+> {
   options: SegmentButtonOption<T>[];
   value: T;
   onChange: (value: T) => void;

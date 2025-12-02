@@ -92,6 +92,7 @@ export type ChatMessages = {
   matchId: Scalars['String']['output'];
   metadata?: Maybe<Scalars['String']['output']>;
   role: Scalars['MessageRole']['output'];
+  updatedAt: Scalars['timestamp']['output'];
 };
 
 
@@ -132,6 +133,7 @@ export type ChatMessagesBoolExp = {
   matchId?: InputMaybe<StringComparisonExp>;
   metadata?: InputMaybe<StringComparisonExp>;
   role?: InputMaybe<MessageRoleComparisonExp>;
+  updatedAt?: InputMaybe<TimestampComparisonExp>;
 };
 
 /** unique or primary key constraints on table "chat_messages" */
@@ -169,6 +171,7 @@ export type ChatMessagesInsertInput = {
   matchId?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Scalars['String']['input']>;
   role?: InputMaybe<Scalars['MessageRole']['input']>;
+  updatedAt?: InputMaybe<Scalars['timestamp']['input']>;
 };
 
 /** order by max() on columns of table "chat_messages" */
@@ -178,6 +181,7 @@ export type ChatMessagesMaxOrderBy = {
   matchId?: InputMaybe<OrderBy>;
   metadata?: InputMaybe<OrderBy>;
   role?: InputMaybe<OrderBy>;
+  updatedAt?: InputMaybe<OrderBy>;
 };
 
 /** order by min() on columns of table "chat_messages" */
@@ -187,6 +191,7 @@ export type ChatMessagesMinOrderBy = {
   matchId?: InputMaybe<OrderBy>;
   metadata?: InputMaybe<OrderBy>;
   role?: InputMaybe<OrderBy>;
+  updatedAt?: InputMaybe<OrderBy>;
 };
 
 /** response of any mutation on the table "chat_messages" */
@@ -215,6 +220,7 @@ export type ChatMessagesOrderBy = {
   matchId?: InputMaybe<OrderBy>;
   metadata?: InputMaybe<OrderBy>;
   role?: InputMaybe<OrderBy>;
+  updatedAt?: InputMaybe<OrderBy>;
 };
 
 /** primary key columns input for table: chat_messages */
@@ -242,7 +248,9 @@ export const ChatMessagesSelectColumn = {
   /** column name */
   Metadata: 'metadata',
   /** column name */
-  Role: 'role'
+  Role: 'role',
+  /** column name */
+  UpdatedAt: 'updatedAt'
 } as const;
 
 export type ChatMessagesSelectColumn = typeof ChatMessagesSelectColumn[keyof typeof ChatMessagesSelectColumn];
@@ -255,6 +263,7 @@ export type ChatMessagesSetInput = {
   matchId?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Scalars['String']['input']>;
   role?: InputMaybe<Scalars['MessageRole']['input']>;
+  updatedAt?: InputMaybe<Scalars['timestamp']['input']>;
 };
 
 /** Streaming cursor of the table "chat_messages" */
@@ -274,6 +283,7 @@ export type ChatMessagesStreamCursorValueInput = {
   matchId?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Scalars['String']['input']>;
   role?: InputMaybe<Scalars['MessageRole']['input']>;
+  updatedAt?: InputMaybe<Scalars['timestamp']['input']>;
 };
 
 /** update columns of table "chat_messages" */
@@ -291,7 +301,9 @@ export const ChatMessagesUpdateColumn = {
   /** column name */
   Metadata: 'metadata',
   /** column name */
-  Role: 'role'
+  Role: 'role',
+  /** column name */
+  UpdatedAt: 'updatedAt'
 } as const;
 
 export type ChatMessagesUpdateColumn = typeof ChatMessagesUpdateColumn[keyof typeof ChatMessagesUpdateColumn];
@@ -1786,19 +1798,20 @@ export type GetMatchQueryVariables = Exact<{
 
 export type GetMatchQuery = { __typename?: 'query_root', matchesByPk?: { __typename?: 'Matches', id: string, createdAt: string, updatedAt: string, status: 'ONGOING' | 'COMPLETED' | 'ABANDONED', playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI', matchStates: Array<{ __typename?: 'MatchStates', createdAt: string, matchId: string, index: number, usiMove: string, sfen: string, thinkingTime?: number | null | undefined }> } | null | undefined };
 
-export type GetChatMessagesQueryVariables = Exact<{
-  matchId: Scalars['String']['input'];
-}>;
-
-
-export type GetChatMessagesQuery = { __typename?: 'query_root', chatMessages: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, matchId: string, role: 'USER' | 'ASSISTANT', contents: any, metadata?: string | null | undefined }> };
-
 export type SubscribeChatMessagesSubscriptionVariables = Exact<{
   matchId: Scalars['String']['input'];
 }>;
 
 
-export type SubscribeChatMessagesSubscription = { __typename?: 'subscription_root', chatMessages: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, matchId: string, role: 'USER' | 'ASSISTANT', contents: any, metadata?: string | null | undefined, isPartial: boolean }> };
+export type SubscribeChatMessagesSubscription = { __typename?: 'subscription_root', chatMessages: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, updatedAt: string, matchId: string, role: 'USER' | 'ASSISTANT', contents: any, metadata?: string | null | undefined, isPartial: boolean }> };
+
+export type SubscribeChatMessagesStreamSubscriptionVariables = Exact<{
+  matchId: Scalars['String']['input'];
+  cursor: Scalars['timestamp']['input'];
+}>;
+
+
+export type SubscribeChatMessagesStreamSubscription = { __typename?: 'subscription_root', chatMessagesStream: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, updatedAt: string, matchId: string, role: 'USER' | 'ASSISTANT', contents: any, metadata?: string | null | undefined, isPartial: boolean }> };
 
 export type SubscribeMatchStatesSubscriptionVariables = Exact<{
   matchId: Scalars['String']['input'];
@@ -1923,27 +1936,12 @@ export const GetMatchDocument = gql`
 export function useGetMatchQuery(options: Omit<Urql.UseQueryArgs<GetMatchQueryVariables>, 'query'>) {
   return Urql.useQuery<GetMatchQuery, GetMatchQueryVariables>({ query: GetMatchDocument, ...options });
 };
-export const GetChatMessagesDocument = gql`
-    query GetChatMessages($matchId: String!) {
-  chatMessages(where: {matchId: {_eq: $matchId}}, orderBy: {createdAt: ASC}) {
-    id
-    createdAt
-    matchId
-    role
-    contents
-    metadata
-  }
-}
-    `;
-
-export function useGetChatMessagesQuery(options: Omit<Urql.UseQueryArgs<GetChatMessagesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetChatMessagesQuery, GetChatMessagesQueryVariables>({ query: GetChatMessagesDocument, ...options });
-};
 export const SubscribeChatMessagesDocument = gql`
     subscription SubscribeChatMessages($matchId: String!) {
   chatMessages(where: {matchId: {_eq: $matchId}}, orderBy: {createdAt: ASC}) {
     id
     createdAt
+    updatedAt
     matchId
     role
     contents
@@ -1955,6 +1953,28 @@ export const SubscribeChatMessagesDocument = gql`
 
 export function useSubscribeChatMessagesSubscription<TData = SubscribeChatMessagesSubscription>(options: Omit<Urql.UseSubscriptionArgs<SubscribeChatMessagesSubscriptionVariables>, 'query'>, handler?: Urql.SubscriptionHandler<SubscribeChatMessagesSubscription, TData>) {
   return Urql.useSubscription<SubscribeChatMessagesSubscription, TData, SubscribeChatMessagesSubscriptionVariables>({ query: SubscribeChatMessagesDocument, ...options }, handler);
+};
+export const SubscribeChatMessagesStreamDocument = gql`
+    subscription SubscribeChatMessagesStream($matchId: String!, $cursor: timestamp!) {
+  chatMessagesStream(
+    batchSize: 10
+    cursor: {initialValue: {updatedAt: $cursor}, ordering: ASC}
+    where: {matchId: {_eq: $matchId}}
+  ) {
+    id
+    createdAt
+    updatedAt
+    matchId
+    role
+    contents
+    metadata
+    isPartial
+  }
+}
+    `;
+
+export function useSubscribeChatMessagesStreamSubscription<TData = SubscribeChatMessagesStreamSubscription>(options: Omit<Urql.UseSubscriptionArgs<SubscribeChatMessagesStreamSubscriptionVariables>, 'query'>, handler?: Urql.SubscriptionHandler<SubscribeChatMessagesStreamSubscription, TData>) {
+  return Urql.useSubscription<SubscribeChatMessagesStreamSubscription, TData, SubscribeChatMessagesStreamSubscriptionVariables>({ query: SubscribeChatMessagesStreamDocument, ...options }, handler);
 };
 export const SubscribeMatchStatesDocument = gql`
     subscription SubscribeMatchStates($matchId: String!) {

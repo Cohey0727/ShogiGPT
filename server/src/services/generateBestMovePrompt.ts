@@ -1,5 +1,5 @@
 import { formatMoveToJapanese, sfenToBoard, applyUsiMove } from "../shared/services";
-import { analyzeMateTags, analyzeMoveTags } from "./analyzeMoveTags";
+import { analyzeMateTags, analyzeMoveTags, analyzeStrategyTags } from "./analyzeMoveTags";
 import type { MoveInfo } from "../shared/schemas/chatMessage";
 
 export interface GenerateBestMovePromptParams {
@@ -13,21 +13,33 @@ export interface GenerateBestMovePromptParams {
   afterVariations: MoveInfo[];
   /** ユーザーの指し手（USI形式） */
   userMove: string;
+  /** 現在の手数（ユーザーが指した後の手数） */
+  turnNumber: number;
 }
 
 /**
- * 評価値を戦況表現に変換する
+ * 評価値を戦況表現に変換する（AI視点）
+ * @param evalCp - 評価値（打ち手視点のcentipawn）
+ * @param mover - その局面で手を指した側（SENTEまたはGOTE）
+ * @param aiPerspective - AIの手番（SENTEまたはGOTE）
  */
-function formatEvaluationDescription(evalCp: number | null): string {
+function formatEvaluationDescription(
+  evalCp: number | null,
+  mover: "SENTE" | "GOTE",
+  aiPerspective: "SENTE" | "GOTE",
+): string {
   if (evalCp === null) return "不明";
   const abs = Math.abs(evalCp);
-  const side = evalCp >= 0 ? "先手" : "後手";
-  if (abs < 100) return "互角";
-  if (abs < 300) return `${side}やや有利`;
-  if (abs < 500) return `${side}有利`;
-  if (abs < 800) return `${side}優勢`;
-  if (abs < 1500) return `${side}勝勢`;
-  return `${side}必勝`;
+  // 評価値は打ち手視点：正=打ち手有利、負=相手有利
+  // AI視点に変換：打ち手がAIなら評価値そのまま、違うなら反転
+  const evalFromAi = mover === aiPerspective ? evalCp : -evalCp;
+  const side = evalFromAi >= 0 ? "自分" : "相手";
+  if (abs < 300) return "互角";
+  if (abs < 500) return `${side}がやや有利`;
+  if (abs < 800) return `${side}が有利`;
+  if (abs < 1200) return `${side}が優勢`;
+  if (abs < 1500) return `${side}が勝勢`;
+  return `${side}が必勝`;
 }
 
 /**
@@ -86,7 +98,7 @@ function evaluateMoveQuality(evalLoss: number, candidateRank: number | null): st
  * 将棋の局面解析結果からAIに渡すプロンプトを生成（API呼び出しなし）
  */
 export function generateBestMovePrompt(params: GenerateBestMovePromptParams): string {
-  const { beforeSfen, beforeVariations, afterSfen, afterVariations, userMove } = params;
+  const { beforeSfen, beforeVariations, afterSfen, afterVariations, userMove, turnNumber } = params;
 
   // 局面情報を取得
   const beforeBoard = sfenToBoard(beforeSfen);
@@ -125,11 +137,27 @@ export function generateBestMovePrompt(params: GenerateBestMovePromptParams): st
   const moveQuality = evaluateMoveQuality(evalLoss, candidateRank);
 
   // 評価値の説明を生成
-  const currentEvalDesc = formatEvaluationDescription(afterEval);
+  const mover = beforeBoard.turn === "SENTE" ? "GOTE" : "SENTE";
+  const currentEvalDesc = formatEvaluationDescription(afterEval, mover, aiPerspective);
   const evalChangeDesc = formatEvaluationChange(beforeEval, afterEval, aiPerspective);
+
+  // ユーザーの手の戦術的タグを分析
+  const userMoveArgs = {
+    beforeBoard,
+    afterBoard,
+    usiMove: userMove,
+    perspective: aiPerspective,
+  };
+  const userMoveTacticalTags = analyzeMoveTags(userMoveArgs);
+  const userMoveMateTags = analyzeMateTags(userMoveArgs);
+  const userMoveStrategyTags = analyzeStrategyTags(userMoveArgs, turnNumber);
+  const userMoveTags = [...userMoveMateTags, ...userMoveTacticalTags, ...userMoveStrategyTags];
 
   // ユーザーの手の評価説明を生成
   let userMoveDesc = `「${userMoveJapanese}」`;
+  if (userMoveTags.length > 0) {
+    userMoveDesc += ` [${userMoveTags.join("、")}]`;
+  }
   if (candidateRank === 1) {
     userMoveDesc += "（最善手）";
   } else if (candidateRank !== null && candidateRank <= 3) {
@@ -157,10 +185,8 @@ export function generateBestMovePrompt(params: GenerateBestMovePromptParams): st
         variationEvalInfo = `【${Math.abs(mateIn)}手で詰まされる（自分の負け）】`;
       }
     } else if (topVariation.scoreCp !== null && topVariation.scoreCp !== undefined) {
-      // 評価値を自分視点に変換
-      const evalFromPerspective =
-        aiPerspective === "SENTE" ? topVariation.scoreCp : -topVariation.scoreCp;
-      variationEvalInfo = `【${formatEvaluationDescription(evalFromPerspective)}】`;
+      // topVariationはAIの手番での評価値
+      variationEvalInfo = `【${formatEvaluationDescription(topVariation.scoreCp, aiPerspective, aiPerspective)}】`;
     }
   }
 
@@ -207,6 +233,8 @@ export function generateBestMovePrompt(params: GenerateBestMovePromptParams): st
   }
 
   const prompt = `# あなたは将棋の対局者です。相手の手に対するリアクションと、自分の考えを説明してください。
+- []内のタグは、その手によって生じる戦術・戦況を表しています
+- []内に含まれていない戦術・戦況には一切言及しないこと。打ち手と戦術・戦況は、対応して発言してください。
 
 ## **相手の手**
 相手は${userMoveDesc}と指してきました。
@@ -221,16 +249,22 @@ ${variationEvalInfo}
 
 ## **予想する展開**
 以下はあなたが頭の中で考えた手順です。相手は必ずしもその通りに指すとは限りません。
-- []内のタグは、その手によって生じる特徴を表しています
-- ()カッコ内は、元々いた駒の位置です。解説時は省いてください。
-- 自分の手と相手の手を正確に区別すること
-- 「読み筋」「読み」という単語は使わないこと。「〜と考えています」「〜を狙っています」「〜となれば」など自然な表現を使う
-- **絶対厳守**: 詰みがある場合は必ず詰みを最優先に話題の中心にしてください。勝利、敗北の宣言を必ず行うこと。
-- **絶対厳守**: []内に含まれていない手、用語は一切言及しないこと、「飛車先」「角道」「交換」などへの言及は、タグに基づかない限り使わないこと。
 
 \`\`\`
 ${strategyHint}
 \`\`\`
+
+## **解説の方針(絶対に守ること)**
+- 戦術・戦況をメインに説明してください。
+- []内のタグは、その手によって生じる戦術・戦況を表しています
+- []内に含まれていない戦術・戦況には一切言及しないこと。打ち手と戦術・戦況は、対応して発言してください。
+- []自体は、解説に含めないでください。
+- 戦術・戦況をメインに説明してください。打ち手は補足的に扱ってください。
+- ()カッコ内は、元々いた駒の位置です。解説時は省いてください。
+- 自分の手と相手の手を正確に区別すること
+- 「読み筋」「読み」という単語は使わないこと。「〜と考えています」「〜を狙っています」「〜となれば」など自然な表現を使う
+- 詰みがある場合は必ず詰みを最優先に話題の中心にしてください。勝利、敗北の宣言を必ず行うこと。
+
 
 ## **厳守事項**:
 - markdown形式で強弱をつけて出力してください。タイトルは不要です。
@@ -239,6 +273,7 @@ ${strategyHint}
 - 相手の手が悪手や疑問手だった場合は、その点に触れる
 - 具体的な評価値の数値は一切言及しないこと
 - 主観的な表現（「〜と思います」「〜を狙います」）を使う
+- 打ち手と戦術・戦況は、対応していない発言がないかを必ず確認すること
 - 300文字以内で解説してください。`;
 
   return prompt;

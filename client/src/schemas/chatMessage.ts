@@ -47,11 +47,44 @@ export const BestMoveContentSchema = z.object({
 export type BestMoveContent = z.infer<typeof BestMoveContentSchema>;
 
 /**
+ * Best move with comment (for post-game analysis)
+ */
+export const BestMoveWithCommentSchema = z.object({
+  move: z.string().describe("USI形式の指し手"),
+  comment: z.string().describe("この手に対するコメント"),
+});
+
+export type BestMoveWithComment = z.infer<typeof BestMoveWithCommentSchema>;
+
+/**
+ * Turning point in the game (for post-game analysis)
+ */
+export const TurningPointSchema = z.object({
+  index: z.number().describe("悪手となった一手の直前の局面インデックス"),
+  sfen: z.string().describe("SFEN形式の局面"),
+  bestMoves: z.array(BestMoveWithCommentSchema).max(5).describe("最善手（最大5手分）"),
+  comment: z.string().describe("AIによるコメント・解説"),
+});
+
+export type TurningPoint = z.infer<typeof TurningPointSchema>;
+
+/**
+ * Post-game analysis content type (感想戦)
+ */
+export const PostGameAnalysisContentSchema = z.object({
+  type: z.literal("postGameAnalysis"),
+  turningPoints: z.array(TurningPointSchema).describe("ターニングポイント一覧"),
+});
+
+export type PostGameAnalysisContent = z.infer<typeof PostGameAnalysisContentSchema>;
+
+/**
  * Union of all message content types
  */
 export const MessageContentSchema = z.discriminatedUnion("type", [
   MarkdownContentSchema,
   BestMoveContentSchema,
+  PostGameAnalysisContentSchema,
 ]);
 
 export type MessageContent = z.infer<typeof MessageContentSchema>;

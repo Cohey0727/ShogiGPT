@@ -55,6 +55,19 @@ query GetMatch($matchId: String!) {
   }
 }
 
+query GetChatMessages($matchId: String!) {
+  chatMessages(where: { matchId: { _eq: $matchId } }, orderBy: { createdAt: ASC }) {
+    id
+    createdAt
+    updatedAt
+    matchId
+    role
+    contents
+    metadata
+    isPartial
+  }
+}
+
 subscription SubscribeChatMessages($matchId: String!) {
   chatMessages(where: { matchId: { _eq: $matchId } }, orderBy: { createdAt: ASC }) {
     id

@@ -2,10 +2,15 @@ import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { MessageBubble } from "../MessageBubble";
+import { PostGameReviewDisplay } from "../PostGameReviewDisplay";
 import { Button } from "../../atoms/Button";
 import { BestMoveDisplay } from "../../molecules/BestMoveDisplay";
 import { useSendChatMessageMutation } from "../../../generated/graphql/types";
-import { MarkdownContentSchema, BestMoveContentSchema } from "../../../schemas/chatMessage";
+import {
+  MarkdownContentSchema,
+  BestMoveContentSchema,
+  PostGameAnalysisContentSchema,
+} from "../../../schemas/chatMessage";
 import { usePromptSettings } from "../hooks";
 import styles from "./MatchChat.css";
 import { useChatMessageStream } from "../hooks/useChatMessageStream";
@@ -114,6 +119,16 @@ export function MatchChat({ matchId, disabled = false }: MatchChatProps) {
                   return (
                     <div key={`${msg.id}-${idx}`}>
                       <BestMoveDisplay content={bestMoveResult.data} />
+                    </div>
+                  );
+                }
+
+                // PostGameAnalysis コンテンツ（感想戦）
+                const postGameResult = PostGameAnalysisContentSchema.safeParse(content);
+                if (postGameResult.success) {
+                  return (
+                    <div key={`${msg.id}-${idx}`}>
+                      <PostGameReviewDisplay content={postGameResult.data} />
                     </div>
                   );
                 }

@@ -5,6 +5,7 @@ import type { AiFunctionCallingToolContext } from "../../services/aiFunctionCall
 import { createAiToolDefinition } from "../../services/aiFunctionCallingTool";
 import { getCandidateMoves } from "../../services/getCandidateMoves";
 import { moveAndEvaluate } from "../../services/moveAndEvaluate";
+import { postGameReview } from "../../services/postGameReview";
 import { shogiChatSystemPrompt } from "../../services/shogiChatConfig";
 import type { MessageContent } from "../../shared/schemas";
 
@@ -78,7 +79,7 @@ async function generateAndUpdateAiResponse(params: {
     });
 
     // ツールマップを作成
-    const tools = [moveAndEvaluate, getCandidateMoves];
+    const tools = [moveAndEvaluate, getCandidateMoves, postGameReview];
     const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
 
     // Function Callingを有効にしてAI応答を生成

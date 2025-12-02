@@ -1,33 +1,40 @@
 import { useRef } from "react";
 
 import {
-  SubscribeChatMessagesStreamSubscription,
+  GetChatMessagesQuery,
+  useGetChatMessagesQuery,
   useSubscribeChatMessagesStreamSubscription,
 } from "../../../generated/graphql/types";
 import { useReduceMemo } from "../../molecules/hooks";
 import { uniqBy } from "../../../shared/utils";
 
-/** Streaming開始の基準時刻（全データ取得用） */
+type ChatMessage = GetChatMessagesQuery["chatMessages"][number];
+
 const initialCursor = "1970-01-01T00:00:00.000Z";
 
-type ChatMessage = SubscribeChatMessagesStreamSubscription["chatMessagesStream"][number];
-
 /**
- * ChatMessageをStreaming Subscriptionで取得するhook
+ * ChatMessageを初回fetchしてからStreaming Subscriptionで取得するhook
  */
 export const useChatMessageStream = ({ matchId }: { matchId: string }) => {
   const cursorRef = useRef<string>(initialCursor);
 
-  const [result, ...rest] = useSubscribeChatMessagesStreamSubscription({
+  // 初回fetch
+  const [queryResult] = useGetChatMessagesQuery({ variables: { matchId } });
+
+  const [streamResult, ...rest] = useSubscribeChatMessagesStreamSubscription({
     // eslint-disable-next-line react-hooks/refs
     variables: { matchId, cursor: cursorRef.current },
   });
 
+  // 初回fetchとストリームのメッセージをマージ
   const messages = useReduceMemo<ChatMessage[]>(
     (prev = []) => {
-      const newMessages = result.data?.chatMessagesStream ?? [];
-      const totalMessages = uniqBy([...newMessages, ...prev], "id").sort(
-        (a, b) => -b.createdAt.localeCompare(a.createdAt),
+      const initialMessages = queryResult.data?.chatMessages ?? [];
+      const streamMessages = streamResult.data?.chatMessagesStream ?? [];
+
+      // 初回fetch分とstream分をマージして重複排除
+      const totalMessages = uniqBy([...initialMessages, ...streamMessages, ...prev], "id").sort(
+        (a, b) => a.createdAt.localeCompare(b.createdAt),
       );
       if (totalMessages.length > 0) {
         const latestMessage = totalMessages.at(-1)!;
@@ -35,7 +42,7 @@ export const useChatMessageStream = ({ matchId }: { matchId: string }) => {
       }
       return totalMessages;
     },
-    [result.data?.chatMessagesStream],
+    [queryResult.data?.chatMessages, streamResult.data?.chatMessagesStream],
   );
 
   return [messages, ...rest] as const;

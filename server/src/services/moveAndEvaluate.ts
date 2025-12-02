@@ -82,7 +82,7 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
     if (!usiMove) {
       await updateChatMessageWithError(
         chatMessageId,
-        `${name}さん、「${move}」を指し手として認識できませんでしたwww`,
+        `${name}さん、「${move}」を指し手として認識できませんでした。`,
       );
       return;
     }
@@ -96,7 +96,7 @@ async function execute(context: AiFunctionCallingToolContext, args: Args): Promi
 
       await updateChatMessageWithError(
         chatMessageId,
-        `${name}さん、「${move}」は現在の局面では指せない手ですwww`,
+        `${name}さん、「${move}」は現在の局面では指せない手です。`,
       );
       return;
     }

@@ -1,3 +1,5 @@
+import { z, type ZodTypeAny } from "zod";
+
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
 
@@ -352,4 +354,77 @@ export async function generateChatResponse(
   }
 
   throw new Error(`Max iterations (${maxIterations}) reached in function calling loop`);
+}
+
+/**
+ * JSON形式でのチャット応答生成オプション
+ */
+interface GenerateJsonOptions<T extends ZodTypeAny> {
+  /** ユーザーのメッセージ */
+  userMessage: string;
+  /** システムプロンプト */
+  systemPrompt: string;
+  /** レスポンスのZodスキーマ */
+  schema: T;
+  /** 生成時の温度パラメータ（デフォルト: 0.2） */
+  temperature?: number;
+  /** 最大トークン数（デフォルト: 2000） */
+  maxTokens?: number;
+}
+
+/**
+ * DeepSeek APIを使用してJSON形式の構造化応答を生成する
+ *
+ * @param options - JSON応答生成のオプション
+ * @returns Zodスキーマでバリデーションされた応答
+ */
+export async function generateJsonResponse<T extends z.ZodTypeAny = z.ZodTypeAny>(
+  options: GenerateJsonOptions<T>,
+): Promise<z.infer<T>> {
+  if (!DEEPSEEK_API_KEY) {
+    throw new Error("DEEPSEEK_API_KEY is not set");
+  }
+
+  const { userMessage, systemPrompt, schema, temperature = 0.2, maxTokens = 2000 } = options;
+  const jsonSchema = z.toJSONSchema(schema);
+  const schemaText = JSON.stringify(jsonSchema, null, 2);
+  const schemaMessage = `出力形式：
+JSON形式で以下のスキーマに従って出力してください：
+${schemaText}
+`;
+
+  const response = await fetch(DEEPSEEK_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "deepseek-chat",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `${userMessage}\n\n${schemaMessage}` },
+      ],
+      temperature,
+      max_tokens: maxTokens,
+      response_format: {
+        type: "json_object",
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`DeepSeek API error: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+
+  const data = (await response.json()) as DeepSeekResponse;
+  const content = data.choices[0]?.message?.content;
+
+  if (!content) {
+    throw new Error("No content in response");
+  }
+
+  const parsed = JSON.parse(content);
+  return schema.parse(parsed);
 }

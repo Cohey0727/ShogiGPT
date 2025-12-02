@@ -1,8 +1,8 @@
 import clsx from "clsx";
-import { Player, pieces as pieceData, PieceType } from "../../../shared/consts";
-import styles from "./HandStand.css";
+import { Player, pieces as pieceData, PieceType } from "../../../../shared/consts";
+import styles from "./PieceStand.css";
 
-interface PieceStandProps {
+export interface PieceStandProps {
   player: Player;
   pieces: PieceType[];
   selectedPieceType?: PieceType | null;
@@ -21,7 +21,7 @@ const pieceOrder: PieceType[] = [
   PieceType.Pawn,
 ];
 
-export function HandStand({
+export function PieceStand({
   player,
   pieces,
   selectedPieceType,

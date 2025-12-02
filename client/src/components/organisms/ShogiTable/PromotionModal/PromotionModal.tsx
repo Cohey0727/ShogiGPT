@@ -1,4 +1,4 @@
-import { pieces, type PieceType } from "../../../shared/consts";
+import { pieces, type PieceType } from "../../../../shared/consts";
 import * as styles from "./PromotionModal.css";
 
 interface PromotionModalProps {

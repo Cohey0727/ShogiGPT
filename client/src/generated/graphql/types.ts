@@ -1798,6 +1798,13 @@ export type GetMatchQueryVariables = Exact<{
 
 export type GetMatchQuery = { __typename?: 'query_root', matchesByPk?: { __typename?: 'Matches', id: string, createdAt: string, updatedAt: string, status: 'ONGOING' | 'COMPLETED' | 'ABANDONED', playerSente?: string | null | undefined, playerGote?: string | null | undefined, senteType: 'HUMAN' | 'AI', goteType: 'HUMAN' | 'AI', matchStates: Array<{ __typename?: 'MatchStates', createdAt: string, matchId: string, index: number, usiMove: string, sfen: string, thinkingTime?: number | null | undefined }> } | null | undefined };
 
+export type GetChatMessagesQueryVariables = Exact<{
+  matchId: Scalars['String']['input'];
+}>;
+
+
+export type GetChatMessagesQuery = { __typename?: 'query_root', chatMessages: Array<{ __typename?: 'ChatMessages', id: string, createdAt: string, updatedAt: string, matchId: string, role: 'USER' | 'ASSISTANT', contents: any, metadata?: string | null | undefined, isPartial: boolean }> };
+
 export type SubscribeChatMessagesSubscriptionVariables = Exact<{
   matchId: Scalars['String']['input'];
 }>;
@@ -1935,6 +1942,24 @@ export const GetMatchDocument = gql`
 
 export function useGetMatchQuery(options: Omit<Urql.UseQueryArgs<GetMatchQueryVariables>, 'query'>) {
   return Urql.useQuery<GetMatchQuery, GetMatchQueryVariables>({ query: GetMatchDocument, ...options });
+};
+export const GetChatMessagesDocument = gql`
+    query GetChatMessages($matchId: String!) {
+  chatMessages(where: {matchId: {_eq: $matchId}}, orderBy: {createdAt: ASC}) {
+    id
+    createdAt
+    updatedAt
+    matchId
+    role
+    contents
+    metadata
+    isPartial
+  }
+}
+    `;
+
+export function useGetChatMessagesQuery(options: Omit<Urql.UseQueryArgs<GetChatMessagesQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetChatMessagesQuery, GetChatMessagesQueryVariables>({ query: GetChatMessagesDocument, ...options });
 };
 export const SubscribeChatMessagesDocument = gql`
     subscription SubscribeChatMessages($matchId: String!) {

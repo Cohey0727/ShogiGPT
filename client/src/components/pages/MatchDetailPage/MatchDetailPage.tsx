@@ -1,13 +1,6 @@
 import { useParams } from "wouter";
 import { useState, useCallback, useMemo } from "react";
-import {
-  ShogiBoard,
-  MatchChat,
-  PieceStand,
-  StatusBar,
-  ResumeDialog,
-  usePromptSettings,
-} from "../../organisms";
+import { ShogiTable, MatchChat, StatusBar, ResumeDialog, usePromptSettings } from "../../organisms";
 import {
   useGetMatchQuery,
   useSubscribeMatchStatesSubscription,
@@ -15,7 +8,7 @@ import {
 } from "../../../generated/graphql/types";
 import { useModal } from "../../molecules/hooks/useModal";
 import styles from "./MatchDetailPage.css";
-import type { Board, PieceType } from "../../../shared/consts";
+import type { Board } from "../../../shared/consts";
 import {
   sfenToBoard,
   createInitialBoard,
@@ -23,7 +16,7 @@ import {
   getWinner,
   formatMoveToJapanese,
 } from "../../../shared/services";
-import { Col, Row, ResizableContainer } from "../../atoms";
+import { Col, ResizableContainer } from "../../atoms";
 import { useChatMessageStream } from "../../organisms/hooks/useChatMessageStream";
 
 interface BoardState {
@@ -113,8 +106,6 @@ export function MatchDetailPage() {
 
     return { board, moveIndex: currentState.index, previousBoard };
   }, [matchStatesData?.matchStates, viewingStateIndex]);
-
-  const [selectedHandPiece, setSelectedHandPiece] = useState<PieceType | null>(null);
 
   // 楽観的更新用の局面状態
   const [optimisticState, setOptimisticState] = useState<OptimisticState | null>(null);
@@ -238,58 +229,21 @@ export function MatchDetailPage() {
             onResumeClick={handleResumeClick}
             onViewingIndexChange={handleViewingIndexChange}
           />
-          <ResumeDialog
-            open={isResumeDialogOpen}
-            onClose={resumeDialogModal.close}
-            matchId={matchId}
-            viewingIndex={viewingStateIndex ?? 0}
-            onRewindSuccess={handleRewindSuccess}
+          <ShogiTable
+            board={displayBoardState.board}
+            onBoardChange={handleBoardChange}
+            disabled={isBoardDisabled}
+            diffCells={diffCells}
           />
-          <Row className={styles.boardSection} align="center" justify="center">
-            <div className={styles.gotePieceStand}>
-              <PieceStand
-                player="GOTE"
-                pieces={displayBoardState.board.goteHands}
-                selectedPieceType={
-                  displayBoardState.board.turn === "GOTE" ? selectedHandPiece : null
-                }
-                onPieceSelect={(pieceType) => {
-                  if (displayBoardState.board.turn === "GOTE") {
-                    setSelectedHandPiece(pieceType);
-                  }
-                }}
-                disabled={isBoardDisabled}
-              />
-            </div>
-            <div className={styles.boardContainer}>
-              <ShogiBoard
-                board={displayBoardState.board}
-                currentPlayer={displayBoardState.board.turn}
-                onBoardChange={handleBoardChange}
-                selectedHandPiece={selectedHandPiece}
-                onHandPieceDeselect={() => setSelectedHandPiece(null)}
-                disabled={isBoardDisabled}
-                diffCells={diffCells}
-              />
-            </div>
-            <div className={styles.sentePieceStand}>
-              <PieceStand
-                player="SENTE"
-                pieces={displayBoardState.board.senteHands}
-                selectedPieceType={
-                  displayBoardState.board.turn === "SENTE" ? selectedHandPiece : null
-                }
-                onPieceSelect={(pieceType) => {
-                  if (displayBoardState.board.turn === "SENTE") {
-                    setSelectedHandPiece(pieceType);
-                  }
-                }}
-                disabled={isBoardDisabled}
-              />
-            </div>
-          </Row>
         </Col>
       </ResizableContainer>
+      <ResumeDialog
+        open={isResumeDialogOpen}
+        onClose={resumeDialogModal.close}
+        matchId={matchId}
+        viewingIndex={viewingStateIndex ?? 0}
+        onRewindSuccess={handleRewindSuccess}
+      />
     </div>
   );
 }

@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
-import { Player, pieces, Board, BoardIndex, Position, PieceType } from "../../../shared/consts";
-import { getPossibleMoves, canPromote, getDropPositions } from "../../../services";
-import { moveToUsi, dropToUsi } from "../../../shared/services";
-import { useModal } from "../../molecules/hooks";
-import { PromotionModal } from "../../molecules";
+import { Player, pieces, Board, BoardIndex, Position, PieceType } from "../../../../shared/consts";
+import { getPossibleMoves, canPromote, getDropPositions } from "../../../../services";
+import { moveToUsi, dropToUsi } from "../../../../shared/services";
+import { useModal } from "../../../molecules/hooks";
+import { PromotionModal } from "../PromotionModal";
 import styles from "./ShogiBoard.css";
 
-interface ShogiBoardProps {
+export interface ShogiBoardProps {
   board: Board;
   currentPlayer: Player;
   onBoardChange: (board: Board, usiMove: string) => void;

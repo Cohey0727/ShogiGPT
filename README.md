@@ -75,9 +75,10 @@ shogi-gpt/
    ```
    `just dev` は複数プロセスを `mprocs` で監視しながら起動します。
 
-5. サーバーの環境変数を設定
+5. 環境変数を設定
    ```bash
    cp server/.env.example server/.env
+   cp hasura/.env.example hasura/.env
    ```
    `.env`ファイルを編集して`DEEPSEEK_API_KEY`を設定してください（他の環境変数はデフォルト値で動作します）。
 

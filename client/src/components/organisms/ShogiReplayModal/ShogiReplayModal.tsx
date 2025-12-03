@@ -7,7 +7,7 @@ import {
   ChevronRightIcon,
 } from "@radix-ui/react-icons";
 import type { Board } from "../../../shared/consts";
-import { applyUsiMove } from "../../../shared/services";
+import { applyUsiMove, calculateDiffCells } from "../../../shared/services";
 import { Row, Col } from "../../atoms";
 import { ShogiTable } from "../ShogiTable";
 import styles from "./ShogiReplayModal.css";
@@ -27,6 +27,8 @@ export interface ShogiReplayModalProps {
   title: string;
   /** 開始局面 */
   startBoard: Board;
+  /** 開始局面のコメント */
+  startComment?: string;
   /** 再生する手順 */
   moves: ReplayMove[];
   /** モーダルの開閉状態 */
@@ -41,31 +43,43 @@ export interface ShogiReplayModalProps {
 export function ShogiReplayModal({
   title,
   startBoard,
+  startComment,
   moves,
   open,
   onClose,
 }: ShogiReplayModalProps) {
-  const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
+  // -1は初期盤面、0以上は手番インデックス
+  const [currentMoveIndex, setCurrentMoveIndex] = useState(-1);
 
-  // 現在の局面を計算
-  const currentBoard = useMemo(() => {
+  // 現在の局面と前の局面を計算
+  const { currentBoard, previousBoard } = useMemo(() => {
     let board = startBoard;
+    let prevBoard = startBoard;
     for (let i = 0; i <= currentMoveIndex && i < moves.length; i++) {
+      prevBoard = board;
       board = applyUsiMove(board, moves[i].move);
     }
-    return board;
+    return { currentBoard: board, previousBoard: prevBoard };
   }, [startBoard, moves, currentMoveIndex]);
+
+  // 前の局面との差分を計算
+  const diffCells = useMemo(() => {
+    return calculateDiffCells(previousBoard, currentBoard);
+  }, [previousBoard, currentBoard]);
 
   // 現在のコメントを取得
   const currentComment = useMemo(() => {
+    if (currentMoveIndex < 0) {
+      return startComment ?? null;
+    }
     if (currentMoveIndex >= moves.length) {
       return null;
     }
     return moves[currentMoveIndex]?.comment ?? null;
-  }, [moves, currentMoveIndex]);
+  }, [moves, currentMoveIndex, startComment]);
 
   const handlePrevMove = useCallback(() => {
-    setCurrentMoveIndex((prev) => Math.max(0, prev - 1));
+    setCurrentMoveIndex((prev) => Math.max(-1, prev - 1));
   }, []);
 
   const handleNextMove = useCallback(() => {
@@ -73,7 +87,7 @@ export function ShogiReplayModal({
   }, [moves.length]);
 
   const handleFirstMove = useCallback(() => {
-    setCurrentMoveIndex(0);
+    setCurrentMoveIndex(-1);
   }, []);
 
   const handleLastMove = useCallback(() => {
@@ -84,7 +98,7 @@ export function ShogiReplayModal({
   const handleOpenChange = useCallback(
     (newOpen: boolean) => {
       if (newOpen) {
-        setCurrentMoveIndex(0);
+        setCurrentMoveIndex(-1);
       } else {
         onClose();
       }
@@ -100,26 +114,31 @@ export function ShogiReplayModal({
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className={styles.overlay} />
         <DialogPrimitive.Content className={styles.content}>
-          <Col gap="md" className={styles.inner}>
+          <Col gap="md">
             <Row justify="space-between" align="center">
               <h2 className={styles.title}>{title}</h2>
               <DialogPrimitive.Close className={styles.close}>
                 <span>×</span>
               </DialogPrimitive.Close>
             </Row>
-            <ShogiTable board={currentBoard} onBoardChange={handleBoardChange} disabled />
+            <ShogiTable
+              board={currentBoard}
+              onBoardChange={handleBoardChange}
+              disabled
+              diffCells={diffCells}
+            />
             <Row justify="center" align="center" gap="sm">
               <button
                 className={styles.controlButton}
                 onClick={handleFirstMove}
-                disabled={currentMoveIndex <= 0}
+                disabled={currentMoveIndex <= -1}
               >
                 <DoubleArrowLeftIcon />
               </button>
               <button
                 className={styles.controlButton}
                 onClick={handlePrevMove}
-                disabled={currentMoveIndex <= 0}
+                disabled={currentMoveIndex <= -1}
               >
                 <ChevronLeftIcon />
               </button>

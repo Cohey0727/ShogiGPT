@@ -216,12 +216,26 @@ async function execute(context: AiFunctionCallingToolContext): Promise<void> {
       return;
     }
 
+    // AIでない人間プレイヤーの名前を収集
+    const humanPlayers: string[] = [];
+    if (match.senteType === "HUMAN" && match.playerSente) {
+      humanPlayers.push(match.playerSente);
+    }
+    if (match.goteType === "HUMAN" && match.playerGote) {
+      humanPlayers.push(match.playerGote);
+    }
+
+    // ヘッダーメッセージを生成
+    const playerNames =
+      humanPlayers.length > 0 ? humanPlayers.map((name) => `${name}さん`).join("、") + "、" : "";
+    const headerMessage = `${playerNames}感想戦を始めましょう。`;
+
     // 進捗表示を更新
     await db.chatMessage.update({
       where: { id: chatMessageId },
       data: {
         role: "ASSISTANT",
-        contents: [{ type: "markdown", content: "局面を分析中..." }],
+        contents: [{ type: "markdown", content: `${headerMessage}\n\n局面を分析中...` }],
         isPartial: true,
       },
     });
@@ -297,7 +311,7 @@ async function execute(context: AiFunctionCallingToolContext): Promise<void> {
       where: { id: chatMessageId },
       data: {
         role: "ASSISTANT",
-        contents: [{ type: "markdown", content: "考え中..." }],
+        contents: [{ type: "markdown", content: `${headerMessage}\n\n考え中...` }],
         isPartial: true,
       },
     });
@@ -329,17 +343,17 @@ async function execute(context: AiFunctionCallingToolContext): Promise<void> {
       turningPoints,
     };
 
-    // メッセージを更新
-    const markdownContent =
+    // 最終メッセージを生成
+    const finalHeaderMessage =
       turningPoints.length > 0
-        ? `感想戦を始めましょう。`
+        ? headerMessage
         : "この対局では大きなターニングポイントは見つかりませんでした。安定した対局でしたね。";
 
     await db.chatMessage.update({
       where: { id: chatMessageId },
       data: {
         role: "ASSISTANT",
-        contents: [{ type: "markdown", content: markdownContent }, postGameAnalysisContent],
+        contents: [{ type: "markdown", content: finalHeaderMessage }, postGameAnalysisContent],
         isPartial: false,
       },
     });

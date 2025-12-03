@@ -234,6 +234,7 @@ export function MatchDetailPage() {
             onBoardChange={handleBoardChange}
             disabled={isBoardDisabled}
             diffCells={diffCells}
+            className={styles.shogiTable}
           />
         </Col>
       </ResizableContainer>

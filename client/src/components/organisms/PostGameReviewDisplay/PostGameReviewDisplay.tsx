@@ -75,6 +75,7 @@ export function PostGameReviewDisplay({ content }: PostGameReviewDisplayProps) {
       {selectedTurningPoint && (
         <ShogiReplayModal
           title={`${selectedTurningPoint.index}手目 - 最善手順`}
+          startComment={selectedTurningPoint.comment}
           startBoard={sfenToBoard(selectedTurningPoint.sfen)}
           moves={selectedTurningPoint.bestMoves}
           open={true}

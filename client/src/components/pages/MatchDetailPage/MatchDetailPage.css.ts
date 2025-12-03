@@ -13,6 +13,10 @@ const styles = {
     flexDirection: "column",
     height: "100%",
   }),
+
+  shogiTable: style({
+    padding: "1rem",
+  }),
 };
 
 export default styles;

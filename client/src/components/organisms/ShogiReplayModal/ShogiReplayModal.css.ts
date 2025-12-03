@@ -40,10 +40,6 @@ export default {
     },
   }),
 
-  inner: style({
-    height: "100%",
-  }),
-
   title: style({
     fontSize: "1.125rem",
     fontWeight: "600",

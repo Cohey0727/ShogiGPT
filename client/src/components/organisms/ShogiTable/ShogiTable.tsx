@@ -4,6 +4,7 @@ import { Row } from "../../atoms";
 import { PieceStand } from "./PieceStand";
 import { ShogiBoard } from "./ShogiBoard";
 import styles from "./ShogiTable.css";
+import clsx from "clsx";
 
 export interface ShogiTableProps {
   /** 現在の盤面状態 */
@@ -14,6 +15,8 @@ export interface ShogiTableProps {
   disabled?: boolean;
   /** 前の局面との差分セル */
   diffCells?: Position[];
+  /** className for the container */
+  className?: string;
 }
 
 /**
@@ -24,6 +27,7 @@ export function ShogiTable({
   onBoardChange,
   disabled = false,
   diffCells = [],
+  className,
 }: ShogiTableProps) {
   const [selectedHandPiece, setSelectedHandPiece] = useState<PieceType | null>(null);
 
@@ -50,7 +54,7 @@ export function ShogiTable({
   }, []);
 
   return (
-    <Row className={styles.container} align="center" justify="center">
+    <Row className={clsx(styles.container, className)} align="center" justify="center">
       <div className={styles.gotePieceStand}>
         <PieceStand
           player="GOTE"

@@ -2,7 +2,6 @@ import { style } from "@vanilla-extract/css";
 
 const styles = {
   container: style({
-    padding: "1rem",
     gap: "1rem",
     overflow: "hidden",
   }),

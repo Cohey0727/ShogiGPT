@@ -212,17 +212,7 @@ export const ShogiPieceIcon = component$<IconProps>(({ size = 24, class: classNa
       stroke-linecap="round"
       stroke-linejoin="round"
     />
-    <path
-      d="M9 12H15"
-      stroke="currentColor"
-      stroke-width="1.5"
-      stroke-linecap="round"
-    />
-    <path
-      d="M12 9V15"
-      stroke="currentColor"
-      stroke-width="1.5"
-      stroke-linecap="round"
-    />
+    <path d="M9 12H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+    <path d="M12 9V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
   </svg>
 ));

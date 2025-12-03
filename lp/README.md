@@ -19,25 +19,25 @@ bun run dev
 ## ビルドと起動
 
 ```bash
-# 本番用ビルド
+# 静的ファイルを生成（dist/ に出力）
 bun run build
 
-# ビルド結果のプレビュー
-bun run preview
+# 静的ファイルをローカルで配信
+bun run start
 ```
 
-プレビューサーバーは http://localhost:4173 で起動します。
+`bun run start` は http://localhost:3000 で静的ファイルを配信します。
 
-> **注意**: `bun run preview` はローカル確認用です。本番環境へのデプロイには別途ホスティングサービス（Cloudflare Pages、Vercel など）への設定が必要です。
+本番環境へのデプロイは `dist/` ディレクトリを Cloudflare Pages、Vercel、Netlify などにアップロードしてください。
 
 ## コマンド一覧
 
-| コマンド | 説明 |
-| --- | --- |
-| `bun run dev` | 開発サーバーを起動（ホットリロード対応） |
-| `bun run build` | 本番用ビルドを生成 |
-| `bun run preview` | ビルド結果をローカルでプレビュー |
-| `bun run lint` | ESLint によるコードチェック |
+| コマンド        | 説明                                     |
+| --------------- | ---------------------------------------- |
+| `bun run dev`   | 開発サーバーを起動（ホットリロード対応） |
+| `bun run build` | 静的ファイルを生成（`dist/` に出力）     |
+| `bun run start` | 静的ファイルをローカルで配信             |
+| `bun run lint`  | ESLint によるコードチェック              |
 
 ## ディレクトリ構成
 

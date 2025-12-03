@@ -1,9 +1,4 @@
-import {
-  component$,
-  useSignal,
-  useVisibleTask$,
-  Slot,
-} from "@builder.io/qwik";
+import { component$, useSignal, useVisibleTask$, Slot } from "@builder.io/qwik";
 
 interface FeatureItemProps {
   number: string;
@@ -34,7 +29,7 @@ export const FeatureItem = component$<FeatureItemProps>(
             }
           });
         },
-        { threshold: 0.2 }
+        { threshold: 0.2 },
       );
 
       observer.observe(el);
@@ -59,5 +54,5 @@ export const FeatureItem = component$<FeatureItemProps>(
         </div>
       </div>
     );
-  }
+  },
 );

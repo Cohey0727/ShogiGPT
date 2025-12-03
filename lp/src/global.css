@@ -104,7 +104,6 @@ a {
   overflow: hidden;
 }
 
-
 .hero-content {
   position: relative;
   z-index: 1;
@@ -159,13 +158,19 @@ a {
   border-radius: 0.5rem;
   font-size: 1.125rem;
   font-weight: 600;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 16px rgba(255, 165, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  box-shadow:
+    0 4px 16px rgba(255, 165, 0, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .hero-cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(255, 165, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 8px 24px rgba(255, 165, 0, 0.4),
+    0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .hero-visual {
@@ -562,7 +567,9 @@ a {
   padding: 32px;
   text-align: center;
   border: 1px solid var(--color-border);
-  transition: transform 0.2s, border-color 0.2s;
+  transition:
+    transform 0.2s,
+    border-color 0.2s;
 }
 
 .target-card:hover {
@@ -615,7 +622,9 @@ a {
   border-radius: 0.5rem;
   font-size: 1.25rem;
   font-weight: 700;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 

@@ -1,0 +1,44 @@
+{
+  "name": "my-qwik-empty-starter",
+  "devDependencies": {
+    "@builder.io/qwik": "^1.17.2",
+    "@builder.io/qwik-city": "^1.17.2",
+    "@eslint/js": "latest",
+    "@types/node": "24.10.1",
+    "eslint": "9.39.1",
+    "eslint-plugin-qwik": "^1.17.2",
+    "globals": "16.5.0",
+    "prettier": "3.7.4",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.48.1",
+    "typescript-plugin-css-modules": "latest",
+    "undici": "*",
+    "vite": "7.2.6",
+    "vite-tsconfig-paths": "^5.1.4"
+  },
+  "description": "Blank project with routing included",
+  "engines": {
+    "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
+  },
+  "engines-annotation": "Mostly required by sharp which needs a Node-API v9 compatible runtime",
+  "private": true,
+  "scripts": {
+    "build": "qwik build",
+    "build.client": "vite build",
+    "build.preview": "vite build --ssr src/entry.preview.tsx",
+    "build.types": "tsc --incremental --noEmit",
+    "deploy": "echo 'Run \"npm run qwik add\" to install a server adapter'",
+    "dev": "vite --mode ssr",
+    "dev.debug": "node --inspect-brk ./node_modules/vite/bin/vite.js --mode ssr --force",
+    "fmt": "prettier --write .",
+    "fmt.check": "prettier --check .",
+    "lint": "eslint \"src/**/*.ts*\"",
+    "preview": "qwik build preview && vite preview --open",
+    "start": "vite --open --mode ssr",
+    "qwik": "qwik"
+  },
+  "type": "module",
+  "dependencies": {
+    "@google/model-viewer": "^4.1.0"
+  }
+}

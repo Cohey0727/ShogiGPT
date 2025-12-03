@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+  "name": "ShogiGPT",
+  "short_name": "ShogiGPT",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#d4af37",
+  "description": "チャットで指す、新しい将棋体験。AIと会話しながら将棋を楽しむ。"
+}

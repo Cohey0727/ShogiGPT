@@ -22,6 +22,7 @@ ShogiGPTは、将棋AIの思考プロセス（Reasoning、Thinking）を可視�
 - **バックエンド**: Hono (Bun) + GraphQL
 - **データベース**: PostgreSQL + Hasura GraphQL Engine
 - **将棋エンジン**: FastAPI (Python)
+- **ランディングページ**: Qwik
 - **開発ツール**: Vite、Bun build、Just (タスクランナー)
 
 ## サービスポート一覧
@@ -42,6 +43,7 @@ shogi-gpt/
 ├─ server/      # GraphQL API サーバー (Hono + Bun)
 ├─ hasura/      # Hasura 設定とメタデータ
 ├─ shogi-ai/    # 将棋エンジン API (FastAPI + Python)
+├─ lp/          # ランディングページ (Qwik)
 ├─ justfile     # タスクランナー設定
 └─ docker-compose.yml  # Docker 構成
 ```
@@ -97,6 +99,24 @@ shogi-gpt/
 | `just ngrok` | ngrokトンネルを起動してサービスを外部公開 |
 | `just localtunnel` | localtunnelでサービスを外部公開 |
 | `just cloudflared` | Cloudflare Tunnelでサービスを外部公開 |
+
+## ランディングページ (LP)
+
+`lp/` ディレクトリには、ShogiGPT のランディングページが含まれています。Qwik フレームワークで構築されています。
+
+### LP 開発
+```bash
+cd lp
+bun install
+bun run dev
+```
+
+### LP ビルド
+```bash
+cd lp
+bun run build
+bun run preview
+```
 
 ## 外部公開
 

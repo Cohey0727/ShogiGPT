@@ -7,10 +7,8 @@ import {
   RocketIcon,
   LightningBoltIcon,
   TargetIcon,
-  QuestionMarkCircledIcon,
   BarChartIcon,
   PlayIcon,
-  ShogiPieceIcon,
 } from "../components/icons/Icons";
 import { FloatingPieces } from "../components/FloatingPieces/FloatingPieces";
 import { FeatureItem } from "../components/FeatureItem";
@@ -84,15 +82,7 @@ export default component$(() => {
             </p>
           </div>
           <div class="solution-visual">
-            {/* TODO: チャット画面のスクリーンショット */}
-            <div class="solution-visual-placeholder">
-              <span class="hero-visual-placeholder-icon">
-                <ChatBubbleIcon size={48} />
-              </span>
-              <span class="placeholder-label">
-                [スクリーンショット] チャットで手を指している様子
-              </span>
-            </div>
+            <img src="/assets/images/solution.png" alt="チャットで手を指している様子" />
           </div>
         </div>
       </section>
@@ -115,15 +105,7 @@ export default component$(() => {
                 "対局の流れがログとして残る",
               ]}
             >
-              {/* TODO: チャット対局のスクリーンショット */}
-              <div class="feature-visual-placeholder">
-                <span class="hero-visual-placeholder-icon">
-                  <ShogiPieceIcon size={48} />
-                </span>
-                <span class="placeholder-label">
-                  [スクリーンショット] 「7六歩」と入力してAIが応答する様子
-                </span>
-              </div>
+              <img src="/assets/images/feature_01.png" alt="「7六歩」と入力してAIが応答する様子" />
             </FeatureItem>
 
             {/* Feature 2 */}
@@ -137,15 +119,7 @@ export default component$(() => {
                 "読み筋も含めて解説",
               ]}
             >
-              {/* TODO: 質問と解説のスクリーンショット */}
-              <div class="feature-visual-placeholder">
-                <span class="hero-visual-placeholder-icon">
-                  <QuestionMarkCircledIcon size={48} />
-                </span>
-                <span class="placeholder-label">
-                  [スクリーンショット] 「この手はどう？」に対するAIの解説
-                </span>
-              </div>
+              <img src="/assets/images/feature_02.png" alt="「この手はどう？」に対するAIの解説" />
             </FeatureItem>
 
             {/* Feature 3 */}

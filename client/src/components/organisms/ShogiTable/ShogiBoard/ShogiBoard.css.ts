@@ -10,8 +10,7 @@ const styles = {
     padding: "1px",
     borderRadius: "0.5rem",
     aspectRatio: "1",
-    width: "100%",
-    maxWidth: "500px",
+    height: "100%",
   }),
 
   cell: style({

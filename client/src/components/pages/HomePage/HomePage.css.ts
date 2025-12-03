@@ -4,20 +4,13 @@ const styles = {
   container: style({
     flex: 1,
     width: "100%",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
     padding: "2rem",
     position: "relative",
   }),
 
   hero: style({
-    textAlign: "center",
-    maxWidth: "800px",
-    display: "flex",
-    flexDirection: "column",
-    gap: "2rem",
+    textAlign: "left",
+    padding: "4rem",
     position: "relative",
     zIndex: 1,
   }),

@@ -1,13 +1,13 @@
 import { Link } from "wouter";
-import { Row, Button } from "../../atoms";
+import { Row, Button, Col } from "../../atoms";
 import { SparklingText, FloatingPieces } from "../../molecules";
 import styles from "./HomePage.css";
 
 export function HomePage() {
   return (
-    <div className={styles.container}>
+    <Col className={styles.container} align="center" justify="center">
       <FloatingPieces />
-      <div className={styles.hero}>
+      <Col className={styles.hero} align="center">
         <SparklingText as="h2" className={styles.title}>
           ShogiGPT
         </SparklingText>
@@ -24,7 +24,7 @@ export function HomePage() {
             </Button>
           </Link>
         </Row>
-      </div>
-    </div>
+      </Col>
+    </Col>
   );
 }

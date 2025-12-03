@@ -22,13 +22,13 @@ const PIECE_MODELS = [
   "/assets/3d/玉.glb",
 ];
 
-const PIECE_COUNT = 12;
+const pieceCount = 12;
 
 /**
  * ランダムに配置された3D将棋駒を生成します
  */
 function generatePieces(): Piece[] {
-  return Array.from({ length: PIECE_COUNT }, (_, i) => ({
+  return Array.from({ length: pieceCount }, (_, i) => ({
     id: i,
     model: PIECE_MODELS[Math.floor(Math.random() * PIECE_MODELS.length)],
     x: Math.random() * 100,

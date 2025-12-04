@@ -24,12 +24,13 @@ RUN git clone https://github.com/yaneurao/YaneuraOu.git
 
 WORKDIR /build/YaneuraOu/source
 
-# AVX2でノーマルビルドを実行（LTOを無効化してビルド時間を短縮）
-# 他のオプション: SSE42（古いCPU）、AVX512（最新Intel）、ZEN2/ZEN3（AMD Ryzen）
+# SSE42でノーマルビルドを実行（LTOを無効化してビルド時間を短縮）
+# Apple Silicon MacのRosetta 2エミュレーションではAVX2が動作しないためSSE42を使用
+# 本番環境（x86）ではAVX2に変更することでパフォーマンス向上可能
 # MakefileからLTOフラグを削除してビルド
 RUN sed -i 's/-flto//g' Makefile && \
     make clean && \
-    make -j4 normal COMPILER=g++ TARGET_CPU=AVX2 YANEURAOU_EDITION=YANEURAOU_ENGINE_NNUE
+    make -j4 normal COMPILER=g++ TARGET_CPU=SSE42 YANEURAOU_EDITION=YANEURAOU_ENGINE_NNUE
 
 # 水匠5の評価関数ファイルをダウンロード
 WORKDIR /build/eval

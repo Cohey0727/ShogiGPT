@@ -677,6 +677,242 @@ type Match {
 }
 
 """
+columns and relationships of "match_ai_configs"
+"""
+type MatchAiConfigs {
+  createdAt: timestamp!
+  depth: Int
+  engineName: String
+  id: String!
+  matchId: String!
+  multiPv: Int
+  personality: String
+  player: MatchPlayer!
+  thinkTime: Int
+  updatedAt: timestamp!
+}
+
+"""
+Boolean expression to filter rows from the table "match_ai_configs". All fields are combined with a logical 'AND'.
+"""
+input MatchAiConfigsBoolExp {
+  _and: [MatchAiConfigsBoolExp!]
+  _not: MatchAiConfigsBoolExp
+  _or: [MatchAiConfigsBoolExp!]
+  createdAt: TimestampComparisonExp
+  depth: IntComparisonExp
+  engineName: StringComparisonExp
+  id: StringComparisonExp
+  matchId: StringComparisonExp
+  multiPv: IntComparisonExp
+  personality: StringComparisonExp
+  player: MatchPlayerComparisonExp
+  thinkTime: IntComparisonExp
+  updatedAt: TimestampComparisonExp
+}
+
+"""
+unique or primary key constraints on table "match_ai_configs"
+"""
+enum MatchAiConfigsConstraint {
+  """
+  unique or primary key constraint on columns "player", "matchId"
+  """
+  match_ai_configs_matchId_player_key
+
+  """
+  unique or primary key constraint on columns "id"
+  """
+  match_ai_configs_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "match_ai_configs"
+"""
+input MatchAiConfigsIncInput {
+  depth: Int
+  multiPv: Int
+  thinkTime: Int
+}
+
+"""
+input type for inserting data into table "match_ai_configs"
+"""
+input MatchAiConfigsInsertInput {
+  createdAt: timestamp
+  depth: Int
+  engineName: String
+  id: String
+  matchId: String
+  multiPv: Int
+  personality: String
+  player: MatchPlayer
+  thinkTime: Int
+  updatedAt: timestamp
+}
+
+"""
+response of any mutation on the table "match_ai_configs"
+"""
+type MatchAiConfigsMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [MatchAiConfigs!]!
+}
+
+"""
+on_conflict condition type for table "match_ai_configs"
+"""
+input MatchAiConfigsOnConflict {
+  constraint: MatchAiConfigsConstraint!
+  updateColumns: [MatchAiConfigsUpdateColumn!]! = []
+  where: MatchAiConfigsBoolExp
+}
+
+"""Ordering options when selecting data from "match_ai_configs"."""
+input MatchAiConfigsOrderBy {
+  createdAt: OrderBy
+  depth: OrderBy
+  engineName: OrderBy
+  id: OrderBy
+  matchId: OrderBy
+  multiPv: OrderBy
+  personality: OrderBy
+  player: OrderBy
+  thinkTime: OrderBy
+  updatedAt: OrderBy
+}
+
+"""primary key columns input for table: match_ai_configs"""
+input MatchAiConfigsPkColumnsInput {
+  id: String!
+}
+
+"""
+select columns of table "match_ai_configs"
+"""
+enum MatchAiConfigsSelectColumn {
+  """column name"""
+  createdAt
+
+  """column name"""
+  depth
+
+  """column name"""
+  engineName
+
+  """column name"""
+  id
+
+  """column name"""
+  matchId
+
+  """column name"""
+  multiPv
+
+  """column name"""
+  personality
+
+  """column name"""
+  player
+
+  """column name"""
+  thinkTime
+
+  """column name"""
+  updatedAt
+}
+
+"""
+input type for updating data in table "match_ai_configs"
+"""
+input MatchAiConfigsSetInput {
+  createdAt: timestamp
+  depth: Int
+  engineName: String
+  id: String
+  matchId: String
+  multiPv: Int
+  personality: String
+  player: MatchPlayer
+  thinkTime: Int
+  updatedAt: timestamp
+}
+
+"""
+Streaming cursor of the table "match_ai_configs"
+"""
+input MatchAiConfigsStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: MatchAiConfigsStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input MatchAiConfigsStreamCursorValueInput {
+  createdAt: timestamp
+  depth: Int
+  engineName: String
+  id: String
+  matchId: String
+  multiPv: Int
+  personality: String
+  player: MatchPlayer
+  thinkTime: Int
+  updatedAt: timestamp
+}
+
+"""
+update columns of table "match_ai_configs"
+"""
+enum MatchAiConfigsUpdateColumn {
+  """column name"""
+  createdAt
+
+  """column name"""
+  depth
+
+  """column name"""
+  engineName
+
+  """column name"""
+  id
+
+  """column name"""
+  matchId
+
+  """column name"""
+  multiPv
+
+  """column name"""
+  personality
+
+  """column name"""
+  player
+
+  """column name"""
+  thinkTime
+
+  """column name"""
+  updatedAt
+}
+
+input MatchAiConfigsUpdates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: MatchAiConfigsIncInput
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: MatchAiConfigsSetInput
+
+  """filter the rows which have to be updated"""
+  where: MatchAiConfigsBoolExp!
+}
+
+"""
 columns and relationships of "matches"
 """
 type Matches {
@@ -932,6 +1168,23 @@ type MatchEvaluation {
 
   """詰みまでの手数"""
   scoreMate: Int
+}
+
+scalar MatchPlayer
+
+"""
+Boolean expression to compare columns of type "MatchPlayer". All fields are combined with logical 'AND'.
+"""
+input MatchPlayerComparisonExp {
+  _eq: MatchPlayer
+  _gt: MatchPlayer
+  _gte: MatchPlayer
+  _in: [MatchPlayer!]
+  _isNull: Boolean
+  _lt: MatchPlayer
+  _lte: MatchPlayer
+  _neq: MatchPlayer
+  _nin: [MatchPlayer!]
 }
 
 """
@@ -1301,6 +1554,19 @@ type mutation_root {
   deleteEvaluationsByPk(id: String!): Evaluations
 
   """
+  delete data from the table: "match_ai_configs"
+  """
+  deleteMatchAiConfigs(
+    """filter the rows which have to be deleted"""
+    where: MatchAiConfigsBoolExp!
+  ): MatchAiConfigsMutationResponse
+
+  """
+  delete single row from the table: "match_ai_configs"
+  """
+  deleteMatchAiConfigsByPk(id: String!): MatchAiConfigs
+
+  """
   delete data from the table: "match_states"
   """
   deleteMatchStates(
@@ -1372,6 +1638,28 @@ type mutation_root {
     """upsert condition"""
     onConflict: EvaluationsOnConflict
   ): Evaluations
+
+  """
+  insert data into the table: "match_ai_configs"
+  """
+  insertMatchAiConfigs(
+    """the rows to be inserted"""
+    objects: [MatchAiConfigsInsertInput!]!
+
+    """upsert condition"""
+    onConflict: MatchAiConfigsOnConflict
+  ): MatchAiConfigsMutationResponse
+
+  """
+  insert a single row into the table: "match_ai_configs"
+  """
+  insertMatchAiConfigsOne(
+    """the row to be inserted"""
+    object: MatchAiConfigsInsertInput!
+
+    """upsert condition"""
+    onConflict: MatchAiConfigsOnConflict
+  ): MatchAiConfigs
 
   """
   insert data into the table: "match_states"
@@ -1567,6 +1855,40 @@ type mutation_root {
   ): [EvaluationsMutationResponse]
 
   """
+  update data of the table: "match_ai_configs"
+  """
+  updateMatchAiConfigs(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: MatchAiConfigsIncInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: MatchAiConfigsSetInput
+
+    """filter the rows which have to be updated"""
+    where: MatchAiConfigsBoolExp!
+  ): MatchAiConfigsMutationResponse
+
+  """
+  update single row of the table: "match_ai_configs"
+  """
+  updateMatchAiConfigsByPk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: MatchAiConfigsIncInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: MatchAiConfigsSetInput
+    pkColumns: MatchAiConfigsPkColumnsInput!
+  ): MatchAiConfigs
+
+  """
+  update multiples rows of table: "match_ai_configs"
+  """
+  updateMatchAiConfigsMany(
+    """updates to execute, in order"""
+    updates: [MatchAiConfigsUpdates!]!
+  ): [MatchAiConfigsMutationResponse]
+
+  """
   update data of the table: "match_states"
   """
   updateMatchStates(
@@ -1712,6 +2034,31 @@ type query_root {
   """fetch data from the table: "evaluations" using primary key columns"""
   evaluationsByPk(id: String!): Evaluations
   health: Health!
+
+  """
+  fetch data from the table: "match_ai_configs"
+  """
+  matchAiConfigs(
+    """distinct select on columns"""
+    distinctOn: [MatchAiConfigsSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [MatchAiConfigsOrderBy!]
+
+    """filter the rows returned"""
+    where: MatchAiConfigsBoolExp
+  ): [MatchAiConfigs!]!
+
+  """
+  fetch data from the table: "match_ai_configs" using primary key columns
+  """
+  matchAiConfigsByPk(id: String!): MatchAiConfigs
 
   """対局の評価値遷移を取得"""
   matchEvaluations(matchId: String!): [MatchEvaluation!]!
@@ -1934,6 +2281,45 @@ type subscription_root {
     """filter the rows returned"""
     where: EvaluationsBoolExp
   ): [Evaluations!]!
+
+  """
+  fetch data from the table: "match_ai_configs"
+  """
+  matchAiConfigs(
+    """distinct select on columns"""
+    distinctOn: [MatchAiConfigsSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [MatchAiConfigsOrderBy!]
+
+    """filter the rows returned"""
+    where: MatchAiConfigsBoolExp
+  ): [MatchAiConfigs!]!
+
+  """
+  fetch data from the table: "match_ai_configs" using primary key columns
+  """
+  matchAiConfigsByPk(id: String!): MatchAiConfigs
+
+  """
+  fetch data from the table in a streaming manner: "match_ai_configs"
+  """
+  matchAiConfigsStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [MatchAiConfigsStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: MatchAiConfigsBoolExp
+  ): [MatchAiConfigs!]!
 
   """An array relationship"""
   matchStates(

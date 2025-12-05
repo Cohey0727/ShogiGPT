@@ -366,7 +366,7 @@ async function execute(context: AiFunctionCallingToolContext): Promise<void> {
   }
 }
 
-const description = `感想戦を開始します。ユーザーが「感想戦をしよう」「対局を振り返りたい」などと言った場合に使用します。
+const description = `感想戦を開始します。ユーザーが「感想戦をしよう」「感想お願いします」「対局を振り返りたい」などと言った場合に使用します。
 対局中のターニングポイント（形勢が大きく変わった局面）を特定し、各局面での最善手とその解説を提供します。`;
 
 export const postGameReview: HandoffFunctionCallingTool<typeof ArgsSchema> = {

@@ -15,6 +15,7 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  MatchPlayer: { input: 'SENTE' | 'GOTE'; output: 'SENTE' | 'GOTE'; }
   MatchStatus: { input: 'ONGOING' | 'COMPLETED' | 'ABANDONED'; output: 'ONGOING' | 'COMPLETED' | 'ABANDONED'; }
   MessageRole: { input: 'USER' | 'ASSISTANT'; output: 'USER' | 'ASSISTANT'; }
   /** プレイヤータイプ（HUMAN または AI） */
@@ -609,6 +610,198 @@ export type Match = {
   updatedAt: Scalars['String']['output'];
 };
 
+/** columns and relationships of "match_ai_configs" */
+export type MatchAiConfigs = {
+  __typename?: 'MatchAiConfigs';
+  createdAt: Scalars['timestamp']['output'];
+  depth?: Maybe<Scalars['Int']['output']>;
+  engineName?: Maybe<Scalars['String']['output']>;
+  id: Scalars['String']['output'];
+  matchId: Scalars['String']['output'];
+  multiPv?: Maybe<Scalars['Int']['output']>;
+  personality?: Maybe<Scalars['String']['output']>;
+  player: Scalars['MatchPlayer']['output'];
+  thinkTime?: Maybe<Scalars['Int']['output']>;
+  updatedAt: Scalars['timestamp']['output'];
+};
+
+/** Boolean expression to filter rows from the table "match_ai_configs". All fields are combined with a logical 'AND'. */
+export type MatchAiConfigsBoolExp = {
+  _and?: InputMaybe<Array<MatchAiConfigsBoolExp>>;
+  _not?: InputMaybe<MatchAiConfigsBoolExp>;
+  _or?: InputMaybe<Array<MatchAiConfigsBoolExp>>;
+  createdAt?: InputMaybe<TimestampComparisonExp>;
+  depth?: InputMaybe<IntComparisonExp>;
+  engineName?: InputMaybe<StringComparisonExp>;
+  id?: InputMaybe<StringComparisonExp>;
+  matchId?: InputMaybe<StringComparisonExp>;
+  multiPv?: InputMaybe<IntComparisonExp>;
+  personality?: InputMaybe<StringComparisonExp>;
+  player?: InputMaybe<MatchPlayerComparisonExp>;
+  thinkTime?: InputMaybe<IntComparisonExp>;
+  updatedAt?: InputMaybe<TimestampComparisonExp>;
+};
+
+/** unique or primary key constraints on table "match_ai_configs" */
+export const MatchAiConfigsConstraint = {
+  /** unique or primary key constraint on columns "player", "matchId" */
+  MatchAiConfigsMatchIdPlayerKey: 'match_ai_configs_matchId_player_key',
+  /** unique or primary key constraint on columns "id" */
+  MatchAiConfigsPkey: 'match_ai_configs_pkey'
+} as const;
+
+export type MatchAiConfigsConstraint = typeof MatchAiConfigsConstraint[keyof typeof MatchAiConfigsConstraint];
+/** input type for incrementing numeric columns in table "match_ai_configs" */
+export type MatchAiConfigsIncInput = {
+  depth?: InputMaybe<Scalars['Int']['input']>;
+  multiPv?: InputMaybe<Scalars['Int']['input']>;
+  thinkTime?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** input type for inserting data into table "match_ai_configs" */
+export type MatchAiConfigsInsertInput = {
+  createdAt?: InputMaybe<Scalars['timestamp']['input']>;
+  depth?: InputMaybe<Scalars['Int']['input']>;
+  engineName?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  matchId?: InputMaybe<Scalars['String']['input']>;
+  multiPv?: InputMaybe<Scalars['Int']['input']>;
+  personality?: InputMaybe<Scalars['String']['input']>;
+  player?: InputMaybe<Scalars['MatchPlayer']['input']>;
+  thinkTime?: InputMaybe<Scalars['Int']['input']>;
+  updatedAt?: InputMaybe<Scalars['timestamp']['input']>;
+};
+
+/** response of any mutation on the table "match_ai_configs" */
+export type MatchAiConfigsMutationResponse = {
+  __typename?: 'MatchAiConfigsMutationResponse';
+  /** number of rows affected by the mutation */
+  affectedRows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<MatchAiConfigs>;
+};
+
+/** on_conflict condition type for table "match_ai_configs" */
+export type MatchAiConfigsOnConflict = {
+  constraint: MatchAiConfigsConstraint;
+  updateColumns?: Array<MatchAiConfigsUpdateColumn>;
+  where?: InputMaybe<MatchAiConfigsBoolExp>;
+};
+
+/** Ordering options when selecting data from "match_ai_configs". */
+export type MatchAiConfigsOrderBy = {
+  createdAt?: InputMaybe<OrderBy>;
+  depth?: InputMaybe<OrderBy>;
+  engineName?: InputMaybe<OrderBy>;
+  id?: InputMaybe<OrderBy>;
+  matchId?: InputMaybe<OrderBy>;
+  multiPv?: InputMaybe<OrderBy>;
+  personality?: InputMaybe<OrderBy>;
+  player?: InputMaybe<OrderBy>;
+  thinkTime?: InputMaybe<OrderBy>;
+  updatedAt?: InputMaybe<OrderBy>;
+};
+
+/** primary key columns input for table: match_ai_configs */
+export type MatchAiConfigsPkColumnsInput = {
+  id: Scalars['String']['input'];
+};
+
+/** select columns of table "match_ai_configs" */
+export const MatchAiConfigsSelectColumn = {
+  /** column name */
+  CreatedAt: 'createdAt',
+  /** column name */
+  Depth: 'depth',
+  /** column name */
+  EngineName: 'engineName',
+  /** column name */
+  Id: 'id',
+  /** column name */
+  MatchId: 'matchId',
+  /** column name */
+  MultiPv: 'multiPv',
+  /** column name */
+  Personality: 'personality',
+  /** column name */
+  Player: 'player',
+  /** column name */
+  ThinkTime: 'thinkTime',
+  /** column name */
+  UpdatedAt: 'updatedAt'
+} as const;
+
+export type MatchAiConfigsSelectColumn = typeof MatchAiConfigsSelectColumn[keyof typeof MatchAiConfigsSelectColumn];
+/** input type for updating data in table "match_ai_configs" */
+export type MatchAiConfigsSetInput = {
+  createdAt?: InputMaybe<Scalars['timestamp']['input']>;
+  depth?: InputMaybe<Scalars['Int']['input']>;
+  engineName?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  matchId?: InputMaybe<Scalars['String']['input']>;
+  multiPv?: InputMaybe<Scalars['Int']['input']>;
+  personality?: InputMaybe<Scalars['String']['input']>;
+  player?: InputMaybe<Scalars['MatchPlayer']['input']>;
+  thinkTime?: InputMaybe<Scalars['Int']['input']>;
+  updatedAt?: InputMaybe<Scalars['timestamp']['input']>;
+};
+
+/** Streaming cursor of the table "match_ai_configs" */
+export type MatchAiConfigsStreamCursorInput = {
+  /** Stream column input with initial value */
+  initialValue: MatchAiConfigsStreamCursorValueInput;
+  /** cursor ordering */
+  ordering?: InputMaybe<CursorOrdering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type MatchAiConfigsStreamCursorValueInput = {
+  createdAt?: InputMaybe<Scalars['timestamp']['input']>;
+  depth?: InputMaybe<Scalars['Int']['input']>;
+  engineName?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  matchId?: InputMaybe<Scalars['String']['input']>;
+  multiPv?: InputMaybe<Scalars['Int']['input']>;
+  personality?: InputMaybe<Scalars['String']['input']>;
+  player?: InputMaybe<Scalars['MatchPlayer']['input']>;
+  thinkTime?: InputMaybe<Scalars['Int']['input']>;
+  updatedAt?: InputMaybe<Scalars['timestamp']['input']>;
+};
+
+/** update columns of table "match_ai_configs" */
+export const MatchAiConfigsUpdateColumn = {
+  /** column name */
+  CreatedAt: 'createdAt',
+  /** column name */
+  Depth: 'depth',
+  /** column name */
+  EngineName: 'engineName',
+  /** column name */
+  Id: 'id',
+  /** column name */
+  MatchId: 'matchId',
+  /** column name */
+  MultiPv: 'multiPv',
+  /** column name */
+  Personality: 'personality',
+  /** column name */
+  Player: 'player',
+  /** column name */
+  ThinkTime: 'thinkTime',
+  /** column name */
+  UpdatedAt: 'updatedAt'
+} as const;
+
+export type MatchAiConfigsUpdateColumn = typeof MatchAiConfigsUpdateColumn[keyof typeof MatchAiConfigsUpdateColumn];
+export type MatchAiConfigsUpdates = {
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<MatchAiConfigsIncInput>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<MatchAiConfigsSetInput>;
+  /** filter the rows which have to be updated */
+  where: MatchAiConfigsBoolExp;
+};
+
 /** 対局の評価値（手番ごと） */
 export type MatchEvaluation = {
   __typename?: 'MatchEvaluation';
@@ -618,6 +811,19 @@ export type MatchEvaluation = {
   scoreCp?: Maybe<Scalars['Int']['output']>;
   /** 詰みまでの手数 */
   scoreMate?: Maybe<Scalars['Int']['output']>;
+};
+
+/** Boolean expression to compare columns of type "MatchPlayer". All fields are combined with logical 'AND'. */
+export type MatchPlayerComparisonExp = {
+  _eq?: InputMaybe<Scalars['MatchPlayer']['input']>;
+  _gt?: InputMaybe<Scalars['MatchPlayer']['input']>;
+  _gte?: InputMaybe<Scalars['MatchPlayer']['input']>;
+  _in?: InputMaybe<Array<Scalars['MatchPlayer']['input']>>;
+  _isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  _lt?: InputMaybe<Scalars['MatchPlayer']['input']>;
+  _lte?: InputMaybe<Scalars['MatchPlayer']['input']>;
+  _neq?: InputMaybe<Scalars['MatchPlayer']['input']>;
+  _nin?: InputMaybe<Array<Scalars['MatchPlayer']['input']>>;
 };
 
 /** 対局状態 */
@@ -1296,6 +1502,10 @@ export type Mutation_Root = {
   deleteEvaluations?: Maybe<EvaluationsMutationResponse>;
   /** delete single row from the table: "evaluations" */
   deleteEvaluationsByPk?: Maybe<Evaluations>;
+  /** delete data from the table: "match_ai_configs" */
+  deleteMatchAiConfigs?: Maybe<MatchAiConfigsMutationResponse>;
+  /** delete single row from the table: "match_ai_configs" */
+  deleteMatchAiConfigsByPk?: Maybe<MatchAiConfigs>;
   /** delete data from the table: "match_states" */
   deleteMatchStates?: Maybe<MatchStatesMutationResponse>;
   /** delete single row from the table: "match_states" */
@@ -1314,6 +1524,10 @@ export type Mutation_Root = {
   insertEvaluations?: Maybe<EvaluationsMutationResponse>;
   /** insert a single row into the table: "evaluations" */
   insertEvaluationsOne?: Maybe<Evaluations>;
+  /** insert data into the table: "match_ai_configs" */
+  insertMatchAiConfigs?: Maybe<MatchAiConfigsMutationResponse>;
+  /** insert a single row into the table: "match_ai_configs" */
+  insertMatchAiConfigsOne?: Maybe<MatchAiConfigs>;
   /** insert data into the table: "match_states" */
   insertMatchStates?: Maybe<MatchStatesMutationResponse>;
   /** insert a single row into the table: "match_states" */
@@ -1338,6 +1552,12 @@ export type Mutation_Root = {
   updateEvaluationsByPk?: Maybe<Evaluations>;
   /** update multiples rows of table: "evaluations" */
   updateEvaluationsMany?: Maybe<Array<Maybe<EvaluationsMutationResponse>>>;
+  /** update data of the table: "match_ai_configs" */
+  updateMatchAiConfigs?: Maybe<MatchAiConfigsMutationResponse>;
+  /** update single row of the table: "match_ai_configs" */
+  updateMatchAiConfigsByPk?: Maybe<MatchAiConfigs>;
+  /** update multiples rows of table: "match_ai_configs" */
+  updateMatchAiConfigsMany?: Maybe<Array<Maybe<MatchAiConfigsMutationResponse>>>;
   /** update data of the table: "match_states" */
   updateMatchStates?: Maybe<MatchStatesMutationResponse>;
   /** update single row of the table: "match_states" */
@@ -1373,6 +1593,18 @@ export type Mutation_RootDeleteEvaluationsArgs = {
 
 /** mutation root */
 export type Mutation_RootDeleteEvaluationsByPkArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDeleteMatchAiConfigsArgs = {
+  where: MatchAiConfigsBoolExp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDeleteMatchAiConfigsByPkArgs = {
   id: Scalars['String']['input'];
 };
 
@@ -1433,6 +1665,20 @@ export type Mutation_RootInsertEvaluationsArgs = {
 export type Mutation_RootInsertEvaluationsOneArgs = {
   object: EvaluationsInsertInput;
   onConflict?: InputMaybe<EvaluationsOnConflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsertMatchAiConfigsArgs = {
+  objects: Array<MatchAiConfigsInsertInput>;
+  onConflict?: InputMaybe<MatchAiConfigsOnConflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsertMatchAiConfigsOneArgs = {
+  object: MatchAiConfigsInsertInput;
+  onConflict?: InputMaybe<MatchAiConfigsOnConflict>;
 };
 
 
@@ -1543,6 +1789,28 @@ export type Mutation_RootUpdateEvaluationsManyArgs = {
 
 
 /** mutation root */
+export type Mutation_RootUpdateMatchAiConfigsArgs = {
+  _inc?: InputMaybe<MatchAiConfigsIncInput>;
+  _set?: InputMaybe<MatchAiConfigsSetInput>;
+  where: MatchAiConfigsBoolExp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdateMatchAiConfigsByPkArgs = {
+  _inc?: InputMaybe<MatchAiConfigsIncInput>;
+  _set?: InputMaybe<MatchAiConfigsSetInput>;
+  pkColumns: MatchAiConfigsPkColumnsInput;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdateMatchAiConfigsManyArgs = {
+  updates: Array<MatchAiConfigsUpdates>;
+};
+
+
+/** mutation root */
 export type Mutation_RootUpdateMatchStatesArgs = {
   _inc?: InputMaybe<MatchStatesIncInput>;
   _set?: InputMaybe<MatchStatesSetInput>;
@@ -1594,6 +1862,10 @@ export type Query_Root = {
   /** fetch data from the table: "evaluations" using primary key columns */
   evaluationsByPk?: Maybe<Evaluations>;
   health: Health;
+  /** fetch data from the table: "match_ai_configs" */
+  matchAiConfigs: Array<MatchAiConfigs>;
+  /** fetch data from the table: "match_ai_configs" using primary key columns */
+  matchAiConfigsByPk?: Maybe<MatchAiConfigs>;
   /** 対局の評価値遷移を取得 */
   matchEvaluations: Array<MatchEvaluation>;
   /** An array relationship */
@@ -1631,6 +1903,20 @@ export type Query_RootEvaluationsArgs = {
 
 
 export type Query_RootEvaluationsByPkArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type Query_RootMatchAiConfigsArgs = {
+  distinctOn?: InputMaybe<Array<MatchAiConfigsSelectColumn>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<MatchAiConfigsOrderBy>>;
+  where?: InputMaybe<MatchAiConfigsBoolExp>;
+};
+
+
+export type Query_RootMatchAiConfigsByPkArgs = {
   id: Scalars['String']['input'];
 };
 
@@ -1682,6 +1968,12 @@ export type Subscription_Root = {
   evaluationsByPk?: Maybe<Evaluations>;
   /** fetch data from the table in a streaming manner: "evaluations" */
   evaluationsStream: Array<Evaluations>;
+  /** fetch data from the table: "match_ai_configs" */
+  matchAiConfigs: Array<MatchAiConfigs>;
+  /** fetch data from the table: "match_ai_configs" using primary key columns */
+  matchAiConfigsByPk?: Maybe<MatchAiConfigs>;
+  /** fetch data from the table in a streaming manner: "match_ai_configs" */
+  matchAiConfigsStream: Array<MatchAiConfigs>;
   /** An array relationship */
   matchStates: Array<MatchStates>;
   /** fetch data from the table: "match_states" using primary key columns */
@@ -1736,6 +2028,27 @@ export type Subscription_RootEvaluationsStreamArgs = {
   batchSize: Scalars['Int']['input'];
   cursor: Array<InputMaybe<EvaluationsStreamCursorInput>>;
   where?: InputMaybe<EvaluationsBoolExp>;
+};
+
+
+export type Subscription_RootMatchAiConfigsArgs = {
+  distinctOn?: InputMaybe<Array<MatchAiConfigsSelectColumn>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<MatchAiConfigsOrderBy>>;
+  where?: InputMaybe<MatchAiConfigsBoolExp>;
+};
+
+
+export type Subscription_RootMatchAiConfigsByPkArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type Subscription_RootMatchAiConfigsStreamArgs = {
+  batchSize: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<MatchAiConfigsStreamCursorInput>>;
+  where?: InputMaybe<MatchAiConfigsBoolExp>;
 };
 
 

@@ -1,0 +1,57 @@
+table:
+  name: match_ai_configs
+  schema: public
+insert_permissions:
+  - role: anonymous
+    permission:
+      check: {}
+      columns:
+        - player
+        - depth
+        - multiPv
+        - thinkTime
+        - engineName
+        - id
+        - matchId
+        - personality
+        - createdAt
+        - updatedAt
+    comment: ""
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - player
+        - depth
+        - multiPv
+        - thinkTime
+        - engineName
+        - id
+        - matchId
+        - personality
+        - createdAt
+        - updatedAt
+      filter: {}
+    comment: ""
+update_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - player
+        - depth
+        - multiPv
+        - thinkTime
+        - engineName
+        - id
+        - matchId
+        - personality
+        - createdAt
+        - updatedAt
+      filter: {}
+      check: {}
+    comment: ""
+delete_permissions:
+  - role: anonymous
+    permission:
+      filter: {}
+    comment: ""

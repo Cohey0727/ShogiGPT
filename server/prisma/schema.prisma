@@ -9,25 +9,58 @@ datasource db {
 
 /// 対局情報
 model Match {
-  id          String        @id @default(cuid())
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id          String          @id @default(cuid())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
   /// 対局状況
-  status      MatchStatus   @default(ONGOING)
+  status      MatchStatus     @default(ONGOING)
   /// 先手のプレイヤー名
   playerSente String?
   /// 後手のプレイヤー名
   playerGote  String?
   /// 先手のプレイヤータイプ
-  senteType   PlayerType    @default(HUMAN)
+  senteType   PlayerType      @default(HUMAN)
   /// 後手のプレイヤータイプ
-  goteType    PlayerType    @default(HUMAN)
+  goteType    PlayerType      @default(HUMAN)
   messages    ChatMessage[]
   states      MatchState[]
+  aiConfigs   MatchAiConfig[]
 
   @@index([createdAt])
   @@index([status])
   @@map("matches")
+}
+
+/// 対局AI設定
+model MatchAiConfig {
+  id          String      @id @default(cuid())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  /// 紐づく対局ID
+  matchId     String
+  /// プレイヤー（先手/後手）
+  player      MatchPlayer
+  /// 使用するエンジン名
+  engineName  String?
+  /// 思考時間（秒）
+  thinkTime   Int?
+  /// 思考深さ
+  depth       Int?
+  /// MultiPV（候補手数）
+  multiPv     Int?
+  /// AIの性格・スタイル（例: "aggressive", "defensive", "balanced"）
+  personality String?
+  match       Match       @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, player])
+  @@index([matchId])
+  @@map("match_ai_configs")
+}
+
+/// プレイヤー（先手/後手）
+enum MatchPlayer {
+  SENTE
+  GOTE
 }
 
 /// 局面情報（ある時点での局面状態と、そこに至った指し手）

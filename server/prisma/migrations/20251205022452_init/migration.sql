@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "MatchPlayer" AS ENUM ('SENTE', 'GOTE');
+
+-- CreateEnum
 CREATE TYPE "MatchStatus" AS ENUM ('ONGOING', 'COMPLETED', 'ABANDONED');
 
 -- CreateEnum
@@ -19,6 +22,22 @@ CREATE TABLE "matches" (
     "goteType" "PlayerType" NOT NULL DEFAULT 'HUMAN',
 
     CONSTRAINT "matches_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "match_ai_configs" (
+    "id" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "matchId" TEXT NOT NULL,
+    "player" "MatchPlayer" NOT NULL,
+    "engineName" TEXT,
+    "thinkTime" INTEGER,
+    "depth" INTEGER,
+    "multiPv" INTEGER,
+    "personality" TEXT,
+
+    CONSTRAINT "match_ai_configs_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -67,6 +86,12 @@ CREATE INDEX "matches_createdAt_idx" ON "matches"("createdAt");
 CREATE INDEX "matches_status_idx" ON "matches"("status");
 
 -- CreateIndex
+CREATE INDEX "match_ai_configs_matchId_idx" ON "match_ai_configs"("matchId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "match_ai_configs_matchId_player_key" ON "match_ai_configs"("matchId", "player");
+
+-- CreateIndex
 CREATE INDEX "chat_messages_matchId_idx" ON "chat_messages"("matchId");
 
 -- CreateIndex
@@ -80,6 +105,9 @@ CREATE INDEX "evaluations_engineName_idx" ON "evaluations"("engineName");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "evaluations_sfen_engineName_key" ON "evaluations"("sfen", "engineName");
+
+-- AddForeignKey
+ALTER TABLE "match_ai_configs" ADD CONSTRAINT "match_ai_configs_matchId_fkey" FOREIGN KEY ("matchId") REFERENCES "matches"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "match_states" ADD CONSTRAINT "match_states_matchId_fkey" FOREIGN KEY ("matchId") REFERENCES "matches"("id") ON DELETE CASCADE ON UPDATE CASCADE;

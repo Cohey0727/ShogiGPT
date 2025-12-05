@@ -54,7 +54,7 @@ shogi-gpt/
 - 規約に従わないファイル配置やディレクトリ構成
 - コミット前の lint/型チェックの省略
 - GraphQL スキーマ変更後のコード生成の省略
-- **Prismaマイグレーションの実行（`prisma migrate`コマンド）**
+- **Prismaマイグレーションの実行は絶対禁止（`prisma migrate`|`just migrate`|`bun migrate`で始まるすべてのコマンド。`--create-only`オプション付きも含む）。マイグレーションは必ず人間が実行する。Claudeは絶対に実行するな。**
 - **サーバーやDocker環境の起動（ユーザーが手動で実行）**
 
 ### 必須事項

@@ -1,8 +1,8 @@
-import { useMemo, type Dispatch, type SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 import { z } from "zod/v4";
 
-import { useLocalStorage } from "../../molecules/hooks/useLocalStorage";
+import { useSafeLocalStorage } from "../../molecules/hooks/useSafeLocalStorage";
 
 /**
  * AIプロンプトのパーソナリティ
@@ -11,20 +11,23 @@ export const AiPersonalitySchema = z.enum(["none", "situational", "always"]);
 
 export type aiPersonality = z.infer<typeof AiPersonalitySchema>;
 
-/**
- * プロンプト設定全体のスキーマ
- */
-export const PromptSettingsSchema = z.object({
+/** プロンプト設定のスキーマオブジェクト */
+const promptSettingsSchema = {
   aiPersonality: AiPersonalitySchema,
-});
+};
 
-export type PromptSettings = z.infer<typeof PromptSettingsSchema>;
+/**
+ * プロンプト設定全体の型
+ */
+export type PromptSettings = {
+  aiPersonality: aiPersonality;
+};
 
 /** ローカルストレージのキー */
-const PROMPT_SETTINGS_KEY = "shogi-gpt-prompt-settings";
+const promptSettingsKey = "shogi-gpt-prompt-settings";
 
 /** デフォルト設定 */
-const DEFAULT_PROMPT_SETTINGS: PromptSettings = {
+const defaultPromptSettings: PromptSettings = {
   aiPersonality: "none",
 };
 
@@ -33,18 +36,5 @@ const DEFAULT_PROMPT_SETTINGS: PromptSettings = {
  * @returns [設定値, 設定更新関数]
  */
 export function usePromptSettings(): [PromptSettings, Dispatch<SetStateAction<PromptSettings>>] {
-  const [rawSettings, setRawSettings] = useLocalStorage<PromptSettings>({
-    key: PROMPT_SETTINGS_KEY,
-    initialValue: DEFAULT_PROMPT_SETTINGS,
-  });
-
-  const settings = useMemo(() => {
-    const result = PromptSettingsSchema.safeParse(rawSettings);
-    if (result.success) {
-      return result.data;
-    }
-    return DEFAULT_PROMPT_SETTINGS;
-  }, [rawSettings]);
-
-  return [settings, setRawSettings];
+  return useSafeLocalStorage(promptSettingsKey, promptSettingsSchema, defaultPromptSettings);
 }

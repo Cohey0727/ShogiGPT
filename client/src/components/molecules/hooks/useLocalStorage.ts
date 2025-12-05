@@ -5,24 +5,13 @@ import { getFromPath, setFromPath } from "../../../shared/utils";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const subscriptions = new Map<string, Set<(value: any) => void>>();
 
-type UseClientLocalStorageParams<T> = T extends undefined
-  ? {
-      key: string;
-      initialValue?: T;
-    }
-  : {
-      key: string;
-      initialValue: T;
-    };
-
 // オーバーロードシグネチャ(初期値が指定されている場合)
-export function useLocalStorage<T>(
-  params: UseClientLocalStorageParams<T>,
-): [T, Dispatch<SetStateAction<T>>];
+export function useLocalStorage<T>(key: string, initialValue: T): [T, Dispatch<SetStateAction<T>>];
 
 // オーバーロードシグネチャ(初期値がオプショナルまたは、undefinedの場合)
 export function useLocalStorage<T>(
-  params: UseClientLocalStorageParams<T | undefined>,
+  key: string,
+  initialValue?: T,
 ): [T | undefined, Dispatch<SetStateAction<T>>];
 
 /**
@@ -30,10 +19,7 @@ export function useLocalStorage<T>(
  * @remarks
  * Client Side renderingでのみ対応
  */
-export function useLocalStorage<T>({
-  key,
-  initialValue,
-}: UseClientLocalStorageParams<T | undefined>) {
+export function useLocalStorage<T>(key: string, initialValue?: T) {
   const [inMemoryValue, setInMemoryValue] = useState<T | undefined>(() => {
     try {
       const storedValue = getLocalStorageValue<T>(key);

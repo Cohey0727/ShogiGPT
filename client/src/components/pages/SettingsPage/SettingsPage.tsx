@@ -1,10 +1,11 @@
+import type { AiPersonality } from "../../../generated/graphql/types";
 import { Col } from "../../atoms/Col";
 import { Row } from "../../atoms/Row";
 import { Selector } from "../../atoms/Selector";
-import { usePromptSettings, type aiPersonality } from "../../organisms/hooks";
+import { usePromptSettings } from "../../organisms/hooks";
 import styles from "./SettingsPage.css";
 
-const aiPersonalityOptions: { value: aiPersonality; label: string }[] = [
+const personalityOptions: { value: AiPersonality; label: string }[] = [
   { value: "none", label: "煽りなし" },
   { value: "situational", label: "戦況に応じて煽る" },
   { value: "always", label: "常に煽る" },
@@ -30,12 +31,12 @@ export function SettingsPage() {
               <span className={styles.settingDescription}>AIのコメントスタイルを設定</span>
             </Col>
             <Selector
-              options={aiPersonalityOptions}
-              value={promptSettings.aiPersonality}
+              options={personalityOptions}
+              value={promptSettings.personality}
               onChange={(value) =>
                 setPromptSettings({
                   ...promptSettings,
-                  aiPersonality: value,
+                  personality: value,
                 })
               }
             />

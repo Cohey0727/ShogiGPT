@@ -159,10 +159,10 @@ export function MatchDetailPage() {
       await sendChatMessage({
         matchId,
         content: japaneseMove,
-        aiPersonality: promptSettings.aiPersonality,
+        aiPersonality: promptSettings.personality,
       });
     },
-    [boardState, matchId, sendChatMessage, viewingStateIndex, promptSettings.aiPersonality],
+    [boardState, matchId, sendChatMessage, viewingStateIndex, promptSettings.personality],
   );
 
   // 前の局面との差分セルを計算

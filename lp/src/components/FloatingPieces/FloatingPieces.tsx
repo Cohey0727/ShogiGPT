@@ -9,7 +9,7 @@ interface Piece {
   rotate: number;
 }
 
-const PIECE_MODELS = [
+const pieceModels = [
   "/assets/3d/歩.glb",
   "/assets/3d/香.glb",
   "/assets/3d/桂.glb",
@@ -28,7 +28,7 @@ const PIECE_COUNT = 12;
 function generatePieces(): Piece[] {
   return Array.from({ length: PIECE_COUNT }, (_, i) => ({
     id: i,
-    model: PIECE_MODELS[Math.floor(Math.random() * PIECE_MODELS.length)],
+    model: pieceModels[Math.floor(Math.random() * pieceModels.length)],
     x: Math.random() * 100,
     duration: 15 + Math.random() * 15,
     delay: Math.random() * 5,

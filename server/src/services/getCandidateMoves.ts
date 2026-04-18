@@ -1,10 +1,12 @@
+import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
+import { db } from "../db";
+import { matchStates } from "../db/schema";
 import type {
   InlineFunctionCallingTool,
   AiFunctionCallingToolContext,
 } from "./aiFunctionCallingTool";
-import { db } from "../lib/db";
-import { analyzePositionAnalyzePost } from "../generated/shogi-ai";
+import { getShogiAiPool } from "../lib/shogiAi";
 import { formatMoveToJapanese, sfenToBoard } from "../shared/services";
 import type { Board } from "../shared/consts/shogi";
 import { sfenToAscii } from "../shared/services/sfenToAscii";
@@ -33,50 +35,39 @@ interface Result extends Record<string, unknown> {
 async function execute(context: AiFunctionCallingToolContext): Promise<Result> {
   const { matchId } = context;
 
-  // 最新の局面を取得
-  const latestState = await db.matchState.findFirst({
-    where: { matchId },
-    orderBy: { index: "desc" },
+  const latestState = await db.query.matchStates.findFirst({
+    where: eq(matchStates.matchId, matchId),
+    orderBy: desc(matchStates.index),
   });
 
   if (!latestState) {
     throw new Error(`対局ID ${matchId} の局面が見つかりません`);
   }
 
-  // 局面を解析して候補手を取得
-  const { data, error } = await analyzePositionAnalyzePost({
-    body: {
-      sfen: latestState.sfen,
-      multipv: 5,
-      time_ms: 3000,
-      moves: null,
-      depth: null,
-    },
+  const pool = getShogiAiPool();
+  const data = await pool.analyze({
+    sfen: latestState.sfen,
+    multipv: 5,
+    timeMs: 3000,
+    moves: null,
+    depth: null,
   });
 
-  if (error || !data) {
-    throw new Error("候補手の取得に失敗しました");
-  }
-
-  // 手番を判定（SFENの2番目のフィールド: 'b' = 先手, 'w' = 後手）
   const sfenParts = latestState.sfen.split(" ");
   const currentTurn = sfenParts[1] === "b" ? "先手" : "後手";
 
-  // 局面情報を取得（駒名表示のため）
   let board: Board | undefined;
   try {
     board = sfenToBoard(latestState.sfen);
   } catch (error) {
     console.error("Failed to parse SFEN:", error);
-    // 局面解析に失敗しても続行
   }
 
-  // 日本語の指し手表記を生成
   const candidates: CandidateMove[] = data.variations.map((v) => ({
     move: v.move,
     moveJapanese: formatMoveToJapanese(v.move, board),
-    scoreCp: v.score_cp ?? null,
-    scoreMate: v.score_mate ?? null,
+    scoreCp: v.scoreCp ?? null,
+    scoreMate: v.scoreMate ?? null,
     depth: v.depth,
     nodes: v.nodes ?? null,
     pv: v.pv ?? null,

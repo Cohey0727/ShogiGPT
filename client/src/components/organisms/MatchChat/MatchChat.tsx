@@ -96,45 +96,47 @@ export function MatchChat({ matchId, disabled = false }: MatchChatProps) {
               isCurrentUser={isCurrentUser}
               isPartial={msg.isPartial}
             >
-              {msg.contents?.map((content: unknown, idx: number) => {
-                if (!content || typeof content !== "object") {
+              {(Array.isArray(msg.contents) ? msg.contents : []).map(
+                (content: unknown, idx: number) => {
+                  if (!content || typeof content !== "object") {
+                    return null;
+                  }
+
+                  // Markdown コンテンツ
+                  const markdownResult = MarkdownContentSchema.safeParse(content);
+                  if (markdownResult.success) {
+                    return (
+                      <div key={`${msg.id}-${idx}`}>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {markdownResult.data.content}
+                        </ReactMarkdown>
+                      </div>
+                    );
+                  }
+
+                  // BestMove コンテンツ
+                  const bestMoveResult = BestMoveContentSchema.safeParse(content);
+                  if (bestMoveResult.success) {
+                    return (
+                      <div key={`${msg.id}-${idx}`}>
+                        <BestMoveDisplay content={bestMoveResult.data} />
+                      </div>
+                    );
+                  }
+
+                  // PostGameAnalysis コンテンツ（感想戦）
+                  const postGameResult = PostGameAnalysisContentSchema.safeParse(content);
+                  if (postGameResult.success) {
+                    return (
+                      <div key={`${msg.id}-${idx}`}>
+                        <PostGameReviewDisplay content={postGameResult.data} />
+                      </div>
+                    );
+                  }
+
                   return null;
-                }
-
-                // Markdown コンテンツ
-                const markdownResult = MarkdownContentSchema.safeParse(content);
-                if (markdownResult.success) {
-                  return (
-                    <div key={`${msg.id}-${idx}`}>
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {markdownResult.data.content}
-                      </ReactMarkdown>
-                    </div>
-                  );
-                }
-
-                // BestMove コンテンツ
-                const bestMoveResult = BestMoveContentSchema.safeParse(content);
-                if (bestMoveResult.success) {
-                  return (
-                    <div key={`${msg.id}-${idx}`}>
-                      <BestMoveDisplay content={bestMoveResult.data} />
-                    </div>
-                  );
-                }
-
-                // PostGameAnalysis コンテンツ（感想戦）
-                const postGameResult = PostGameAnalysisContentSchema.safeParse(content);
-                if (postGameResult.success) {
-                  return (
-                    <div key={`${msg.id}-${idx}`}>
-                      <PostGameReviewDisplay content={postGameResult.data} />
-                    </div>
-                  );
-                }
-
-                return null;
-              })}
+                },
+              )}
             </MessageBubble>
           );
         })}

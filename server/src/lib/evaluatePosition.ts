@@ -1,6 +1,8 @@
-import type { Evaluation } from "../generated/prisma/client";
-import { db } from "./db";
-import { analyzePositionAnalyzePost } from "../generated/shogi-ai";
+import { and, eq, inArray } from "drizzle-orm";
+import { db } from "../db";
+import { evaluations, type Evaluation } from "../db/schema";
+import { newId } from "../db/ids";
+import { getShogiAiPool } from "./shogiAi";
 
 /**
  * 局面評価結果の型定義
@@ -40,58 +42,40 @@ export async function evaluatePosition(
   timeMs: number,
   engineName: string = "Suisho5",
 ): Promise<EvaluationResult> {
-  // エンジン名が指定されている場合、キャッシュをチェック
-
-  const cachedEvaluation = await db.evaluation.findUnique({
-    where: { sfen_engineName: { sfen, engineName } },
+  const cached = await db.query.evaluations.findFirst({
+    where: and(eq(evaluations.sfen, sfen), eq(evaluations.engineName, engineName)),
   });
 
-  if (cachedEvaluation) {
-    console.log("✅ Cache hit! Using cached evaluation:", cachedEvaluation.id);
-    const variations = cachedEvaluation.variations as Array<{
-      move: string;
-      scoreCp: number | null;
-      scoreMate: number | null;
-      depth: number;
-      nodes: number;
-      pv: string[];
-    }>;
-
+  if (cached) {
+    console.log("✅ Cache hit! Using cached evaluation:", cached.id);
+    const variations = cached.variations as EvaluationResult["variations"];
     return {
-      evaluation: cachedEvaluation,
+      evaluation: cached,
       bestmove: variations[0]?.move ?? "",
-      engineName: cachedEvaluation.engineName,
-      timeMs: 0, // キャッシュからの取得なので時間は0
+      engineName: cached.engineName,
+      timeMs: 0,
       variations,
     };
   }
 
-  const { data, error } = await analyzePositionAnalyzePost({
-    body: {
-      sfen,
-      multipv,
-      time_ms: timeMs,
-      moves: null,
-      depth: null,
-    },
+  const pool = getShogiAiPool();
+  const data = await pool.analyze({
+    sfen,
+    multipv,
+    timeMs,
+    moves: null,
+    depth: null,
   });
-
-  if (error || !data) {
-    console.error("❌ shogi-ai error:", error);
-    throw new Error("Analysis failed");
-  }
 
   const variations = data.variations.map((v) => ({
     move: v.move,
-    scoreCp: v.score_cp ?? null,
-    scoreMate: v.score_mate ?? null,
+    scoreCp: v.scoreCp ?? null,
+    scoreMate: v.scoreMate ?? null,
     depth: v.depth,
     nodes: v.nodes ?? 0,
     pv: v.pv ?? [],
   }));
 
-  // 最善手のスコアを計算
-  // 詰みの場合は10000 * 詰みまでの手数、通常の場合はcentipawn評価値
   const bestVariation = variations[0];
   const score =
     bestVariation?.scoreMate !== null && bestVariation?.scoreMate !== undefined
@@ -99,35 +83,49 @@ export async function evaluatePosition(
       : (bestVariation?.scoreCp ?? 0);
 
   // API呼び出し後、保存前にもう一度キャッシュをチェック
-  const existingEvaluation = await db.evaluation.findUnique({
-    where: { sfen_engineName: { sfen, engineName: data.engine_name } },
+  const existing = await db.query.evaluations.findFirst({
+    where: and(eq(evaluations.sfen, sfen), eq(evaluations.engineName, data.engineName)),
   });
 
-  if (existingEvaluation) {
+  if (existing) {
     return {
-      evaluation: existingEvaluation,
+      evaluation: existing,
       bestmove: data.bestmove,
-      engineName: data.engine_name,
-      timeMs: data.time_ms,
+      engineName: data.engineName,
+      timeMs: data.timeMs,
       variations,
     };
   }
 
-  // 評価結果をEvaluationテーブルに保存
-  const evaluation = await db.evaluation.create({
-    data: {
+  const now = new Date();
+  const [inserted] = await db
+    .insert(evaluations)
+    .values({
+      id: newId(),
       sfen,
-      engineName: data.engine_name,
+      engineName: data.engineName,
       score,
       variations,
-    },
-  });
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning();
 
   return {
-    evaluation,
+    evaluation: inserted,
     bestmove: data.bestmove,
-    engineName: data.engine_name,
-    timeMs: data.time_ms,
+    engineName: data.engineName,
+    timeMs: data.timeMs,
     variations,
   };
+}
+
+/**
+ * 複数局面の評価結果を一括取得する
+ */
+export async function findEvaluationsBySfens(sfens: string[]): Promise<Evaluation[]> {
+  if (sfens.length === 0) return [];
+  return db.query.evaluations.findMany({
+    where: inArray(evaluations.sfen, sfens),
+  });
 }

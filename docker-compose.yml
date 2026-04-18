@@ -1,66 +1,30 @@
 services:
-  postgres:
-    image: postgres:18-alpine
-    container_name: shogi-postgres
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-shogi_db}
-      POSTGRES_USER: ${POSTGRES_USER:-shogi_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shogi_password}
-      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      # 初期化スクリプト用（必要に応じて作成）
-      # - ./server/db/init:/docker-entrypoint-initdb.d
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER:-shogi_user} -d ${POSTGRES_DB:-shogi_db}",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    networks:
-      - shogi-network
-
-  shogi-ai:
+  server:
+    # YaneuraOuはSSE42向けにビルドされているためlinux/amd64を強制
     platform: linux/amd64
     build:
-      context: ./shogi-ai
+      context: ./server
       dockerfile: Dockerfile
-    container_name: shogi-ai
+    container_name: shogi-server
     ports:
-      - "8000:8000"
+      - "${SERVER_PORT:-8787}:8787"
     environment:
-      - PYTHONUNBUFFERED=1
-    # 開発時はvolumesをコメントアウトする（.venvが上書きされるため）
-    # volumes:
-    #   - ./shogi-ai/app:/app
-    networks:
-      - shogi-network
-
-  hasura:
-    image: hasura/graphql-engine:v2.48.6
-    container_name: shogi-hasura
-    env_file:
-      - ./hasura/.env
-    ports:
-      - "${HASURA_PORT:-7777}:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=8787
+      - DATABASE_URL=file:/app/data/shogi.db
+      # YaneuraOuエンジンプール設定
+      - ENGINE_POOL_SIZE=${ENGINE_POOL_SIZE:-4}
+      - ENGINE_USI_HASH_MB=${ENGINE_USI_HASH_MB:-16}
+      - ENGINE_THREADS=${ENGINE_THREADS:-1}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
     volumes:
-      - ./hasura/metadata:/hasura-metadata
+      - shogi_data:/app/data
     networks:
       - shogi-network
 
 volumes:
-  postgres_data:
+  shogi_data:
     driver: local
-  engine-data:
 
 networks:
   shogi-network:

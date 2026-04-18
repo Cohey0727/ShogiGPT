@@ -1,5 +1,7 @@
-import type { AiPersonality } from "./../generated/graphql/types";
 import { z } from "zod";
+
+/** AIのパーソナリティ設定 */
+export type AiPersonality = "none" | "situational" | "always";
 
 export interface AiFunctionCallingToolContext {
   matchId: string;

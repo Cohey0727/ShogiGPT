@@ -2,14 +2,13 @@ set shell := ["bash", "-lc"]
 
 client_dir := "client"
 server_dir := "server"
-hasura_dir := "hasura"
 
 # Install dependencies
 install:
 	cd {{client_dir}} && bun install
 	cd {{server_dir}} && bun install
 
-# Start dev servers
+# Start dev environment (Docker + client)
 dev:
 	@echo "Starting Docker Compose services..."
 	@docker compose up -d
@@ -17,16 +16,14 @@ dev:
 	@sleep 3
 	mprocs \
 		"docker compose logs -f" \
-		"cd {{server_dir}} && bun run dev" \
-		"cd {{client_dir}} && bun run dev" \
-		"cd {{hasura_dir}} && hasura console --endpoint http://localhost:7777 --admin-secret shogi_password --console-port 7776"
+		"cd {{client_dir}} && bun run dev"
 
 # Build both packages
 build:
 	cd {{client_dir}} && bun run build
 	cd {{server_dir}} && bun run build
 
-# Start dev environment with Docker and mprocs (without hasura console)
+# Start with Docker + client
 start:
 	@echo "Starting Docker Compose services..."
 	@docker compose up -d
@@ -34,50 +31,29 @@ start:
 	@sleep 3
 	mprocs \
 		"docker compose logs -f" \
-		"cd {{server_dir}} && bun run start" \
 		"cd {{client_dir}} && bun run start"
 
+# Lint
 lint:
 	cd {{client_dir}} && bun run lint
 	cd {{server_dir}} && bun run lint
 
-# Generate GraphQL types
-codegen:
-	@echo "Fetching OpenAPI spec from shogi-ai..."
-	curl -s http://localhost:8000/openapi.json | jq '.' > shogi-ai/openapi.json
-	@echo "Saved to shogi-ai/openapi.json"
-	@echo "Reloading Hasura metadata to include remote schemas..."
-	@cd {{hasura_dir}} && hasura metadata reload --endpoint http://localhost:7777 --admin-secret shogi_password
-	@echo "Exporting Hasura GraphQL schema..."
-	bunx get-graphql-schema http://localhost:7777/v1/graphql > {{hasura_dir}}/schema.graphql
-	@echo "Saved to {{hasura_dir}}/schema.graphql"
-	cd {{server_dir}} && bun run codegen
-	cd {{client_dir}} && bun run codegen
+# Generate/push Drizzle migrations
+db-generate:
+	cd {{server_dir}} && bun run db:generate
 
-# Run database migrations
-migrate:
-	cd {{server_dir}} && bunx prisma migrate dev
-	@echo "Reloading Hasura metadata after migration..."
-	@cd {{hasura_dir}} && hasura metadata reload --endpoint http://localhost:7777 --admin-secret shogi_password
+db-push:
+	cd {{server_dir}} && bun run db:push
 
-# Reload Hasura metadata (useful after schema changes)
-hasura-reload:
-	@echo "Reloading Hasura metadata..."
-	@cd {{hasura_dir}} && hasura metadata reload --endpoint http://localhost:7777 --admin-secret shogi_password
-	@echo "Metadata reloaded successfully"
+db-studio:
+	cd {{server_dir}} && bun run db:studio
 
-# Apply Hasura metadata from files
-hasura-apply:
-	@echo "Applying Hasura metadata..."
-	@cd {{hasura_dir}} && hasura metadata apply --endpoint http://localhost:7777 --admin-secret shogi_password
-	@echo "Metadata applied successfully"
-
-# Reset Docker database (WARNING: deletes all data)
+# Reset Docker (WARNING: deletes SQLite DB)
 reset:
 	docker compose down -v
 	docker compose up -d
 
-# Start ngrok tunnel with Caddy reverse proxy and dev servers
+# Ngrok tunnel with Caddy reverse proxy
 ngrok:
 	@echo "Starting Docker Compose services..."
 	@docker compose up -d
@@ -85,12 +61,11 @@ ngrok:
 	@sleep 3
 	mprocs \
 		"docker compose logs -f" \
-		"cd {{server_dir}} && bun run start" \
 		"cd {{client_dir}} && bun run start" \
 		"caddy run --config ./Caddyfile" \
 		"ngrok http 8080"
 
-# Start localtunnel with Caddy reverse proxy and dev servers
+# Localtunnel with Caddy reverse proxy
 localtunnel:
 	@echo "Starting Docker Compose services..."
 	@docker compose up -d
@@ -98,12 +73,11 @@ localtunnel:
 	@sleep 3
 	mprocs \
 		"docker compose logs -f" \
-		"cd {{server_dir}} && bun run start" \
 		"cd {{client_dir}} && bun run start" \
 		"caddy run --config ./Caddyfile" \
 		"echo 'Tunnel password (your global IP):' && curl -s ifconfig.me && echo && npx localtunnel --port 8080"
 
-# Start Cloudflare Tunnel with Caddy reverse proxy and dev servers
+# Cloudflare Tunnel with Caddy reverse proxy
 cloudflared:
 	@echo "Starting Docker Compose services..."
 	@docker compose up -d
@@ -111,7 +85,6 @@ cloudflared:
 	@sleep 3
 	mprocs \
 		"docker compose logs -f" \
-		"cd {{server_dir}} && bun run start" \
 		"cd {{client_dir}} && bun run start" \
 		"caddy run --config ./Caddyfile" \
 		"cloudflared tunnel --url http://localhost:8080"

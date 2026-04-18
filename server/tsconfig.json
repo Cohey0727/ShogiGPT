@@ -10,6 +10,7 @@
     "allowImportingTsExtensions": false,
     "verbatimModuleSyntax": false,
     "outDir": "dist",
+    "rootDir": "./src",
     "skipLibCheck": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,

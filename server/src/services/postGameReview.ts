@@ -1,10 +1,12 @@
+import { asc, eq } from "drizzle-orm";
 import { z } from "zod";
+import { db } from "../db";
+import { chatMessages, matches, matchStates } from "../db/schema";
 import type {
   AiFunctionCallingToolContext,
   HandoffFunctionCallingTool,
 } from "./aiFunctionCallingTool";
 import { analyzeMoveTags } from "./analyzeMoveTags";
-import { db } from "../lib/db";
 import { generateJsonResponse } from "../lib/deepseek";
 import { evaluatePosition } from "../lib/evaluatePosition";
 import type { PostGameAnalysisContent, TurningPoint, BestMoveWithComment } from "../shared/schemas";
@@ -13,55 +15,29 @@ import { takeMaxBy } from "../shared/utils/array";
 
 const ArgsSchema = z.object({});
 
-/**
- * 局面間の評価値差分情報
- */
 interface EvalDiff {
-  /** 局面インデックス */
   index: number;
-  /** 変動前の評価値 */
   before: number;
-  /** 変動後の評価値 */
   after: number;
-  /** USI形式の指し手 */
   usi: string;
-  /** 最善手の読み筋 */
   pv: string[] | null;
-  /** SFEN形式の局面 */
   sfen: string;
-  /** 評価値の絶対差分 */
   absDiff: number;
 }
 
-/**
- * AIに送る指し手情報
- */
 interface MoveInfoForAi {
-  /** USI形式の指し手 */
   move: string;
-  /** 日本語の指し手表記 */
   japanese: string;
-  /** 戦術タグ */
   tags: string[];
-  /** 手番（"player" = ユーザー, "ai" = AI） */
   turn: "player" | "ai";
 }
 
-/**
- * AIに送るターニングポイント情報
- */
 interface TurningPointInfoForAi {
-  /** 局面インデックス */
   index: number;
-  /** 評価値の差分 */
   evalDiff: number;
-  /** 最善手順 */
   bestMoves: MoveInfoForAi[];
 }
 
-/**
- * AIが生成するコメントのスキーマ
- */
 const AiCommentsResponseSchema = z.object({
   turningPoints: z
     .array(
@@ -83,12 +59,6 @@ const AiCommentsResponseSchema = z.object({
     .describe("各ターニングポイントへのコメント"),
 });
 
-/**
- * AIを使ってターニングポイントのコメントを生成する
- *
- * @param turningPointsInfo - ターニングポイント情報の配列
- * @returns AIが生成したコメント
- */
 async function generateTurningPointComments(
   turningPointsInfo: TurningPointInfoForAi[],
 ): Promise<z.infer<typeof AiCommentsResponseSchema>> {
@@ -114,13 +84,6 @@ ${JSON.stringify(turningPointsInfo, null, 2)}`;
   });
 }
 
-/**
- * 最善手順の情報を構築する
- *
- * @param sfen - 開始局面のSFEN
- * @param pv - 最善手順（USI形式の配列）
- * @returns AIに送る指し手情報の配列
- */
 function buildBestMovesInfo(sfen: string, pv: string[]): MoveInfoForAi[] {
   const result: MoveInfoForAi[] = [];
   let currentBoard = sfenToBoard(sfen);
@@ -137,9 +100,7 @@ function buildBestMovesInfo(sfen: string, pv: string[]): MoveInfoForAi[] {
       perspective,
     });
 
-    // ユーザーは先手(SENTE)、AIは後手(GOTE)
     const turn = currentBoard.turn === "SENTE" ? "player" : "ai";
-
     result.push({ move, japanese, tags, turn });
     currentBoard = nextBoard;
   }
@@ -147,54 +108,32 @@ function buildBestMovesInfo(sfen: string, pv: string[]): MoveInfoForAi[] {
   return result;
 }
 
-/**
- * エラーメッセージでChatMessageを更新する
- *
- * @param chatMessageId - 更新対象のChatMessage ID
- * @param errorMessage - 表示するエラーメッセージ
- */
 async function updateChatMessageWithError(
   chatMessageId: string,
   errorMessage: string,
 ): Promise<void> {
-  await db.chatMessage.update({
-    where: { id: chatMessageId },
-    data: {
+  await db
+    .update(chatMessages)
+    .set({
       role: "ASSISTANT",
       contents: [{ type: "markdown", content: errorMessage }],
       isPartial: false,
-    },
-  });
+      updatedAt: new Date(),
+    })
+    .where(eq(chatMessages.id, chatMessageId));
 }
 
-/**
- * 評価値を正規化（先手視点に統一）
- *
- * @param scoreCp - センチポーン単位の評価値
- * @param turn - 手番（"b" = 先手、"w" = 後手）
- * @returns 先手視点に正規化された評価値、またはnull
- */
 function normalizeScore(scoreCp: number | null, turn: "b" | "w"): number | null {
   if (scoreCp === null) return null;
-  // 後手番の場合は符号を反転して先手視点に統一
   return turn === "w" ? -scoreCp : scoreCp;
 }
 
-/**
- * 感想戦を開始する
- *
- * 対局の全局面を分析し、ターニングポイント（評価値が大きく変動した箇所）を特定する。
- * 各ターニングポイントでの最善手とコメントを生成し、ChatMessageに保存する。
- *
- * @param context - Function Callingツールのコンテキスト
- */
 async function execute(context: AiFunctionCallingToolContext): Promise<void> {
   const { matchId, chatMessageId } = context;
 
   try {
-    // 対局情報を取得
-    const match = await db.match.findUnique({
-      where: { id: matchId },
+    const match = await db.query.matches.findFirst({
+      where: eq(matches.id, matchId),
     });
 
     if (!match) {
@@ -202,10 +141,9 @@ async function execute(context: AiFunctionCallingToolContext): Promise<void> {
       return;
     }
 
-    // 全局面を取得
-    const states = await db.matchState.findMany({
-      where: { matchId },
-      orderBy: { index: "asc" },
+    const states = await db.query.matchStates.findMany({
+      where: eq(matchStates.matchId, matchId),
+      orderBy: asc(matchStates.index),
     });
 
     if (states.length < 2) {
@@ -216,7 +154,6 @@ async function execute(context: AiFunctionCallingToolContext): Promise<void> {
       return;
     }
 
-    // AIでない人間プレイヤーの名前を収集
     const humanPlayers: string[] = [];
     if (match.senteType === "HUMAN" && match.playerSente) {
       humanPlayers.push(match.playerSente);
@@ -225,20 +162,19 @@ async function execute(context: AiFunctionCallingToolContext): Promise<void> {
       humanPlayers.push(match.playerGote);
     }
 
-    // ヘッダーメッセージを生成
     const playerNames =
       humanPlayers.length > 0 ? humanPlayers.map((name) => `${name}さん`).join("、") + "、" : "";
     const headerMessage = `${playerNames}感想戦を始めましょう。`;
 
-    // 進捗表示を更新
-    await db.chatMessage.update({
-      where: { id: chatMessageId },
-      data: {
+    await db
+      .update(chatMessages)
+      .set({
         role: "ASSISTANT",
         contents: [{ type: "markdown", content: `${headerMessage}\n\n局面を分析中...` }],
         isPartial: true,
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(eq(chatMessages.id, chatMessageId));
 
     const evaluations = await Promise.all(
       states.map(async (state) => {
@@ -254,9 +190,7 @@ async function execute(context: AiFunctionCallingToolContext): Promise<void> {
       }),
     );
 
-    // すでに勝敗が決まっている場合は、候補から除外
     const ignoreThreshold = 3000;
-    // 各局面間の評価値差分を計算（before, after, usi, indexの配列）
     const evalDiffs = evaluations.slice(1).reduce<EvalDiff[]>((acc, curr, i) => {
       const prev = evaluations[i];
 
@@ -268,13 +202,10 @@ async function execute(context: AiFunctionCallingToolContext): Promise<void> {
         Math.abs(prev.scoreCp) > ignoreThreshold &&
         curr.scoreCp * prev.scoreCp > 0
       ) {
-        // もう勝敗が決まっている場合は無視
         return acc;
       }
 
       const absDiff = Math.abs(diff);
-
-      // 悪手を指したのは前の局面の手番側
       const prevTurn = prev.sfen.split(" ")[1] as "b" | "w";
       const wasBlunder = prevTurn === "b" ? diff < 0 : diff > 0;
 
@@ -293,33 +224,29 @@ async function execute(context: AiFunctionCallingToolContext): Promise<void> {
       return acc;
     }, []);
 
-    /** 取得するターニングポイントの最大数 */
     const maxTurningPoints = 5;
     const topDiffs = takeMaxBy(evalDiffs, maxTurningPoints, "absDiff").sort(
       (a, b) => a.index - b.index,
     );
 
-    // AIにコメントを生成させるための情報を構築
     const turningPointsInfo: TurningPointInfoForAi[] = topDiffs.map((diff) => ({
       index: diff.index,
       evalDiff: diff.absDiff,
       bestMoves: buildBestMovesInfo(diff.sfen, diff.pv ?? []),
     }));
 
-    // 進捗表示を更新
-    await db.chatMessage.update({
-      where: { id: chatMessageId },
-      data: {
+    await db
+      .update(chatMessages)
+      .set({
         role: "ASSISTANT",
         contents: [{ type: "markdown", content: `${headerMessage}\n\n考え中...` }],
         isPartial: true,
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(eq(chatMessages.id, chatMessageId));
 
-    // AIでコメントを生成
     const aiComments = await generateTurningPointComments(turningPointsInfo);
 
-    // ターニングポイントを生成
     const turningPoints: TurningPoint[] = topDiffs.map((diff) => {
       const aiTp = aiComments.turningPoints.find((tp) => tp.index === diff.index);
 
@@ -337,26 +264,25 @@ async function execute(context: AiFunctionCallingToolContext): Promise<void> {
       };
     });
 
-    // 結果を生成
     const postGameAnalysisContent: PostGameAnalysisContent = {
       type: "postGameAnalysis",
       turningPoints,
     };
 
-    // 最終メッセージを生成
     const finalHeaderMessage =
       turningPoints.length > 0
         ? headerMessage
         : "この対局では大きなターニングポイントは見つかりませんでした。安定した対局でしたね。";
 
-    await db.chatMessage.update({
-      where: { id: chatMessageId },
-      data: {
+    await db
+      .update(chatMessages)
+      .set({
         role: "ASSISTANT",
         contents: [{ type: "markdown", content: finalHeaderMessage }, postGameAnalysisContent],
         isPartial: false,
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(eq(chatMessages.id, chatMessageId));
   } catch (error) {
     console.error("startPostGameAnalysis error:", error);
     await updateChatMessageWithError(

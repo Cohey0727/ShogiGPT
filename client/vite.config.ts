@@ -7,11 +7,10 @@ import path from "path";
 export default defineConfig({
   plugins: [
     vanillaExtractPlugin(),
-    react({
-      babel: {
-        plugins: [["babel-plugin-react-compiler"]],
-      },
-    }),
+    // @vitejs/plugin-react v6 では babel オプションが廃止され
+    // rolldown-vite のネイティブtransformに統合された。
+    // react-compiler は別途プラグインで組み込む想定。
+    react(),
   ],
   resolve: {
     preserveSymlinks: true,

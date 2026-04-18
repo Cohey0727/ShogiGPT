@@ -28,9 +28,6 @@ jobs:
       - name: Setup environment variables
         run: cp server/.env.example server/.env
 
-      - name: Generate Prisma client
-        run: cd server && bunx prisma generate
-
       - name: Run lint
         id: lint
         run: |

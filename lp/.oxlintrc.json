@@ -1,0 +1,42 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn"],
+  "categories": {
+    "correctness": "error"
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2022": true,
+    "serviceworker": true
+  },
+  "rules": {
+    "typescript/no-explicit-any": "off"
+  },
+  "ignorePatterns": [
+    "**/*.log",
+    "**/.DS_Store",
+    "**/.history",
+    "**/.yarn",
+    "**/bazel-*",
+    "**/dist",
+    "**/dist-dev",
+    "**/lib",
+    "**/lib-types",
+    "**/node_modules",
+    "**/temp",
+    "**/tsc-out",
+    "**/target",
+    "**/output",
+    "**/build",
+    "**/.cache",
+    "**/.vscode",
+    "**/.rollup.cache",
+    "**/tsconfig.tsbuildinfo",
+    "**/vite.config.ts",
+    "**/*.spec.tsx",
+    "**/*.spec.ts",
+    "**/.netlify",
+    "**/server"
+  ]
+}

@@ -73,7 +73,7 @@ export interface MatchWithRelations extends MatchDto {
 async function jsonFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${getApiBase()}${path}`, {
     ...init,
-    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
+    headers: { "Content-Type": "application/json", ...init?.headers },
   });
   if (!res.ok) {
     const text = await res.text().catch(() => "");
